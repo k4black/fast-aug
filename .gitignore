@@ -1,3 +1,10 @@
+.idea/
+.DS_Store
+
+# https://github.com/rust-lang/cargo/issues/315#issuecomment-51075730
+Cargo.lock
+
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
