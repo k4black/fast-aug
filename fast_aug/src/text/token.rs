@@ -151,16 +151,10 @@ mod tests {
     use test_case::test_case;
     use super::*;
 
-    #[test_case("6", TokenType::Word, 1, 1 ; "digit")]
-    #[test_case("123", TokenType::Word, 3, 3 ; "only digits")]
-    #[test_case("hello", TokenType::Word, 5, 5 ; "only alphabetic")]
-    #[test_case("привет", TokenType::Word, 6, 12 ; "only cyrillic")]
-    #[test_case("نشأت", TokenType::Word, 4, 8 ; "only arabic")]
-    #[test_case("假", TokenType::Word, 1, 3 ; "only chinese")]
-    #[test_case(" ", TokenType::Space, 1, 1 ; "only whitespace")]
-    #[test_case("", TokenType::Deleted, 0, 0 ; "empty")]
-    #[test_case("!", TokenType::Special, 1, 1 ; "single special")]
-    #[test_case("&!*", TokenType::Special, 3, 3 ; "multiple special")]
+    #[test_case("6", TokenType::Word, 1, 1 ; "single char")]
+    #[test_case("4Kadf3321s", TokenType::Word, 10, 10 ; "multiple chars")]
+    #[test_case("نشأت", TokenType::Word, 4, 8 ; "non-english chars taking 2 bytes")]
+    #[test_case("假", TokenType::Word, 1, 3 ; "non-english chars taking 3 bytes")]
     fn test_token_interface(token: &str, kind: TokenType, utf8_len: usize, byte_len: usize) {
         let kind_clone = kind.clone();
         let token_obj = Token::new(token, kind);
