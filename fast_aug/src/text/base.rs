@@ -3,7 +3,6 @@ use rand::prelude::IteratorRandom;
 use rand::thread_rng;
 use super::doc::Doc;
 use crate::base::BaseAugmenter;
-use crate::text::random_words_aug::RandomWordAugmenter;
 use crate::text::Token;
 
 /// Actions enum, which action BaseTextAugmenter will perform

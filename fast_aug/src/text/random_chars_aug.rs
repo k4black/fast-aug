@@ -1,10 +1,6 @@
 use std::collections::HashSet;
-use std::sync::Arc;
-use rand::prelude::{IteratorRandom, SliceRandom};
-use rand::seq::SliceChooseIter;
-use rand::thread_rng;
 use crate::base::BaseAugmenter;
-use crate::text::{Doc, TextAugmentParameters, Token, TokenType};
+use crate::text::{Doc, TextAugmentParameters};
 use super::base::{BaseTextAugmenter, TextAction};
 
 
@@ -43,7 +39,7 @@ impl BaseTextAugmenter for RandomCharsAugmenter {
     }
 
     // Not applicable
-    fn insert(&self, mut doc: Doc) -> Doc {
+    fn insert(&self, _doc: Doc) -> Doc {
         // TODO: chars insertion using alphabet
         panic!("Insert action is not applicable for RandomWordAugmenter");
     }
@@ -74,7 +70,7 @@ impl BaseTextAugmenter for RandomCharsAugmenter {
         doc
     }
 
-    fn substitute(&self, mut doc: Doc) -> Doc {
+    fn substitute(&self, _doc: Doc) -> Doc {
         // TODO: chars substitution using alphabet
         panic!("Insert action is not applicable for RandomWordAugmenter");
     }
@@ -122,9 +118,9 @@ mod tests {
     use crate::text::random_words_aug::RandomWordAugmenter;
     use super::*;
 
-    #[test_case(vec!["AAAA", "BBBB", "CCCC", "DDDD", "EEEE"], 0.5, 0.5, 3, 3)]
-    #[test_case(vec!["AAAA", "BBBB", "CCCC", "DDDD", "EEEE"], 0.0, 0.5, 0, 0)]
-    #[test_case(vec!["AAAA", "BBBB", "CCCC", "DDDD", "EEEE"], 0.5, 0.0, 0, 0)]
+    #[test_case(vec!["AAAA", "BBBB", "CCCC", "DDDD", "EEEE"], 0.5, 0.5, 3, 3 ; "round 2.5 as 3 words round 2.5 as 3 chars each")]
+    #[test_case(vec!["AAAA", "BBBB", "CCCC", "DDDD", "EEEE"], 0.0, 0.5, 0, 0 ; "delete chars in 0 words - no changes")]
+    #[test_case(vec!["AAAA", "BBBB", "CCCC", "DDDD", "EEEE"], 0.5, 0.0, 0, 0 ; "delete 0 chars - no changes")]
     fn test_delete(input_tokens: Vec<&str>, words_p: f32, chars_p: f32, expected_changed_words: usize, expected_doc_changes: usize) {
         let mut doc = Doc::from_tokens(input_tokens);
         let words_params = TextAugmentParameters::new(words_p, None, None);
@@ -155,9 +151,9 @@ mod tests {
         assert_eq!(num_changed_words, expected_changed_words);
     }
 
-    #[test_case(vec!["ABCD", "EFGH", "IJKL", "MNOP", "QRST"], 0.5, 0.5, 3)]
-    #[test_case(vec!["ABCD", "EFGH", "IJKL", "MNOP", "QRST"], 0.0, 0.5, 0)]
-    #[test_case(vec!["ABCD", "EFGH", "IJKL", "MNOP", "QRST"], 0.5, 0.0, 0)]
+    #[test_case(vec!["ABCD", "EFGH", "IJKL", "MNOP", "QRST"], 0.5, 0.5, 3 ; "round 2.5 as 3 words, round 2.5 as 3 chars each")]
+    #[test_case(vec!["ABCD", "EFGH", "IJKL", "MNOP", "QRST"], 0.0, 0.5, 0 ; "swap chars in 0 words - no changes")]
+    #[test_case(vec!["ABCD", "EFGH", "IJKL", "MNOP", "QRST"], 0.5, 0.0, 0 ; "swap 0 chars - no changes")]
     fn test_swap(input_tokens: Vec<&str>, words_p: f32, chars_p: f32, expected_doc_changes: usize) {
         let mut doc = Doc::from_tokens(input_tokens);
         let words_params = TextAugmentParameters::new(words_p, None, None);

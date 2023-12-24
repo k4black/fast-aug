@@ -1,5 +1,4 @@
 use std::collections::HashSet;
-use rand::thread_rng;
 use super::token::Token;
 use unicode_segmentation::UnicodeSegmentation;
 use crate::text::TokenType;
@@ -137,13 +136,13 @@ mod tests {
     use test_case::test_case;
     use super::*;
 
-    #[test_case("Hello, world!", vec!["Hello", ",", " ", "world", "!"])]
-    #[test_case("    Some\t\t    spaces", vec!["    ", "Some", "\t", "\t", "    ", "spaces"])]
-    #[test_case("Hello\u{200A}world", vec!["Hello", "\u{200A}", "world"])]
-    #[test_case("Лорем ипсум, юсто дицтас еи.", vec!["Лорем", " ", "ипсум", ",", " ", "юсто", " ", "дицтас", " ", "еи", "."])]
-    #[test_case("下姐，做兒采。", vec!["下", "姐", "，", "做", "兒", "采", "。"])]
-    #[test_case("قد فاتّبع وإعلان حدى. نقطة سقوط", vec!["قد", " ", "فاتّبع", " ", "وإعلان", " ", "حدى", ".", " ", "نقطة", " ", "سقوط"])]
-    #[test_case(".!@#$%^&*()_+", vec![".", "!", "@", "#", "$", "%", "^", "&", "*", "(", ")", "_", "+"])]
+    #[test_case("Hello, world!", vec!["Hello", ",", " ", "world", "!"] ; "latin script")]
+    #[test_case("    Some\t\t    spaces", vec!["    ", "Some", "\t", "\t", "    ", "spaces"] ; "complicated spaces")]
+    #[test_case("Hello\u{200A}world", vec!["Hello", "\u{200A}", "world"] ; "unicode spaces")]
+    #[test_case("Лорем ипсум, юсто дицтас еи.", vec!["Лорем", " ", "ипсум", ",", " ", "юсто", " ", "дицтас", " ", "еи", "."] ; "cyrillic script")]
+    #[test_case("下姐，做兒采。", vec!["下", "姐", "，", "做", "兒", "采", "。"] ; "chinese script")]
+    #[test_case("قد فاتّبع وإعلان حدى. نقطة سقوط", vec!["قد", " ", "فاتّبع", " ", "وإعلان", " ", "حدى", ".", " ", "نقطة", " ", "سقوط"] ; "arabic script")]
+    #[test_case(".!@#$%^&*()_+", vec![".", "!", "@", "#", "$", "%", "^", "&", "*", "(", ")", "_", "+"] ; "special characters")]
     fn test_docs_tokenizes_text(text: &str, tokens: Vec<&str>) {
         let doc = Doc::new(text);
         let expected_tokens = tokens.iter().map(|&token| Token::from_str(token)).collect::<Vec<Token>>();
@@ -151,8 +150,8 @@ mod tests {
         assert_eq!(doc.tokens, expected_tokens);
     }
 
-    #[test_case(vec!["Hello", ",", " ", "world", "!"])]
-    #[test_case(vec!["    ", "Some", "\t", "\t", "    ", "spaces"])]
+    #[test_case(vec!["Hello", ",", " ", "world", "!"] ; "latin script")]
+    #[test_case(vec!["    ", "Some", "\t", "\t", "    ", "spaces"] ; "complicated spaces")]
     fn test_docs_from_tokens(tokens: Vec<&str>) {
         let doc = Doc::from_tokens(tokens.clone());
         let expected_tokens = tokens.iter().map(|&token| Token::from_str(token)).collect::<Vec<Token>>();
@@ -160,25 +159,21 @@ mod tests {
         assert_eq!(doc.tokens, expected_tokens);
     }
 
-    #[test_case("Hello, world!")]
-    #[test_case("    Some\t\t    spaces")]
-    #[test_case("Hello\u{200A}world")]
-    #[test_case("Лорем ипсум, юсто дицтас еи.")]
-    #[test_case("下姐，做兒采。")]
-    #[test_case("قد فاتّبع وإعلان حدى. نقطة سقوط")]
-    #[test_case(".!@#$%^&*()_+")]
+    #[test_case("Hello, world!" ; "latin script")]
+    #[test_case("    Some\t\t    spaces" ; "complicated spaces")]
+    #[test_case("Hello\u{200A}world" ; "unicode spaces")]
+    #[test_case("Лорем ипсум, юсто дицтас еи." ; "cyrillic script")]
+    #[test_case("下姐，做兒采。" ; "chinese script")]
+    #[test_case("قد فاتّبع وإعلان حدى. نقطة سقوط" ; "arabic script")]
+    #[test_case(".!@#$%^&*()_+" ; "special characters")]
     fn test_to_string(text: &str) {
         let text_copy = text.to_string();
         let doc = Doc::new(text);
         assert_eq!(doc.to_string(), text_copy);
     }
 
-    #[test_case(vec!["Hello", ",", " ", "world", "!"], false, 2)]
-    #[test_case(vec!["Hello", ",", " ", "world", "!"], true, 4)]
-    #[test_case(vec!["下", "姐", "，", "做", "兒", "采", "。"], false, 5)]
-    #[test_case(vec!["下", "姐", "，", "做", "兒", "采", "。"], true, 7)]
-    #[test_case(vec!["قد", " ", "فاتّبع", " ", "وإعلان", " ", "حدى", ".", " ", "نقطة", " ", "سقوط"], false, 6)]
-    #[test_case(vec!["قد", " ", "فاتّبع", " ", "وإعلان", " ", "حدى", ".", " ", "نقطة", " ", "سقوط"], true, 7)]
+    #[test_case(vec!["A", ",", " ", "B", "!"], false, 2 ; "only words")]
+    #[test_case(vec!["A", ",", " ", "B", "!"], true, 4 ; "words with special chars")]
     fn test_word_tokens_count(tokens: Vec<&str>, include_special_char: bool, expected: usize) {
         let doc = Doc::from_tokens(tokens);
         assert_eq!(doc.get_word_tokens_count(include_special_char), expected);
@@ -194,11 +189,12 @@ mod tests {
         assert_eq!(word_tokens, expected);
     }
 
-    #[test_case(vec!["A", "B", "C", "D"], false, vec!["A"], vec![1, 2, 3])]
-    #[test_case(vec!["A", "B", "C", "D"], false, vec![], vec![0, 1, 2, 3])]
-    #[test_case(vec!["A", ",", " ", "B", "C", "!"], true, vec!["A", "B"], vec![1, 4, 5])]
-    #[test_case(vec!["A", ",", " ", "B", "C", "!"], false, vec!["A", "B"], vec![4])]
-    #[test_case(vec!["A", "B", "C", "D"], true, vec!["A", "B", "C", "D"], vec![])]
+    #[test_case(vec!["A", "B", "C", "D"], false, vec!["A"], vec![1, 2, 3] ; "only words filter single word")]
+    #[test_case(vec!["A", "B", "C", "D"], false, vec![], vec![0, 1, 2, 3] ; "only words filter empty")]
+    #[test_case(vec!["A", ",", " ", "B", "C", "!"], true, vec!["A", "B"], vec![1, 4, 5] ; "words with special chars filter multiple")]
+    #[test_case(vec!["A", ",", " ", "B", "C", "!"], false, vec!["A", "B"], vec![4] ; "filter existing")]
+    #[test_case(vec!["A", ",", " ", "B", "C", "!"], false, vec!["C", "E", "R"], vec![0, 3] ; "filter not existing")]
+    #[test_case(vec!["A", "B", "C", "D"], true, vec!["A", "B", "C", "D", "F"], vec![] ; "all words filter all")]
     fn test_get_word_indexes_without_stopwords(tokens: Vec<&str>, include_special_char: bool, stopwords: Vec<&str>, expected: Vec<usize>) {
         let stopwords = stopwords.iter().map(|&token| token.to_string()).collect::<HashSet<String>>();
         let mut doc = Doc::from_tokens(tokens);
