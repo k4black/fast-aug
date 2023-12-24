@@ -1,0 +1,21 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "fast-aug"
+version = "0.0.1"
+authors = [
+  { name="Konstantin Chernyshev", email="kdchernyshev@gmail.com" },
+]
+description = "Fast nlp augmentation library with rust backend"
+readme = "README.md"
+requires-python = ">=3.8"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Development Status :: 1 - Planning",
+    "License :: OSI Approved :: MIT License",
+]
+
+[project.urls]
+Homepage = "https://github.com/k4black/fast-aug"
