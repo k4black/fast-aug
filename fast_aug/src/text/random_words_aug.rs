@@ -1,10 +1,6 @@
 use std::collections::HashSet;
-use std::sync::Arc;
-use rand::prelude::{IteratorRandom, SliceRandom};
-use rand::seq::SliceChooseIter;
-use rand::thread_rng;
 use crate::base::BaseAugmenter;
-use crate::text::{Doc, TextAugmentParameters, Token, TokenType};
+use crate::text::{Doc, TextAugmentParameters, TokenType};
 use super::base::{BaseTextAugmenter, TextAction};
 
 
@@ -39,7 +35,7 @@ impl BaseTextAugmenter for RandomWordAugmenter {
     }
 
     // Not applicable
-    fn insert(&self, mut doc: Doc) -> Doc {
+    fn insert(&self, _doc: Doc) -> Doc {
         panic!("Insert action is not applicable for RandomWordAugmenter");
     }
 
@@ -59,7 +55,7 @@ impl BaseTextAugmenter for RandomWordAugmenter {
         doc
     }
 
-    fn substitute(&self, mut doc: Doc) -> Doc {
+    fn substitute(&self, _doc: Doc) -> Doc {
         panic!("Insert action is not applicable for RandomWordAugmenter");
     }
 
@@ -104,12 +100,12 @@ mod tests {
     use test_case::test_case;
     use super::*;
 
-    #[test_case(vec!["A", "B", "C", "D", "E"], 0.5, 3, 3)]
-    #[test_case(vec!["A", "B", "C", "D", "E", "D"], 0.5, 3, 3)]
-    #[test_case(vec!["\t", "B", " ", "D", "!"], 0.5, 1, 1)]
-    #[test_case(vec!["\t", "B", " ", "D", "!"], 0.1, 1, 1)]
-    #[test_case(vec!["\t", "B", " ", "D", "!"], 0.0, 0, 0)]
-    #[test_case(vec!["\t", "!", " ", "-", "!"], 0.5, 0, 0)]
+    #[test_case(vec!["A", "B", "C", "D", "E"], 0.5, 3, 3 ; "round 2.5 as 3 of 5")]
+    #[test_case(vec!["A", "B", "C", "D", "E", "D"], 0.5, 3, 3 ; "3 of 6")]
+    #[test_case(vec!["\t", "B", " ", "D", "!"], 0.5, 1, 1 ; "1 word")]
+    #[test_case(vec!["\t", "B", " ", "D", "!"], 0.1, 1, 1 ; "round 0.05 as 1 word")]
+    #[test_case(vec!["\t", "B", " ", "D", "!"], 0.0, 0, 0 ; "delete probability=0")]
+    #[test_case(vec!["\t", "!", " ", "-", "!"], 0.5, 0, 0 ; "no words in input")]
     fn test_delete(input_tokens: Vec<&str>, p: f32, expected_deleted_tokens: usize, expected_doc_changes: usize) {
         let mut doc = Doc::from_tokens(input_tokens);
         let params = TextAugmentParameters::new(p, None, None);
@@ -131,10 +127,10 @@ mod tests {
         }
     }
 
-    #[test_case(vec!["A", "B", "C", "D", "E"], 0.5, 3)]
-    #[test_case(vec!["A", "B", "C", "D", "E", "D"], 0.5, 3)]
-    #[test_case(vec!["\t", "B", " ", "D", "!"], 0.5, 0)]
-    #[test_case(vec!["\t", "B", " ", "D", "!"], 0.1, 0)]
+    #[test_case(vec!["A", "B", "C", "D", "E"], 0.5, 3 ; "round 2.5 as 3 of 5")]
+    #[test_case(vec!["A", "B", "C", "D", "E", "D"], 0.5, 3 ; "3 of 6 words")]
+    #[test_case(vec!["\t", "B", " ", "D", "!"], 0.5, 0 ; "1 word no swaps")]
+    #[test_case(vec!["\t", "B", " ", "D", "!"], 0.1, 0  ; "round 0.2 as 1 no swaps")]
     fn test_swap(input_tokens: Vec<&str>, p: f32, expected_doc_changes: usize) {
         let mut doc = Doc::from_tokens(input_tokens);
         let params = TextAugmentParameters::new(p, None, None);

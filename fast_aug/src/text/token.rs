@@ -94,6 +94,7 @@ impl Token {
     ///   only special -> Special
     ///   else -> Word
     /// Fastest speed
+    #[allow(dead_code, unused_variables, unreachable_code)]
     fn classify_token_by_first_chart(token: &str) -> TokenType {
         panic!("Not implemented");
         match token.chars().next() {
@@ -110,6 +111,7 @@ impl Token {
     ///   space regex -> Space
     ///   else -> Special
     /// Slowest speed
+    #[allow(dead_code, unused_variables, unreachable_code)]
     fn classify_token_by_regex(token: &str, re_word: &Regex, re_space: &Regex) -> TokenType {
         panic!("Not implemented");
         if token.is_empty() {
@@ -149,14 +151,16 @@ mod tests {
     use test_case::test_case;
     use super::*;
 
-    #[test_case("123", TokenType::Word, 3, 3)]
-    #[test_case("hello", TokenType::Word, 5, 5)]
-    #[test_case("привет", TokenType::Word, 6, 12)]
-    #[test_case("نشأت", TokenType::Word, 4, 8)]
-    #[test_case("假", TokenType::Word, 1, 3)]
-    #[test_case(" ", TokenType::Space, 1, 1)]
-    #[test_case("", TokenType::Deleted, 0, 0)]
-    #[test_case("!", TokenType::Special, 1, 1)]
+    #[test_case("6", TokenType::Word, 1, 1 ; "digit")]
+    #[test_case("123", TokenType::Word, 3, 3 ; "only digits")]
+    #[test_case("hello", TokenType::Word, 5, 5 ; "only alphabetic")]
+    #[test_case("привет", TokenType::Word, 6, 12 ; "only cyrillic")]
+    #[test_case("نشأت", TokenType::Word, 4, 8 ; "only arabic")]
+    #[test_case("假", TokenType::Word, 1, 3 ; "only chinese")]
+    #[test_case(" ", TokenType::Space, 1, 1 ; "only whitespace")]
+    #[test_case("", TokenType::Deleted, 0, 0 ; "empty")]
+    #[test_case("!", TokenType::Special, 1, 1 ; "single special")]
+    #[test_case("&!*", TokenType::Special, 3, 3 ; "multiple special")]
     fn test_token_interface(token: &str, kind: TokenType, utf8_len: usize, byte_len: usize) {
         let kind_clone = kind.clone();
         let token_obj = Token::new(token, kind);
@@ -166,10 +170,10 @@ mod tests {
         assert_eq!(token_obj.byte_len(), byte_len);
     }
 
-    #[test_case("123", TokenType::Word, "456", TokenType::Word)]
-    #[test_case("hello", TokenType::Word, "world", TokenType::Word)]
-    #[test_case("don't", TokenType::Word, "", TokenType::Deleted)]
-    #[test_case("!", TokenType::Special, "word", TokenType::Word)]
+    #[test_case("123", TokenType::Word, "456", TokenType::Word ; "digits to digits")]
+    #[test_case("hello", TokenType::Word, "world", TokenType::Word ; "alphabetic to alphabetic")]
+    #[test_case("don't", TokenType::Word, "", TokenType::Deleted ; "word with apostrophe to empty")]
+    #[test_case("!", TokenType::Special, "word", TokenType::Word ; "special to alphabetic")]
     fn test_change_token(token: &str, kind: TokenType, new_token: &str, new_kind: TokenType) {
         let target_token = Token::new(new_token, new_kind.clone());
         let mut token_obj = Token::new(token, kind);
@@ -178,18 +182,20 @@ mod tests {
     }
 
 
-    #[test_case("123", TokenType::Special)]
-    #[test_case("hello", TokenType::Word)]
-    #[test_case("don't", TokenType::Word)]
-    #[test_case("'cause", TokenType::Word)]
-    #[test_case("привет", TokenType::Word)]
-    #[test_case("نشأت", TokenType::Word)]
-    #[test_case("假", TokenType::Word)]
-    #[test_case(" ", TokenType::Space)]
-    #[test_case("", TokenType::Deleted)]
-    #[test_case("!", TokenType::Special)]
-    #[test_case("\t", TokenType::Space)]
-    #[test_case("\n", TokenType::Space)]
+    #[test_case("6", TokenType::Special ; "single digit")]
+    #[test_case("123", TokenType::Special ; "only digits")]
+    #[test_case("hello", TokenType::Word ; "only alphabetic")]
+    #[test_case("don't", TokenType::Word ; "word with apostrophe")]
+    #[test_case("'cause", TokenType::Word ; "word with starting apostrophe")]
+    #[test_case("привет", TokenType::Word ; "only cyrillic")]
+    #[test_case("نشأت", TokenType::Word ; "only arabic")]
+    #[test_case("假", TokenType::Word ; "only chinese")]
+    #[test_case(" ", TokenType::Space ; "only whitespace")]
+    #[test_case("", TokenType::Deleted ; "empty")]
+    #[test_case("!", TokenType::Special ; "single special")]
+    #[test_case("&!*", TokenType::Special ; "multiple special")]
+    #[test_case("\t", TokenType::Space ; "tab")]
+    #[test_case("\n", TokenType::Space ; "newline")]
     fn test_token_classification(token: &str, kind: TokenType) {
         // Using method
         let kind_all = Token::classify_token_by_any_chars(token);
