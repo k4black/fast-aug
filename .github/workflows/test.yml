@@ -48,7 +48,7 @@ jobs:
           key: ${{ runner.os }}-rust-${{ hashFiles('**/Cargo.toml') }}
       - name: Run benchmarks
         working-directory: ./fast_aug  # rust library directory
-        run: cargo bench | tee /tmp/benchmark.txt
+        run: cargo bench --message-format=json | tee benchmark.json
       - name: Download previous benchmark data
         uses: actions/cache@v1
         with:
@@ -59,7 +59,7 @@ jobs:
         with:
           name: Rust Benchmark
           tool: 'cargo'
-          output-file-path: /tmp/benchmark.txt
+          output-file-path: fast_aug/benchmark.json
           external-data-json-path: /tmp/cache/benchmark-data.json
           github-token: ${{ secrets.GITHUB_TOKEN }}
           # Show alert with commit comment on detecting possible performance regression
