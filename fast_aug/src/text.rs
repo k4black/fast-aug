@@ -3,10 +3,10 @@ mod doc;
 mod token;
 mod spelling;
 mod parameters;
-pub mod random_words_aug;
-pub mod random_chars_aug;
+mod random_words_aug;
+mod random_chars_aug;
 
 pub use base::{BaseTextAugmenter, TextAction};
-pub use doc::Doc;
-pub use token::{Token, TokenType};
+pub use random_words_aug::RandomWordsAugmenter;
+pub use random_chars_aug::RandomCharsAugmenter;
 pub use parameters::TextAugmentParameters;

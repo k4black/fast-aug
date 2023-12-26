@@ -1,7 +1,6 @@
 use std::collections::HashSet;
-use super::token::Token;
+use super::token::{Token, TokenType};
 use unicode_segmentation::UnicodeSegmentation;
-use crate::text::TokenType;
 
 
 /// Doc struct holds content as a list of tokens.

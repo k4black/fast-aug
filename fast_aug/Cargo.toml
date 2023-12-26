@@ -7,12 +7,21 @@ edition = "2021"
 name = "fast_aug"
 path = "src/lib.rs"
 
+
 [dependencies]
 rand = "0.8.5"
 regex = "1.10.2"
 unicode-segmentation = "1.10.1"  # think about moving to https://crates.io/crates/finl_unicode
 lipsum = "0.9.0"
+reqwest = { version = "0.11", features = ["blocking"] }
 #pyo3 = { version = "0.20.0", features = ["extension-module"] }
 
 [dev-dependencies]
 test-case = "3.3.1"
+criterion = "0.5.1"
+#parquet = { version = "49.0.0", features = ["arrow"] }
+
+
+[[bench]]
+name = "text"
+harness = false

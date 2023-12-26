@@ -1,6 +1,6 @@
 use lipsum::lipsum_words;
 use fast_aug::text::{BaseTextAugmenter, TextAction};
-use fast_aug::text::random_chars_aug::RandomCharsAugmenter;
+use fast_aug::text::RandomCharsAugmenter;
 use fast_aug::text::TextAugmentParameters;
 
 

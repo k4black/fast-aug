@@ -1,10 +1,12 @@
 use std::collections::HashSet;
 use crate::base::BaseAugmenter;
-use crate::text::{Doc, TextAugmentParameters, TokenType};
+use super::doc::Doc;
+use super::token::TokenType;
+use super::parameters::TextAugmentParameters;
 use super::base::{BaseTextAugmenter, TextAction};
 
 
-pub struct RandomWordAugmenter {
+pub struct RandomWordsAugmenter {
     /// Action to augmentation, set of values {'substitute', 'swap', 'delete'}
     action: TextAction,
     /// Parameters to calculate number of words that will be augmented
@@ -14,13 +16,13 @@ pub struct RandomWordAugmenter {
 }
 
 
-impl RandomWordAugmenter {
+impl RandomWordsAugmenter {
     pub fn new(
         action: TextAction,
         aug_params_word: TextAugmentParameters,
         stopwords: Option<HashSet<String>>,
     ) -> Self {
-        RandomWordAugmenter {
+        RandomWordsAugmenter {
             action,
             aug_params_word,
             stopwords,
@@ -29,7 +31,7 @@ impl RandomWordAugmenter {
 }
 
 
-impl BaseTextAugmenter for RandomWordAugmenter {
+impl BaseTextAugmenter for RandomWordsAugmenter {
     fn action(&self) -> &TextAction {
         &self.action
     }
@@ -88,7 +90,7 @@ impl BaseTextAugmenter for RandomWordAugmenter {
 }
 
 
-impl BaseAugmenter<String> for RandomWordAugmenter {
+impl BaseAugmenter<String> for RandomWordsAugmenter {
     fn augment(&self, input: String) -> String {
         BaseTextAugmenter::augment(self, input)
     }
@@ -109,7 +111,7 @@ mod tests {
     fn test_delete(input_tokens: Vec<&str>, p: f32, expected_deleted_tokens: usize, expected_doc_changes: usize) {
         let mut doc = Doc::from_tokens(input_tokens);
         let params = TextAugmentParameters::new(p, None, None);
-        let aug = RandomWordAugmenter::new(TextAction::Delete, params, None);
+        let aug = RandomWordsAugmenter::new(TextAction::Delete, params, None);
 
         let doc_tokens_before = doc.tokens.clone();
 
@@ -134,7 +136,7 @@ mod tests {
     fn test_swap(input_tokens: Vec<&str>, p: f32, expected_doc_changes: usize) {
         let mut doc = Doc::from_tokens(input_tokens);
         let params = TextAugmentParameters::new(p, None, None);
-        let aug = RandomWordAugmenter::new(TextAction::Swap, params, None);
+        let aug = RandomWordsAugmenter::new(TextAction::Swap, params, None);
 
         let doc_tokens_before = doc.tokens.clone();
 
