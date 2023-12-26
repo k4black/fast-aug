@@ -3,7 +3,7 @@ use rand::prelude::IteratorRandom;
 use rand::thread_rng;
 use super::doc::Doc;
 use crate::base::BaseAugmenter;
-use crate::text::Token;
+use super::token::Token;
 
 /// Actions enum, which action BaseTextAugmenter will perform
 #[derive(Clone, Copy, PartialEq, Debug)]

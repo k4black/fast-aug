@@ -1,6 +1,7 @@
 use std::collections::HashSet;
 use crate::base::BaseAugmenter;
-use crate::text::{Doc, TextAugmentParameters};
+use super::doc::Doc;
+use super::parameters::TextAugmentParameters;
 use super::base::{BaseTextAugmenter, TextAction};
 
 
@@ -115,7 +116,7 @@ impl BaseAugmenter<String> for RandomCharsAugmenter {
 #[cfg(test)]
 mod tests {
     use test_case::test_case;
-    use crate::text::random_words_aug::RandomWordAugmenter;
+    use crate::text::random_words_aug::RandomWordsAugmenter;
     use super::*;
 
     #[test_case(vec!["AAAA", "BBBB", "CCCC", "DDDD", "EEEE"], 0.5, 0.5, 3, 3 ; "round 2.5 as 3 words round 2.5 as 3 chars each")]
@@ -184,6 +185,4 @@ mod tests {
         }
         assert_eq!(num_changed_words, expected_doc_changes);
     }
-
 }
-
