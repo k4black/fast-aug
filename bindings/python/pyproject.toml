@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "fast-aug"
-version = "0.0.1"
+version = "0.0.2"
 authors = [
   { name="Konstantin Chernyshev", email="kdchernyshev@gmail.com" },
 ]

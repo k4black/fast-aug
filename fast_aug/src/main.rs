@@ -1,11 +1,10 @@
-use lipsum::lipsum_words;
 use fast_aug::text::{BaseTextAugmenter, TextAction};
 use fast_aug::text::RandomCharsAugmenter;
 use fast_aug::text::TextAugmentParameters;
 
 
 fn main() {
-    let words = lipsum_words(10);
+    let words = "Hello, world!".to_string();
 
     // Time it
     let start = std::time::Instant::now();
