@@ -34,8 +34,7 @@ impl Token {
     ///
     /// # Examples
     /// ```rust
-    /// use fast_aug::text::Token;
-    /// use fast_aug::text::TokenType;
+    /// use fast_aug::text::token::{Token, TokenType};
     ///
     /// let token = Token::from_str("Hello");
     /// assert_eq!(token.kind(), &TokenType::Word);
