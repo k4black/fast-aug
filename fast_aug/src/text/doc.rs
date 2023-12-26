@@ -20,8 +20,8 @@ impl Doc {
     ///
     /// # Examples
     /// ```rust
-    /// use fast_aug::text::Doc;
-    /// use fast_aug::text::Token;
+    /// use fast_aug::text::doc::Doc;
+    /// use fast_aug::text::token::Token;
     ///
     /// let doc = Doc::new("Hello,  world!");
     /// let expected_tokens = vec!["Hello", ",", "  ", "world", "!"].iter().map(|&token| Token::from_str(token)).collect::<Vec<Token>>();
@@ -43,8 +43,8 @@ impl Doc {
     ///
     /// # Examples
     /// ```rust
-    /// use fast_aug::text::Doc;
-    /// use fast_aug::text::Token;
+    /// use fast_aug::text::doc::Doc;
+    /// use fast_aug::text::token::Token;
     ///
     /// let doc = Doc::from_tokens(vec!["Hello", ",", "  ", "world", "!"]);
     /// let expected_tokens = vec!["Hello", ",", "  ", "world", "!"].iter().map(|&token| Token::from_str(token)).collect::<Vec<Token>>();

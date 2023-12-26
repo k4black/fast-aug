@@ -1,6 +1,6 @@
 mod base;
-mod doc;
-mod token;
+pub mod doc;
+pub mod token;
 mod spelling;
 mod parameters;
 mod random_words_aug;
