@@ -105,7 +105,7 @@ impl TextAugmentParameters {
         }
 
         // Randomly select indexes from the input vector
-        let mut selected_elements: Vec<usize> = element_indexes
+        let selected_elements: Vec<usize> = element_indexes
             .choose_multiple(&mut rng, num_elements)
             .cloned()
             .collect();
