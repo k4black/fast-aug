@@ -70,6 +70,10 @@ impl Doc {
         self.tokens.len()
     }
 
+    pub fn is_empty(&self) -> bool {
+        self.tokens.is_empty()
+    }
+
     /// Convert Doc to string
     pub fn to_string(&self) -> String {
         self.tokens.iter().map(|token| token.token().as_str()).collect::<Vec<&str>>().join("")
