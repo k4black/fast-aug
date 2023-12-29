@@ -4,7 +4,7 @@ use fast_aug::text::TextAugmentParameters;
 
 
 fn main() {
-    let words = "Hello, world!".to_string();
+    let words = "Hello, world! Today i will show you how to use fast_aug library. It's very simple! Just create RandomCharsAugmenter and call augment method. That's all!".to_string();
 
     // Time it
     let start = std::time::Instant::now();
@@ -14,7 +14,10 @@ fn main() {
 
     let aug = RandomCharsAugmenter::new(TextAction::Delete, words_params, chars_params, None);
 
-    let output = aug.augment(words.clone());
+    let mut output = String::new();
+    for _ in 0..1000 {
+        output = aug.augment(words.clone());
+    }
 
     let elapsed = start.elapsed();
 

@@ -106,7 +106,7 @@ fn benchmark_individual_augmenters(c: &mut Criterion) {
 // Define the groups using the functions
 criterion_group!{
     name = benches;
-    config = Criterion::default().sample_size(20);
+    config = Criterion::default().sample_size(10).measurement_time(std::time::Duration::from_secs(10)).significance_level(0.01);
     targets = benchmark_individual_augmenters //, benchmark_pipeline
 }
 criterion_main!(benches);

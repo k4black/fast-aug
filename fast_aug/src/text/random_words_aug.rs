@@ -44,7 +44,7 @@ impl BaseTextAugmenter for RandomWordsAugmenter {
     fn delete(&self, mut doc: Doc) -> Doc {
         // Select random word tokens
         let word_tokens_indexes = doc.get_word_indexes(false, self.stopwords.as_ref());
-        let selected_tokens_indexes = self.aug_params_word.select_random_element_indexes(word_tokens_indexes, false);
+        let selected_tokens_indexes = self.aug_params_word.select_random_element_indexes(word_tokens_indexes);
 
         // For all selected tokens set TokenType::Deleted
         let mut num_changes = 0;
@@ -64,7 +64,7 @@ impl BaseTextAugmenter for RandomWordsAugmenter {
     fn swap(&self, mut doc: Doc) -> Doc {
         // Select random word tokens (shuffle selected tokens to make swaps)
         let word_tokens_indexes = doc.get_word_indexes(false, self.stopwords.as_ref());
-        let selected_tokens_indexes = self.aug_params_word.select_random_element_indexes(word_tokens_indexes, true);
+        let selected_tokens_indexes = self.aug_params_word.select_random_element_indexes(word_tokens_indexes);
 
         // For all selected tokens swap pairs
         // As shuffled we can swap adjacent pairs (using chunks)
