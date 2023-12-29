@@ -1,8 +1,11 @@
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
 use fast_aug::text::*;
+use fast_aug::flow::*;
 use std::fs::File;
 use std::io::{self, BufRead};
 use std::path::Path;
+use std::sync::Arc;
+use fast_aug::base::BaseAugmenter;
 
 
 const BENCHMARK_DATASET_PATH: &str = "data/tweet_eval_sentiment_train_text.txt";
@@ -82,31 +85,100 @@ fn benchmark_individual_augmenters(c: &mut Criterion) {
     // Add similar sections here for RandomCharsAugmenter, etc.
 }
 
-// fn benchmark_pipeline(c: &mut Criterion) {
-//     let input_text = "Some string".to_string();
-//
-//     c.bench_function("TextAugmentationPipeline", |b| {
-//         b.iter(|| {
-//             // Construct your pipeline here
-//             // For example, assume you have a pipeline that takes augmenters:
-//             let pipeline = MyPipeline::new() // Hypothetical pipeline construct
-//                 .add(RandomWordsAugmenter::new(
-//                     TextAction::Swap,
-//                     TextAugmentParameters::new(0.5, None, None),
-//                     None,
-//                 ))
-//                 // ... add other augmenters as needed ...
-//                 ;
-//
-//             black_box(pipeline.augment(input_text.clone())); // Apply the pipeline
-//         });
-//     });
-// }
+fn benchmark_flow(c: &mut Criterion) {
+    // Load dataset
+    let text_data = load_txt_to_string_vector(BENCHMARK_DATASET_PATH).expect("Unable to load dataset");
+
+    // Benchmark pipelines
+    c.bench_function("SequentialAugmenter", |b| {
+        b.iter(|| {
+            let aug_1 = RandomWordsAugmenter::new(
+                TextAction::Swap,
+                TextAugmentParameters::new(0.5, None, None),
+                None,
+            );
+            let aug_2 = RandomCharsAugmenter::new(
+                TextAction::Swap,
+                TextAugmentParameters::new(0.5, Some(2), Some(5)),
+                TextAugmentParameters::new(0.5, None, None),
+                None,
+            );
+            let aug_3 = RandomWordsAugmenter::new(
+                TextAction::Delete,
+                TextAugmentParameters::new(0.5, None, None),
+                None,
+            );
+            let aug_4 = RandomCharsAugmenter::new(
+                TextAction::Delete,
+                TextAugmentParameters::new(0.5, None, None),
+                TextAugmentParameters::new(0.5, Some(1), Some(2)),
+                None,
+            );
+            let pipeline = SequentialAugmenter::new(vec![
+                Arc::new(aug_1),
+                Arc::new(aug_2),
+                Arc::new(aug_3),
+                Arc::new(aug_4),
+            ]);
+            for text in text_data.iter() {
+                black_box(pipeline.augment(text.clone()));
+            }
+        });
+    });
+    c.bench_function("SelectorAugmenter", |b| {
+        b.iter(|| {
+            let aug_1 = RandomWordsAugmenter::new(
+                TextAction::Swap,
+                TextAugmentParameters::new(0.5, None, None),
+                None,
+            );
+            let aug_2 = RandomCharsAugmenter::new(
+                TextAction::Swap,
+                TextAugmentParameters::new(0.5, Some(2), Some(5)),
+                TextAugmentParameters::new(0.5, None, None),
+                None,
+            );
+            let aug_3 = RandomWordsAugmenter::new(
+                TextAction::Delete,
+                TextAugmentParameters::new(0.5, None, None),
+                None,
+            );
+            let aug_4 = RandomCharsAugmenter::new(
+                TextAction::Delete,
+                TextAugmentParameters::new(0.5, None, None),
+                TextAugmentParameters::new(0.5, Some(1), Some(2)),
+                None,
+            );
+            let pipeline = SelectorAugmenter::new(vec![
+                Arc::new(aug_1),
+                Arc::new(aug_2),
+                Arc::new(aug_3),
+                Arc::new(aug_4),
+            ], None);
+            for text in text_data.iter() {
+                black_box(pipeline.augment(text.clone()));
+            }
+        });
+    });
+    c.bench_function("ChanceAugmenter", |b| {
+        b.iter(|| {
+            let aug = RandomWordsAugmenter::new(
+                TextAction::Swap,
+                TextAugmentParameters::new(0.5, None, None),
+                None,
+            );
+            let pipeline = ChanceAugmenter::new(Arc::new(aug), 0.5);
+            for text in text_data.iter() {
+                black_box(pipeline.augment(text.clone()));
+            }
+        });
+    });
+}
 
 // Define the groups using the functions
 criterion_group!{
     name = benches;
     config = Criterion::default().sample_size(10).measurement_time(std::time::Duration::from_secs(10)).significance_level(0.01);
-    targets = benchmark_individual_augmenters //, benchmark_pipeline
+    targets = benchmark_individual_augmenters, benchmark_flow
 }
 criterion_main!(benches);

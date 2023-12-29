@@ -15,29 +15,7 @@ pub enum TextAction {
 }
 
 
-pub trait BaseTextAugmenter: BaseAugmenter<String> {
-    fn action(&self) -> &TextAction;
-
-    /// Public method to augment an input string
-    /// 1. Convert input string to Doc
-    /// 2. Perform augmentation on Doc
-    /// 3. Convert augmented Doc to string
-    fn augment(&self, input: String) -> String {
-        let doc = Doc::new(&input);
-        let output = match self.action() {
-            TextAction::Insert => self.insert(doc),
-            TextAction::Delete => self.delete(doc),
-            TextAction::Substitute => self.substitute(doc),
-            TextAction::Swap => self.swap(doc),
-        };
-        output.to_string()
-    }
-    
-    fn insert(&self, doc: Doc) -> Doc;
-    fn delete(&self, doc: Doc) -> Doc;
-    fn substitute(&self, doc: Doc) -> Doc;
-    fn swap(&self, doc: Doc) -> Doc;
-
+pub trait BaseTextAugmenter: BaseAugmenter<String,Doc> {
 
     /// Select random word tokens to augment given a number of elements
     /// Returns a vector of tuples (index, &mut token)
@@ -71,4 +49,3 @@ pub trait BaseTextAugmenter: BaseAugmenter<String> {
             .choose_multiple(&mut rng, num_elements)
     }
 }
-

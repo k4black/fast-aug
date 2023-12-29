@@ -30,7 +30,6 @@ unicode-segmentation = "1.10"  # think about moving to https://crates.io/crates/
 [dev-dependencies]
 test-case = "3.3"
 criterion = "0.5"
-grcov = "0.8"
 
 
 [[bench]]

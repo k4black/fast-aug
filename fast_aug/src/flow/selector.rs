@@ -3,32 +3,42 @@ use rand::{Rng, thread_rng};
 use rand::distributions::{Distribution, WeightedIndex};
 use crate::base::BaseAugmenter;
 
-pub struct SelectorAugmenter<T> {
+pub struct SelectorAugmenter<T,K> {
     /// The augmenters to choose one from
     /// Added Send + Sync for multi-threading safety
-    augmenters: Vec<Arc<dyn BaseAugmenter<T> + Send + Sync>>,
+    augmenters: Vec<Arc<dyn BaseAugmenter<T,K> + Send + Sync>>,
     /// Optional weights for each augmenter
     /// If None, uniform probability is used
     weights: Option<Vec<f64>>,
 }
 
-impl<T> SelectorAugmenter<T> {
-    pub fn new(augmenters: Vec<Arc<dyn BaseAugmenter<T> + Send + Sync>>, weights: Option<Vec<f64>>) -> Self {
+impl<T,K> SelectorAugmenter<T,K> {
+    pub fn new(augmenters: Vec<Arc<dyn BaseAugmenter<T,K> + Send + Sync>>, weights: Option<Vec<f64>>) -> Self {
+        if augmenters.is_empty() {
+            panic!("SelectorAugmenter must have at least one augmenter");
+        }
         SelectorAugmenter { augmenters, weights }
     }
 }
 
-impl<T> BaseAugmenter<T> for SelectorAugmenter<T> {
-    fn augment(&self, input: T) -> T {
+impl<T,K> BaseAugmenter<T,K> for SelectorAugmenter<T,K> {
+    fn augment_inner(&self, input: K) -> K {
         let mut rng = thread_rng();
         if let Some(weights) = &self.weights {
             let augmenter_index = WeightedIndex::new(weights).unwrap().sample(&mut rng);
-            self.augmenters[augmenter_index].augment(input)
+            self.augmenters[augmenter_index].augment_inner(input)
         } else {
             let augmenter_index = rng.gen_range(0..self.augmenters.len());
-            self.augmenters[augmenter_index].augment(input)
+            self.augmenters[augmenter_index].augment_inner(input)
         }
+    }
 
+    fn convert_to_inner(&self, input: T) -> K {
+        self.augmenters[0].convert_to_inner(input)
+    }
+
+    fn convert_to_outer(&self, input: K) -> T {
+        self.augmenters[0].convert_to_outer(input)
     }
 }
 #[cfg(test)]
@@ -38,17 +48,29 @@ mod tests {
 
     struct DummyMultiplyAugmenter;
 
-    impl BaseAugmenter<i32> for DummyMultiplyAugmenter {
-        fn augment(&self, input: i32) -> i32 {
+    impl BaseAugmenter<i32,i32> for DummyMultiplyAugmenter {
+        fn augment_inner(&self, input: i32) -> i32 {
             input * 2
+        }
+        fn convert_to_inner(&self, input: i32) -> i32 {
+            input
+        }
+        fn convert_to_outer(&self, input: i32) -> i32 {
+            input
         }
     }
 
     struct DummyAddAugmenter;
 
-    impl BaseAugmenter<i32> for DummyAddAugmenter {
-        fn augment(&self, input: i32) -> i32 {
+    impl BaseAugmenter<i32,i32> for DummyAddAugmenter {
+        fn augment_inner(&self, input: i32) -> i32 {
             input + 1
+        }
+        fn convert_to_inner(&self, input: i32) -> i32 {
+            input
+        }
+        fn convert_to_outer(&self, input: i32) -> i32 {
+            input
         }
     }
 

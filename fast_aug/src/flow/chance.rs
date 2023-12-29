@@ -3,28 +3,36 @@ use rand::{Rng, thread_rng};
 use crate::base::BaseAugmenter;
 
 
-pub struct ChanceAugmenter<T> {
+pub struct ChanceAugmenter<T,K> {
     /// The augmenter to apply with a given probability
     /// Added Send + Sync for multi-threading safety
-    augmenter: Arc<dyn BaseAugmenter<T> + Send + Sync>,
+    augmenter: Arc<dyn BaseAugmenter<T,K> + Send + Sync>,
     /// The probability of applying the augmenter
     probability: f64,
 }
 
 
-impl<T> ChanceAugmenter<T> {
-    pub fn new(augmenter: Arc<dyn BaseAugmenter<T> + Send + Sync>, probability: f64) -> Self {
+impl<T,K> ChanceAugmenter<T,K> {
+    pub fn new(augmenter: Arc<dyn BaseAugmenter<T,K> + Send + Sync>, probability: f64) -> Self {
         ChanceAugmenter { augmenter, probability }
     }
 }
 
-impl<T> BaseAugmenter<T> for ChanceAugmenter<T> {
-    fn augment(&self, input: T) -> T {
+impl<T,K> BaseAugmenter<T,K> for ChanceAugmenter<T,K> {
+    fn augment_inner(&self, input: K) -> K {
         if thread_rng().gen_bool(self.probability) {
-            self.augmenter.augment(input)
+            self.augmenter.augment_inner(input)
         } else {
             input
         }
+    }
+
+    fn convert_to_inner(&self, input: T) -> K {
+        self.augmenter.convert_to_inner(input)
+    }
+
+    fn convert_to_outer(&self, input: K) -> T {
+        self.augmenter.convert_to_outer(input)
     }
 }
 
@@ -36,9 +44,15 @@ mod tests {
 
     struct DummyMultiplyAugmenter;
 
-    impl BaseAugmenter<i32> for DummyMultiplyAugmenter {
-        fn augment(&self, input: i32) -> i32 {
+    impl BaseAugmenter<i32,i32> for DummyMultiplyAugmenter {
+        fn augment_inner(&self, input: i32) -> i32 {
             input * 2
+        }
+        fn convert_to_inner(&self, input: i32) -> i32 {
+            input
+        }
+        fn convert_to_outer(&self, input: i32) -> i32 {
+            input
         }
     }
 

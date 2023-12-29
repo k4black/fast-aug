@@ -1,4 +1,5 @@
-use fast_aug::text::{BaseTextAugmenter, TextAction};
+use fast_aug::text::{TextAction};
+use fast_aug::base::BaseAugmenter;
 use fast_aug::text::RandomCharsAugmenter;
 use fast_aug::text::TextAugmentParameters;
 
