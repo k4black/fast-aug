@@ -85,14 +85,13 @@ impl TextAugmentParameters {
 
     /// Select random elements to augment.
     /// Returns a vector of indexes of elements to be augmented.
+    /// Automatically shuffled.
     ///
     /// # Arguments
     /// * `element_indexes` - A vector of indexes of elements to be augmented.
-    /// * `shuffle` - Shuffle the resulting vector.
     pub fn select_random_element_indexes(
         &self,
         element_indexes: Vec<usize>,
-        shuffle: bool,
     ) -> Vec<usize> {
         let mut rng = rand::thread_rng();
 
@@ -110,11 +109,6 @@ impl TextAugmentParameters {
             .choose_multiple(&mut rng, num_elements)
             .cloned()
             .collect();
-
-        // Shuffle the resulting vector
-        if shuffle {
-            selected_elements.shuffle(&mut rng);
-        }
 
         selected_elements
     }
@@ -187,7 +181,7 @@ mod tests {
     fn test_select_random_element_indexes(p: f32, input_size: usize, expected_len: usize) {
         let params = TextAugmentParameters::new(p, None, None);
         let element_indexes = (0..input_size).collect::<Vec<usize>>();
-        let selected_indexes = params.select_random_element_indexes(element_indexes, false);
+        let selected_indexes = params.select_random_element_indexes(element_indexes);
         assert_eq!(selected_indexes.len(), expected_len);
     }
 
@@ -199,7 +193,7 @@ mod tests {
     fn test_select_random_element_indexes_shuffle(p: f32, input_size: usize, expected_len: usize) {
         let params = TextAugmentParameters::new(p, None, None);
         let element_indexes = (0..input_size).collect::<Vec<usize>>();
-        let selected_indexes = params.select_random_element_indexes(element_indexes, true);
+        let selected_indexes = params.select_random_element_indexes(element_indexes);
         assert_eq!(selected_indexes.len(), expected_len);
     }
 }

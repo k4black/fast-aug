@@ -48,14 +48,14 @@ impl BaseTextAugmenter for RandomCharsAugmenter {
     fn delete(&self, mut doc: Doc) -> Doc {
         // Select random word tokens
         let word_tokens_indexes = doc.get_word_indexes(false, self.stopwords.as_ref());
-        let selected_tokens_indexes = self.aug_params_word.select_random_element_indexes(word_tokens_indexes, false);
+        let selected_tokens_indexes = self.aug_params_word.select_random_element_indexes(word_tokens_indexes);
 
         // For all selected tokens select random chars and remove them
         let mut num_changes = 0;
         for token_index in selected_tokens_indexes {
             let token = &mut doc.tokens[token_index];
 
-            let selected_chars_indexes = self.aug_params_char.select_random_element_indexes((0..token.token().len()).collect(), false);
+            let mut selected_chars_indexes = self.aug_params_char.select_random_element_indexes((0..token.token().len()).collect());
             let mut new_token = String::with_capacity(token.token().len());
             for (idx, char) in token.token().char_indices() {
                 if !selected_chars_indexes.contains(&idx) {
@@ -80,20 +80,20 @@ impl BaseTextAugmenter for RandomCharsAugmenter {
         // TODO: adjacent, middle, random swaps (now only random)
         // Select random word tokens
         let word_tokens_indexes = doc.get_word_indexes(false, self.stopwords.as_ref());
-        let selected_tokens_indexes = self.aug_params_word.select_random_element_indexes(word_tokens_indexes, false);
+        let selected_tokens_indexes = self.aug_params_word.select_random_element_indexes(word_tokens_indexes);
 
         // For all selected tokens select random chars and swap them
         let mut num_changes = 0;
         for token_index in selected_tokens_indexes {
             let token = &mut doc.tokens[token_index];
 
-            let selected_chars_indexes = self.aug_params_char.select_random_element_indexes((0..token.token().len()).collect(), false);
+            let selected_chars_indexes = self.aug_params_char.select_random_element_indexes((0..token.token().len()).collect());
             let mut chars = token.token().chars().collect::<Vec<char>>();
-            for idxes in selected_chars_indexes.chunks(2) {
-                let idx_a = idxes.first().unwrap();
-                let idx_b = idxes.last().unwrap();
-                chars.swap(*idx_a, *idx_b);
-            }
+            selected_chars_indexes.chunks(2).for_each(|chunk| {
+                if chunk.len() == 2 {
+                    chars.swap(chunk[0], chunk[1]);
+                }
+            });
             let new_token = chars.iter().collect::<String>();
             token.change(&new_token, *token.kind());
 
