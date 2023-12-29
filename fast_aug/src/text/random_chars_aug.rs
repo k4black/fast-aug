@@ -55,7 +55,7 @@ impl BaseTextAugmenter for RandomCharsAugmenter {
         for token_index in selected_tokens_indexes {
             let token = &mut doc.tokens[token_index];
 
-            let mut selected_chars_indexes = self.aug_params_char.select_random_element_indexes((0..token.token().len()).collect());
+            let selected_chars_indexes = self.aug_params_char.select_random_element_indexes((0..token.token().len()).collect());
             let mut new_token = String::with_capacity(token.token().len());
             for (idx, char) in token.token().char_indices() {
                 if !selected_chars_indexes.contains(&idx) {
