@@ -31,19 +31,6 @@ impl RandomCharsAugmenter {
             stopwords,
         }
     }
-}
-
-
-impl BaseTextAugmenter for RandomCharsAugmenter {
-    fn action(&self) -> &TextAction {
-        &self.action
-    }
-
-    // Not applicable
-    fn insert(&self, _doc: Doc) -> Doc {
-        // TODO: chars insertion using alphabet
-        panic!("Insert action is not applicable for RandomWordAugmenter");
-    }
 
     fn delete(&self, mut doc: Doc) -> Doc {
         // Select random word tokens
@@ -69,11 +56,6 @@ impl BaseTextAugmenter for RandomCharsAugmenter {
         doc.num_changes += num_changes;
 
         doc
-    }
-
-    fn substitute(&self, _doc: Doc) -> Doc {
-        // TODO: chars substitution using alphabet
-        panic!("Insert action is not applicable for RandomWordAugmenter");
     }
 
     fn swap(&self, mut doc: Doc) -> Doc {
@@ -106,9 +88,24 @@ impl BaseTextAugmenter for RandomCharsAugmenter {
 }
 
 
-impl BaseAugmenter<String> for RandomCharsAugmenter {
-    fn augment(&self, input: String) -> String {
-        BaseTextAugmenter::augment(self, input)
+impl BaseTextAugmenter for RandomCharsAugmenter{}
+
+
+impl BaseAugmenter<String,Doc> for RandomCharsAugmenter {
+    fn augment_inner(&self, input: Doc) -> Doc {
+        match self.action {
+            TextAction::Delete => self.delete(input),
+            TextAction::Swap => self.swap(input),
+            _ => panic!("Action not implemented"),
+        }
+    }
+
+    fn convert_to_inner(&self, input: String) -> Doc {
+        Doc::new(&input)
+    }
+
+    fn convert_to_outer(&self, input: Doc) -> String {
+        input.to_string()
     }
 }
 
