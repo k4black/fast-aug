@@ -1,0 +1,2 @@
+*.bin filter=lfs diff=lfs merge=lfs -text
+fast_aug/test_data filter=lfs diff=lfs merge=lfs -text
