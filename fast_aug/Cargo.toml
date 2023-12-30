@@ -10,7 +10,7 @@ homepage = "https://github.com/k4black/fast-aug"
 repository = "https://github.com/k4black/fast-aug"
 documentation = "https://docs.rs/fast-aug"
 
-exclude = [ "rust-toolchain", "target/*", "Cargo.lock", "benches/*.txt", "benches/*.json", "data/*" ]
+exclude = [ "rust-toolchain", "target/*", "Cargo.lock", "benches/*.txt", "benches/*.json", "data/*", "testdata/*" ]
 
 
 [lib]
@@ -25,6 +25,7 @@ rand = "0.8"
 rand_distr = "0.4"
 regex = "1.10"
 unicode-segmentation = "1.10"  # think about moving to https://crates.io/crates/finl_unicode
+finalfusion = "0.18.0"
 #pyo3 = { version = "0.20", features = ["extension-module"] }
 
 [dev-dependencies]

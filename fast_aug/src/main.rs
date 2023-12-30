@@ -2,27 +2,28 @@ use fast_aug::text::{TextAction};
 use fast_aug::base::BaseAugmenter;
 use fast_aug::text::RandomCharsAugmenter;
 use fast_aug::text::TextAugmentParameters;
+use std::fs::File;
+use std::io::BufReader;
+
+use finalfusion::prelude::*;
 
 
 fn main() {
-    let words = "Hello, world! Today i will show you how to use fast_aug library. It's very simple! Just create RandomCharsAugmenter and call augment method. That's all!".to_string();
 
-    // Time it
+    // Start time measurement
     let start = std::time::Instant::now();
 
-    let words_params = TextAugmentParameters::default();
-    let chars_params = TextAugmentParameters::default();
+    let mut reader = BufReader::new(File::open("test_data/cc.en.24.bin").unwrap());
 
-    let aug = RandomCharsAugmenter::new(TextAction::Delete, words_params, chars_params, None);
+    // Read the embeddings.
+    let embeddings = Embeddings::read_fasttext(&mut reader)
+        .unwrap();
 
-    let mut output = String::new();
-    for _ in 0..1000 {
-        output = aug.augment(words.clone());
-    }
+    // Look up an embedding.
+    let embedding = embeddings.embedding("try");
+    println!("Embedding for 'try': {:?}", embedding);
 
-    let elapsed = start.elapsed();
-
-    println!("Input: {}", words);
-    println!("Output: {}", output);
-    println!("Time elapsed: {:?}", elapsed);
+    // End time measurement
+    let end = std::time::Instant::now();
+    println!("Time elapsed: {:?}", end.duration_since(start));
 }
