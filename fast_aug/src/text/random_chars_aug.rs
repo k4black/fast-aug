@@ -38,7 +38,6 @@ impl RandomCharsAugmenter {
         let selected_tokens_indexes = self.aug_params_word.select_random_element_indexes(word_tokens_indexes);
 
         // For all selected tokens select random chars and remove them
-        let mut num_changes = 0;
         for token_index in selected_tokens_indexes {
             let token = &mut doc.tokens[token_index];
 
@@ -51,9 +50,8 @@ impl RandomCharsAugmenter {
             }
             token.change(&new_token, *token.kind());
 
-            num_changes += 1;
+            doc.num_changes += 1;
         }
-        doc.num_changes += num_changes;
 
         doc
     }
@@ -65,7 +63,6 @@ impl RandomCharsAugmenter {
         let selected_tokens_indexes = self.aug_params_word.select_random_element_indexes(word_tokens_indexes);
 
         // For all selected tokens select random chars and swap them
-        let mut num_changes = 0;
         for token_index in selected_tokens_indexes {
             let token = &mut doc.tokens[token_index];
 
@@ -79,9 +76,8 @@ impl RandomCharsAugmenter {
             let new_token = chars.iter().collect::<String>();
             token.change(&new_token, *token.kind());
 
-            num_changes += 1;
+            doc.num_changes += 1;
         }
-        doc.num_changes += num_changes;
 
         doc
     }
