@@ -35,12 +35,10 @@ impl RandomWordsAugmenter {
         let selected_tokens_indexes = self.aug_params_word.select_random_element_indexes(word_tokens_indexes);
 
         // For all selected tokens set TokenType::Deleted
-        let mut num_changes = 0;
         for index in selected_tokens_indexes {
             doc.tokens[index].change("", TokenType::Deleted);
-            num_changes += 1;
+            doc.num_changes += 1;
         }
-        doc.num_changes += num_changes;
 
         doc
     }
@@ -52,12 +50,11 @@ impl RandomWordsAugmenter {
 
         // For all selected tokens swap pairs
         // As shuffled we can swap adjacent pairs (using chunks)
-        let mut num_changes = 0;
         for idxes in selected_tokens_indexes.chunks(2) {
             let idx_a = idxes.first().unwrap();
             let idx_b = idxes.last().unwrap();
             doc.swap_tokens_by_index(*idx_a, *idx_b);
-            num_changes += 1;
+            doc.num_changes += 1;
         }
 
         // If odd number of tokens, swap last with first
@@ -65,9 +62,8 @@ impl RandomWordsAugmenter {
             let last_idx = selected_tokens_indexes.last().unwrap();
             let first_idx = selected_tokens_indexes.first().unwrap();
             doc.swap_tokens_by_index(*last_idx, *first_idx);
-            num_changes += 1;
+            doc.num_changes += 1;
         }
-        doc.num_changes += num_changes;
 
         doc
     }

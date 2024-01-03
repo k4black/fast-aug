@@ -54,12 +54,10 @@ impl EmbeddingsWordsAugmenter {
         let selected_tokens_indexes = self.aug_params_word.select_random_element_indexes(word_tokens_indexes);
 
         // For all selected tokens select some random similar word and substitute
-        let mut num_changes = 0;
         for index in selected_tokens_indexes {
             todo!();
-            num_changes += 1;
+            doc.num_changes += 1;
         }
-        doc.num_changes += num_changes;
 
         doc
     }
