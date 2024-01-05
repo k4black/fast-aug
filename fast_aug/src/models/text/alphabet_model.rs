@@ -11,6 +11,7 @@ pub struct AlphabetModel {
     pub auxiliary: HashSet<char>,
     pub punctuation: HashSet<char>,
     pub numbers: HashSet<char>,
+    pub locale_str: String,
 }
 
 impl AlphabetModel {
@@ -22,6 +23,7 @@ impl AlphabetModel {
         auxiliary: HashSet<char>,
         punctuation: HashSet<char>,
         numbers: HashSet<char>,
+        locale_string: String,
     ) -> Self {
 
         let main_capitalized = match main_capitalized {
@@ -35,6 +37,7 @@ impl AlphabetModel {
             auxiliary,
             punctuation,
             numbers,
+            locale_str: locale_string,
         }
     }
 
@@ -78,6 +81,7 @@ impl AlphabetModel {
             Self::unicode_set_data_to_hashset(&auxiliary),
             Self::unicode_set_data_to_hashset(&punctuation),
             Self::unicode_set_data_to_hashset(&numbers),
+            locale.to_string(),
         )
     }
 
