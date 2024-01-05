@@ -189,6 +189,7 @@ mod tests {
     #[test_case("&!*", TokenType::Special ; "multiple special")]
     #[test_case("\t", TokenType::Space ; "tab")]
     #[test_case("\n", TokenType::Space ; "newline")]
+    #[test_case("😛", TokenType::Special ; "emoji")]
     fn test_token_classification(token: &str, kind: TokenType) {
         // Using method
         let kind_all = Token::classify_token_by_any_chars(token);
