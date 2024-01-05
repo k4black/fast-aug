@@ -1,29 +1,17 @@
-use fast_aug::text::{TextAction};
-use fast_aug::base::BaseAugmenter;
-use fast_aug::text::RandomCharsAugmenter;
-use fast_aug::text::TextAugmentParameters;
-use std::fs::File;
-use std::io::BufReader;
-
-use finalfusion::prelude::*;
-
+use fast_aug::models::text::AlphabetModel;
 
 fn main() {
+    let language_tag = "sr-Latn-ME";
+    let start_time = std::time::Instant::now();
+    let model = AlphabetModel::from_locale_str(&language_tag);
+    let end_time = std::time::Instant::now();
 
-    // Start time measurement
-    let start = std::time::Instant::now();
+    println!("Time elapsed: {:?}", end_time.duration_since(start_time));
 
-    let mut reader = BufReader::new(File::open("test_data/cc.en.24.bin").unwrap());
-
-    // Read the embeddings.
-    let embeddings = Embeddings::read_fasttext(&mut reader)
-        .unwrap();
-
-    // Look up an embedding.
-    let embedding = embeddings.embedding("try");
-    println!("Embedding for 'try': {:?}", embedding);
-
-    // End time measurement
-    let end = std::time::Instant::now();
-    println!("Time elapsed: {:?}", end.duration_since(start));
+    println!("main: {:?} {:?}", model.main.len(), model.main);
+    println!("main_capitalized: {:?} {:?}", model.main_capitalized.len(), model.main_capitalized);
+    println!("index: {:?} {:?}", model.index.len(), model.index);
+    println!("auxiliary: {:?} {:?}", model.auxiliary.len(), model.auxiliary);
+    println!("punctuation: {:?} {:?}", model.punctuation.len(), model.punctuation);
+    println!("numbers: {:?} {:?}", model.numbers.len(), model.numbers);
 }
