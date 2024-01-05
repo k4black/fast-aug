@@ -31,17 +31,6 @@ impl Token {
     ///
     /// # Arguments
     /// * `token` - A string slice that holds the token content.
-    ///
-    /// # Examples
-    /// ```rust
-    /// use fast_aug::text::token::{Token, TokenType};
-    ///
-    /// let token = Token::from_str("Hello");
-    /// assert_eq!(token.kind(), &TokenType::Word);
-    /// let token = Token::from_str("    ");
-    /// assert_eq!(token.kind(), &TokenType::Space);
-    /// let token = Token::from_str("!@#$%^&*()");
-    /// assert_eq!(token.kind(), &TokenType::Special);
     pub fn from_str(token: &str) -> Self {
         let token_len = token.chars().count();
         let kind = Token::classify_token_by_any_chars(&token);

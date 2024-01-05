@@ -1,13 +1,13 @@
 mod base;
-pub mod doc;
-pub mod token;
-mod parameters;
+mod doc;
+mod token;
 mod random_words_aug;
 mod random_chars_aug;
 mod tf_idf_words_aug;
 mod spelling_words_aug;
-mod embeddings_words_aug;
 mod keyboard_chars_aug;
+mod parameters;
+
 
 pub use base::{BaseTextAugmenter, TextAction};
 pub use random_words_aug::RandomWordsAugmenter;

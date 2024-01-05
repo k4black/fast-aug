@@ -17,16 +17,6 @@ impl Doc {
     ///
     /// # Arguments
     /// * `text` - A string slice that holds the text to be tokenized.
-    ///
-    /// # Examples
-    /// ```rust
-    /// use fast_aug::text::doc::Doc;
-    /// use fast_aug::text::token::Token;
-    ///
-    /// let doc = Doc::new("Hello,  world!");
-    /// let expected_tokens = vec!["Hello", ",", "  ", "world", "!"].iter().map(|&token| Token::from_str(token)).collect::<Vec<Token>>();
-    /// assert_eq!(doc.tokens, expected_tokens);
-    /// ```
     pub fn new(text: &str) -> Self {
         let tokens = Doc::tokenize(text);
         Doc {
@@ -40,16 +30,6 @@ impl Doc {
     ///
     /// # Arguments
     /// * `tokens` - A vector of string slices that holds the tokens.
-    ///
-    /// # Examples
-    /// ```rust
-    /// use fast_aug::text::doc::Doc;
-    /// use fast_aug::text::token::Token;
-    ///
-    /// let doc = Doc::from_tokens(vec!["Hello", ",", "  ", "world", "!"]);
-    /// let expected_tokens = vec!["Hello", ",", "  ", "world", "!"].iter().map(|&token| Token::from_str(token)).collect::<Vec<Token>>();
-    /// assert_eq!(doc.tokens, expected_tokens);
-    /// ```
     pub fn from_tokens(tokens: Vec<&str>) -> Self {
         let tokens = tokens.iter().map(|&token| Token::from_str(token)).collect::<Vec<Token>>();
         Doc {
