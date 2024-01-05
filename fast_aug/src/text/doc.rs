@@ -143,6 +143,8 @@ mod tests {
     #[test_case("    Some\t\t    spaces", vec!["    ", "Some", "\t", "\t", "    ", "spaces"] ; "complicated spaces")]
     #[test_case("Hello\u{200A}world", vec!["Hello", "\u{200A}", "world"] ; "unicode spaces")]
     #[test_case(".!@#$%^&*()_+", vec![".", "!", "@", "#", "$", "%", "^", "&", "*", "(", ")", "_", "+"] ; "special characters")]
+    #[test_case("😛🙈😆", vec!["😛", "🙈", "😆"] ; "emoji")]
+    #[test_case(":clown_face: :see_no_evil: :laughing:", vec![":", "clown_face", ":", " ", ":", "see_no_evil", ":", " ", ":", "laughing", ":"] ; "emoji aliases")]
     fn test_docs_spesial_cases(input_text: &str, expected_tokens: Vec<&str>) {
         let doc = Doc::new(input_text);
         let expected_tokens = expected_tokens.iter().map(|&token| Token::from_str(token)).collect::<Vec<Token>>();
