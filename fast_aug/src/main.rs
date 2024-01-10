@@ -1,17 +1,38 @@
-use fast_aug::models::text::AlphabetModel;
+use rand::{Rng, SeedableRng};
+use rand::rngs::SmallRng;
+use rand_pcg::Pcg64;
+use rand_xorshift::XorShiftRng;
+use instant::Instant;
+use rand::seq::SliceRandom;
+
 
 fn main() {
-    let language_tag = "sr-Latn-ME";
-    let start_time = std::time::Instant::now();
-    let model = AlphabetModel::from_locale_str(&language_tag);
-    let end_time = std::time::Instant::now();
+    let iterations = 10_000;
+    let vector_size = 1_000;
+    let sample_vector: Vec<u32> = (0..vector_size as u32).collect();
 
-    println!("Time elapsed: {:?}", end_time.duration_since(start_time));
+    benchmark_rng(&mut SmallRng::from_entropy(), "SmallRng", &sample_vector, iterations);
+    benchmark_rng(&mut rand::thread_rng(), "ThreadRng", &sample_vector, iterations);
+    benchmark_rng(&mut Pcg64::from_entropy(), "Pcg64", &sample_vector, iterations);
+    benchmark_rng(&mut XorShiftRng::from_entropy(), "XorShiftRng", &sample_vector, iterations);
+}
 
-    println!("main: {:?} {:?}", model.main.len(), model.main);
-    println!("main_capitalized: {:?} {:?}", model.main_capitalized.len(), model.main_capitalized);
-    println!("index: {:?} {:?}", model.index.len(), model.index);
-    println!("auxiliary: {:?} {:?}", model.auxiliary.len(), model.auxiliary);
-    println!("punctuation: {:?} {:?}", model.punctuation.len(), model.punctuation);
-    println!("numbers: {:?} {:?}", model.numbers.len(), model.numbers);
+fn benchmark_rng(rng: &mut impl Rng, rng_name: &str, sample_vector: &Vec<u32>, iterations: u32) {
+    let start_generation = Instant::now();
+    for _ in 0..iterations {
+        let _: u32 = rng.gen();
+    }
+    let duration_generation = start_generation.elapsed();
+
+    let start_selection = Instant::now();
+    for _ in 0..iterations {
+        let _: Vec<u32> = sample_vector
+            .as_slice()
+            .choose_multiple(rng, sample_vector.len() * 30 / 100)
+            .cloned()
+            .collect();
+    }
+    let duration_selection = start_selection.elapsed();
+
+    println!("{}:\n  Gen Time: {:?}\n  Vec Time: {:?}", rng_name, duration_generation, duration_selection);
 }

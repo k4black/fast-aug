@@ -32,16 +32,18 @@ impl RandomCharsAugmenter {
         }
     }
 
-    fn delete(&self, mut doc: Doc) -> Doc {
+    fn delete(&self, mut doc: Doc, rng: &mut dyn rand::RngCore) -> Doc {
         // Select random word tokens
         let word_tokens_indexes = doc.get_word_indexes(false, self.stopwords.as_ref());
-        let selected_tokens_indexes = self.aug_params_word.select_random_element_indexes(word_tokens_indexes);
+        let num_tokens_to_change = self.aug_params_word.num_elements(word_tokens_indexes.len());
+        let selected_tokens_indexes = self.select_random_element_indexes(rng, word_tokens_indexes, num_tokens_to_change);
 
         // For all selected tokens select random chars and remove them
         for token_index in selected_tokens_indexes {
             let token = &mut doc.tokens[token_index];
+            let num_chars_to_change = self.aug_params_char.num_elements(token.token().len());
 
-            let selected_chars_indexes = self.aug_params_char.select_random_element_indexes((0..token.token().len()).collect());
+            let selected_chars_indexes = self.select_random_element_indexes(rng, (0..token.token().len()).collect(), num_chars_to_change);
             let mut new_token = String::with_capacity(token.token().len());
             for (idx, char) in token.token().char_indices() {
                 if !selected_chars_indexes.contains(&idx) {
@@ -56,17 +58,19 @@ impl RandomCharsAugmenter {
         doc
     }
 
-    fn swap(&self, mut doc: Doc) -> Doc {
+    fn swap(&self, mut doc: Doc, rng: &mut dyn rand::RngCore) -> Doc {
         // TODO: adjacent, middle, random swaps (now only random)
         // Select random word tokens
         let word_tokens_indexes = doc.get_word_indexes(false, self.stopwords.as_ref());
-        let selected_tokens_indexes = self.aug_params_word.select_random_element_indexes(word_tokens_indexes);
+        let num_tokens_to_change = self.aug_params_word.num_elements(word_tokens_indexes.len());
+        let selected_tokens_indexes = self.select_random_element_indexes(rng, word_tokens_indexes, num_tokens_to_change);
 
         // For all selected tokens select random chars and swap them
         for token_index in selected_tokens_indexes {
             let token = &mut doc.tokens[token_index];
+            let num_chars_to_change = self.aug_params_char.num_elements(token.token().len());
 
-            let selected_chars_indexes = self.aug_params_char.select_random_element_indexes((0..token.token().len()).collect());
+            let selected_chars_indexes = self.select_random_element_indexes(rng, (0..token.token().len()).collect(), num_chars_to_change);
             let mut chars = token.token().chars().collect::<Vec<char>>();
             selected_chars_indexes.chunks(2).for_each(|chunk| {
                 if chunk.len() == 2 {
@@ -88,10 +92,10 @@ impl BaseTextAugmenter for RandomCharsAugmenter{}
 
 
 impl BaseAugmenter<String,Doc> for RandomCharsAugmenter {
-    fn augment_inner(&self, input: Doc) -> Doc {
+    fn augment_inner(&self, input: Doc, rng: &mut dyn rand::RngCore) -> Doc {
         match self.action {
-            TextAction::Delete => self.delete(input),
-            TextAction::Swap => self.swap(input),
+            TextAction::Delete => self.delete(input, rng),
+            TextAction::Swap => self.swap(input, rng),
             _ => panic!("Action not implemented"),
         }
     }
@@ -123,7 +127,7 @@ mod tests {
 
         let doc_tokens_before = doc.tokens.clone();
 
-        doc = aug.delete(doc);
+        doc = aug.delete(doc, &mut rand::thread_rng());
 
         let doc_tokens_after = doc.tokens.clone();
 
@@ -156,7 +160,7 @@ mod tests {
 
         let doc_tokens_before = doc.tokens.clone();
 
-        doc = aug.swap(doc);
+        doc = aug.swap(doc, &mut rand::thread_rng());
 
         let doc_tokens_after = doc.tokens.clone();
 

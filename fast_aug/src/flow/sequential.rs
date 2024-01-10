@@ -17,8 +17,8 @@ impl<T,K> SequentialAugmenter<T,K> {
 }
 
 impl<T,K> BaseAugmenter<T,K> for SequentialAugmenter<T,K> {
-    fn augment_inner(&self, input: K) -> K {
-        self.augmenters.iter().fold(input, |acc, augmenter| augmenter.augment_inner(acc))
+    fn augment_inner(&self, input: K, rng: &mut dyn rand::RngCore) -> K {
+        self.augmenters.iter().fold(input, |acc, augmenter| augmenter.augment_inner(acc, rng))
     }
 
     fn convert_to_inner(&self, input: T) -> K {
@@ -39,7 +39,7 @@ mod tests {
     struct DummyMultiplyAugmenter;
 
     impl BaseAugmenter<i32,i32> for DummyMultiplyAugmenter {
-        fn augment_inner(&self, input: i32) -> i32 {
+        fn augment_inner(&self, input: i32, _rng: &mut dyn rand::RngCore) -> i32 {
             input * 2
         }
         fn convert_to_inner(&self, input: i32) -> i32 {
@@ -53,7 +53,7 @@ mod tests {
     struct DummyAddAugmenter;
 
     impl BaseAugmenter<i32,i32> for DummyAddAugmenter {
-        fn augment_inner(&self, input: i32) -> i32 {
+        fn augment_inner(&self, input: i32, _rng: &mut dyn rand::RngCore) -> i32 {
             input + 1
         }
         fn convert_to_inner(&self, input: i32) -> i32 {
@@ -70,7 +70,7 @@ mod tests {
         let augmenter2 = Arc::new(DummyAddAugmenter);
         let sequential_augmenter = SequentialAugmenter::new(vec![augmenter1, augmenter2]);
 
-        let output = sequential_augmenter.augment(1);
+        let output = sequential_augmenter.augment(1, &mut rand::thread_rng());
 
         assert_eq!(output, 3);
     }
@@ -82,7 +82,7 @@ mod tests {
         let augmenter3 = Arc::new(DummyMultiplyAugmenter);
         let sequential_augmenter = SequentialAugmenter::new(vec![augmenter1, augmenter2, augmenter3]);
 
-        let output = sequential_augmenter.augment(1);
+        let output = sequential_augmenter.augment(1, &mut rand::thread_rng());
 
         assert_eq!(output, 6);
     }

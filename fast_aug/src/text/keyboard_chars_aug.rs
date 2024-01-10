@@ -32,15 +32,16 @@ impl KeyboardCharsAugmenter {
         }
     }
 
-    fn substitute(&self, mut doc: Doc) -> Doc {
+    fn substitute(&self, mut doc: Doc, rng: &mut dyn rand::RngCore) -> Doc {
         todo!();
     }
 
-    fn swap(&self, mut doc: Doc) -> Doc {
+    fn swap(&self, mut doc: Doc, rng: &mut dyn rand::RngCore) -> Doc {
         // TODO: adjacent, middle, random swaps (now only random)
         // Select random word tokens
         let word_tokens_indexes = doc.get_word_indexes(false, self.stopwords.as_ref());
-        let selected_tokens_indexes = self.aug_params_word.select_random_element_indexes(word_tokens_indexes);
+        let num_tokens_to_change = self.aug_params_word.num_elements(word_tokens_indexes.len());
+        let selected_tokens_indexes = self.select_random_element_indexes(rng, word_tokens_indexes, num_tokens_to_change);
 
         // For all selected tokens select random chars and swap them
         for token_index in selected_tokens_indexes {
@@ -58,10 +59,10 @@ impl BaseTextAugmenter for KeyboardCharsAugmenter{}
 
 
 impl BaseAugmenter<String,Doc> for KeyboardCharsAugmenter {
-    fn augment_inner(&self, input: Doc) -> Doc {
+    fn augment_inner(&self, input: Doc, rng: &mut dyn rand::RngCore) -> Doc {
         match self.action {
-            TextAction::Substitute => self.substitute(input),
-            TextAction::Swap => self.swap(input),
+            TextAction::Substitute => self.substitute(input, rng),
+            TextAction::Swap => self.swap(input, rng),
             _ => panic!("Action not implemented"),
         }
     }

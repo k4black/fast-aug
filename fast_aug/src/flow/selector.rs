@@ -1,7 +1,8 @@
 use std::sync::Arc;
-use rand::{Rng, thread_rng};
+use rand::Rng;
 use rand::distributions::{Distribution, WeightedIndex};
 use crate::base::BaseAugmenter;
+
 
 pub struct SelectorAugmenter<T,K> {
     /// The augmenters to choose one from
@@ -22,14 +23,13 @@ impl<T,K> SelectorAugmenter<T,K> {
 }
 
 impl<T,K> BaseAugmenter<T,K> for SelectorAugmenter<T,K> {
-    fn augment_inner(&self, input: K) -> K {
-        let mut rng = thread_rng();
+    fn augment_inner(&self, input: K, rng: &mut dyn rand::RngCore) -> K {
         if let Some(weights) = &self.weights {
-            let augmenter_index = WeightedIndex::new(weights).unwrap().sample(&mut rng);
-            self.augmenters[augmenter_index].augment_inner(input)
+            let augmenter_index = WeightedIndex::new(weights).unwrap().sample(rng);
+            self.augmenters[augmenter_index].augment_inner(input, rng)
         } else {
             let augmenter_index = rng.gen_range(0..self.augmenters.len());
-            self.augmenters[augmenter_index].augment_inner(input)
+            self.augmenters[augmenter_index].augment_inner(input, rng)
         }
     }
 
@@ -41,6 +41,8 @@ impl<T,K> BaseAugmenter<T,K> for SelectorAugmenter<T,K> {
         self.augmenters[0].convert_to_outer(input)
     }
 }
+
+
 #[cfg(test)]
 mod tests {
     use test_case::test_case;
@@ -49,7 +51,7 @@ mod tests {
     struct DummyMultiplyAugmenter;
 
     impl BaseAugmenter<i32,i32> for DummyMultiplyAugmenter {
-        fn augment_inner(&self, input: i32) -> i32 {
+        fn augment_inner(&self, input: i32, _rng: &mut dyn rand::RngCore) -> i32 {
             input * 2
         }
         fn convert_to_inner(&self, input: i32) -> i32 {
@@ -63,7 +65,7 @@ mod tests {
     struct DummyAddAugmenter;
 
     impl BaseAugmenter<i32,i32> for DummyAddAugmenter {
-        fn augment_inner(&self, input: i32) -> i32 {
+        fn augment_inner(&self, input: i32, _rng: &mut dyn rand::RngCore) -> i32 {
             input + 1
         }
         fn convert_to_inner(&self, input: i32) -> i32 {
@@ -80,7 +82,7 @@ mod tests {
         let augmenter2 = Arc::new(DummyAddAugmenter);
         let selector_augmenter = SelectorAugmenter::new(vec![augmenter1, augmenter2], None);
 
-        let output = selector_augmenter.augment(1);
+        let output = selector_augmenter.augment(1, &mut rand::thread_rng());
 
         assert_eq!(output, 2)
     }
@@ -94,7 +96,7 @@ mod tests {
         let mut num_augmenter1 = 0;
         let mut num_augmenter2 = 0;
         for _ in 0..1000 {
-            let output = selector_augmenter.augment(10);
+            let output = selector_augmenter.augment(10, &mut rand::thread_rng());
             if output == 20 {
                 num_augmenter1 += 1;
             } else if output == 11 {
@@ -123,7 +125,7 @@ mod tests {
         let mut num_augmenter1 = 0;
         let mut num_augmenter2 = 0;
         for _ in 0..1000 {
-            let output = selector_augmenter.augment(10);
+            let output = selector_augmenter.augment(10, &mut rand::thread_rng());
             if output == 20 {
                 num_augmenter1 += 1;
             } else if output == 11 {
@@ -144,7 +146,7 @@ mod tests {
         let augmenter1 = Arc::new(DummyMultiplyAugmenter);
         let selector_augmenter = SelectorAugmenter::new(vec![augmenter1], weights);
 
-        let output = selector_augmenter.augment(1);
+        let output = selector_augmenter.augment(1, &mut rand::thread_rng());
 
         assert_eq!(output, 2)
     }

@@ -19,9 +19,9 @@ impl<T,K> ChanceAugmenter<T,K> {
 }
 
 impl<T,K> BaseAugmenter<T,K> for ChanceAugmenter<T,K> {
-    fn augment_inner(&self, input: K) -> K {
+    fn augment_inner(&self, input: K, rng: &mut dyn rand::RngCore) -> K {
         if thread_rng().gen_bool(self.probability) {
-            self.augmenter.augment_inner(input)
+            self.augmenter.augment_inner(input, rng)
         } else {
             input
         }
@@ -45,7 +45,7 @@ mod tests {
     struct DummyMultiplyAugmenter;
 
     impl BaseAugmenter<i32,i32> for DummyMultiplyAugmenter {
-        fn augment_inner(&self, input: i32) -> i32 {
+        fn augment_inner(&self, input: i32, _rng: &mut dyn rand::RngCore) -> i32 {
             input * 2
         }
         fn convert_to_inner(&self, input: i32) -> i32 {
@@ -61,7 +61,7 @@ mod tests {
         let augmenter = Arc::new(DummyMultiplyAugmenter);
         let chance_augmenter = ChanceAugmenter::new(augmenter, 1.0);
 
-        let output = chance_augmenter.augment(1);
+        let output = chance_augmenter.augment(1, &mut rand::thread_rng());
 
         assert_eq!(output, 2);
     }
@@ -71,7 +71,7 @@ mod tests {
         let augmenter = Arc::new(DummyMultiplyAugmenter);
         let chance_augmenter = ChanceAugmenter::new(augmenter, 0.0);
 
-        let output = chance_augmenter.augment(1);
+        let output = chance_augmenter.augment(1, &mut rand::thread_rng());
 
         assert_eq!(output, 1);
     }
@@ -88,7 +88,7 @@ mod tests {
         // Calculate the number of times the augmenter changes the input
         let mut num_changes = 0;
         for _ in 0..1000 {
-            let output = chance_augmenter.augment(input);
+            let output = chance_augmenter.augment(input, &mut rand::thread_rng());
             num_changes += (output != input) as usize;
         }
 

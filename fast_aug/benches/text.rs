@@ -1,10 +1,11 @@
-use criterion::{black_box, criterion_group, criterion_main, Criterion};
+use criterion::{black_box, criterion_group, criterion_main, Criterion, SamplingMode};
 use fast_aug::text::*;
 use fast_aug::flow::*;
 use std::fs::File;
 use std::io::{self, BufRead};
 use std::path::Path;
 use std::sync::Arc;
+use rand::SeedableRng;
 use fast_aug::base::BaseAugmenter;
 
 
@@ -21,11 +22,16 @@ fn load_txt_to_string_vector<P: AsRef<Path>>(path: P) -> io::Result<Vec<String>>
 
 
 fn benchmark_individual_augmenters(c: &mut Criterion) {
+    // let mut rng = rand::thread_rng();
+    let mut rng = rand::rngs::SmallRng::from_entropy();
+
     // Load dataset
     let text_data = load_txt_to_string_vector(BENCHMARK_DATASET_PATH).expect("Unable to load dataset");
+    let text_data = text_data[0..text_data.len()/2].to_vec();
 
     // Benchmark for RandomWordsAugmenter
     let mut group = c.benchmark_group("RandomWordsAugmenter");
+    group.sampling_mode(SamplingMode::Flat);
     group.bench_function("swap", |b| {
         b.iter(|| {
             let aug = RandomWordsAugmenter::new(
@@ -34,7 +40,7 @@ fn benchmark_individual_augmenters(c: &mut Criterion) {
                 None,
             );
             for text in text_data.iter() {
-                black_box(aug.augment(text.clone()));
+                black_box(aug.augment(text.clone(), &mut rng));
             }
         });
     });
@@ -46,7 +52,7 @@ fn benchmark_individual_augmenters(c: &mut Criterion) {
                 None,
             );
             for text in text_data.iter() {
-                black_box(aug.augment(text.clone()));
+                black_box(aug.augment(text.clone(), &mut rng));
             }
         });
     });
@@ -54,6 +60,7 @@ fn benchmark_individual_augmenters(c: &mut Criterion) {
 
     // Benchmark for RandomCharsAugmenter
     let mut group = c.benchmark_group("RandomCharsAugmenter");
+    group.sampling_mode(SamplingMode::Flat);
     group.bench_function("swap", |b| {
         b.iter(|| {
             let aug = RandomCharsAugmenter::new(
@@ -63,7 +70,7 @@ fn benchmark_individual_augmenters(c: &mut Criterion) {
                 None,
             );
             for text in text_data.iter() {
-                black_box(aug.augment(text.clone()));
+                black_box(aug.augment(text.clone(), &mut rng));
             }
         });
     });
@@ -76,7 +83,7 @@ fn benchmark_individual_augmenters(c: &mut Criterion) {
                 None,
             );
             for text in text_data.iter() {
-                black_box(aug.augment(text.clone()));
+                black_box(aug.augment(text.clone(), &mut rng));
             }
         });
     });
@@ -86,11 +93,19 @@ fn benchmark_individual_augmenters(c: &mut Criterion) {
 }
 
 fn benchmark_flow(c: &mut Criterion) {
+    // let mut rng = rand::thread_rng();
+    let mut rng = rand::rngs::SmallRng::from_entropy();
+    // let mut rng = rand::rngs::SmallRng::from_seed([0; 32]);
+
+
     // Load dataset
     let text_data = load_txt_to_string_vector(BENCHMARK_DATASET_PATH).expect("Unable to load dataset");
+    let text_data = text_data[0..text_data.len()/2].to_vec();
 
-    // Benchmark pipelines
-    c.bench_function("SequentialAugmenter", |b| {
+    // Benchmark pipelines/flow
+    let mut group = c.benchmark_group("Flow");
+    group.sampling_mode(SamplingMode::Flat);
+    group.bench_function("SequentialAugmenter", |b| {
         b.iter(|| {
             let aug_1 = RandomWordsAugmenter::new(
                 TextAction::Swap,
@@ -121,11 +136,11 @@ fn benchmark_flow(c: &mut Criterion) {
                 Arc::new(aug_4),
             ]);
             for text in text_data.iter() {
-                black_box(pipeline.augment(text.clone()));
+                black_box(pipeline.augment(text.clone(), &mut rng));
             }
         });
     });
-    c.bench_function("SelectorAugmenter", |b| {
+    group.bench_function("SelectorAugmenter", |b| {
         b.iter(|| {
             let aug_1 = RandomWordsAugmenter::new(
                 TextAction::Swap,
@@ -156,11 +171,11 @@ fn benchmark_flow(c: &mut Criterion) {
                 Arc::new(aug_4),
             ], None);
             for text in text_data.iter() {
-                black_box(pipeline.augment(text.clone()));
+                black_box(pipeline.augment(text.clone(), &mut rng));
             }
         });
     });
-    c.bench_function("ChanceAugmenter", |b| {
+    group.bench_function("ChanceAugmenter", |b| {
         b.iter(|| {
             let aug = RandomWordsAugmenter::new(
                 TextAction::Swap,
@@ -169,7 +184,7 @@ fn benchmark_flow(c: &mut Criterion) {
             );
             let pipeline = ChanceAugmenter::new(Arc::new(aug), 0.5);
             for text in text_data.iter() {
-                black_box(pipeline.augment(text.clone()));
+                black_box(pipeline.augment(text.clone(), &mut rng));
             }
         });
     });
@@ -178,7 +193,10 @@ fn benchmark_flow(c: &mut Criterion) {
 // Define the groups using the functions
 criterion_group!{
     name = benches;
-    config = Criterion::default().sample_size(10).measurement_time(std::time::Duration::from_secs(10)).significance_level(0.01);
+    config = Criterion::default()
+        .sample_size(10)
+        .measurement_time(std::time::Duration::from_secs(20))
+        .significance_level(0.01);
     targets = benchmark_individual_augmenters, benchmark_flow
 }
 criterion_main!(benches);
