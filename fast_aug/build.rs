@@ -8,6 +8,7 @@ use serde_json::Value;
 
 /// Compress JSON file
 /// Simply read the json and write it to a gzipped file
+#[allow(dead_code)]
 fn compress_json_file(input_path: &str) -> Result<(), Box<dyn std::error::Error>> {
     // Read the JSON file
     let data = fs::read_to_string(input_path)?;

@@ -29,10 +29,11 @@ impl RandomWordsAugmenter {
         }
     }
 
-    fn delete(&self, mut doc: Doc) -> Doc {
+    fn delete(&self, mut doc: Doc, rng: &mut dyn rand::RngCore) -> Doc {
         // Select random word tokens
         let word_tokens_indexes = doc.get_word_indexes(false, self.stopwords.as_ref());
-        let selected_tokens_indexes = self.aug_params_word.select_random_element_indexes(word_tokens_indexes);
+        let num_tokens_to_change = self.aug_params_word.num_elements(word_tokens_indexes.len());
+        let selected_tokens_indexes = self.select_random_element_indexes(rng, word_tokens_indexes, num_tokens_to_change);
 
         // For all selected tokens set TokenType::Deleted
         for index in selected_tokens_indexes {
@@ -43,10 +44,11 @@ impl RandomWordsAugmenter {
         doc
     }
 
-    fn swap(&self, mut doc: Doc) -> Doc {
+    fn swap(&self, mut doc: Doc, rng: &mut dyn rand::RngCore) -> Doc {
         // Select random word tokens (shuffle selected tokens to make swaps)
         let word_tokens_indexes = doc.get_word_indexes(false, self.stopwords.as_ref());
-        let selected_tokens_indexes = self.aug_params_word.select_random_element_indexes(word_tokens_indexes);
+        let num_tokens_to_change = self.aug_params_word.num_elements(word_tokens_indexes.len());
+        let selected_tokens_indexes = self.select_random_element_indexes(rng, word_tokens_indexes, num_tokens_to_change);
 
         // For all selected tokens swap pairs
         // As shuffled we can swap adjacent pairs (using chunks)
@@ -74,10 +76,10 @@ impl BaseTextAugmenter for RandomWordsAugmenter{}
 
 
 impl BaseAugmenter<String,Doc> for RandomWordsAugmenter {
-    fn augment_inner(&self, input: Doc) -> Doc {
+    fn augment_inner(&self, input: Doc, rng: &mut dyn rand::RngCore) -> Doc {
         match self.action {
-            TextAction::Delete => self.delete(input),
-            TextAction::Swap => self.swap(input),
+            TextAction::Delete => self.delete(input, rng),
+            TextAction::Swap => self.swap(input, rng),
             _ => panic!("Action not implemented"),
         }
     }
@@ -110,7 +112,7 @@ mod tests {
 
         let doc_tokens_before = doc.tokens.clone();
 
-        doc = aug.delete(doc);
+        doc = aug.delete(doc, &mut rand::thread_rng());
 
         let doc_tokens_after = doc.tokens.clone();
 
@@ -135,7 +137,7 @@ mod tests {
 
         let doc_tokens_before = doc.tokens.clone();
 
-        doc = aug.swap(doc);
+        doc = aug.swap(doc, &mut rand::thread_rng());
 
         let doc_tokens_after = doc.tokens.clone();
 

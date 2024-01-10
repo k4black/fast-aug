@@ -1,4 +1,3 @@
-use rand::seq::SliceRandom;
 
 /// Parameters for augmentation
 #[derive(Clone)]
@@ -82,36 +81,6 @@ impl TextAugmentParameters {
         }
         prob_num_elements
     }
-
-    /// Select random elements to augment.
-    /// Returns a vector of indexes of elements to be augmented.
-    /// Automatically shuffled.
-    ///
-    /// # Arguments
-    /// * `element_indexes` - A vector of indexes of elements to be augmented.
-    pub fn select_random_element_indexes(
-        &self,
-        element_indexes: Vec<usize>,
-    ) -> Vec<usize> {
-        let mut rng = rand::thread_rng();
-
-        // Calculate number of elements to be augmented using p, min_elements, max_elements
-        let num_elements = self.num_elements(element_indexes.len());
-
-        // If the number of requested elements is larger than available,
-        // return the whole array to avoid panicking.
-        if num_elements >= element_indexes.len() {
-            return element_indexes;
-        }
-
-        // Randomly select indexes from the input vector
-        let selected_elements: Vec<usize> = element_indexes
-            .choose_multiple(&mut rng, num_elements)
-            .cloned()
-            .collect();
-
-        selected_elements
-    }
 }
 
 #[cfg(test)]
@@ -171,29 +140,5 @@ mod tests {
     fn test_num_elements_min_max_limit(p: f32, input_size: usize, min_elements: usize, max_elements: usize, expected: usize) {
         let params = TextAugmentParameters::new(p, Some(min_elements), Some(max_elements));
         assert_eq!(params.num_elements(input_size), expected);
-    }
-
-    #[test_case(0.5, 10, 5)]
-    #[test_case(0.7, 10, 7)]
-    #[test_case(0.3, 10, 3)]
-    #[test_case(0.5, 0, 0)]
-    #[test_case(0.5, 100, 50)]
-    fn test_select_random_element_indexes(p: f32, input_size: usize, expected_len: usize) {
-        let params = TextAugmentParameters::new(p, None, None);
-        let element_indexes = (0..input_size).collect::<Vec<usize>>();
-        let selected_indexes = params.select_random_element_indexes(element_indexes);
-        assert_eq!(selected_indexes.len(), expected_len);
-    }
-
-    #[test_case(0.5, 10, 5)]
-    #[test_case(0.7, 10, 7)]
-    #[test_case(0.3, 10, 3)]
-    #[test_case(0.5, 0, 0)]
-    #[test_case(0.5, 100, 50)]
-    fn test_select_random_element_indexes_shuffle(p: f32, input_size: usize, expected_len: usize) {
-        let params = TextAugmentParameters::new(p, None, None);
-        let element_indexes = (0..input_size).collect::<Vec<usize>>();
-        let selected_indexes = params.select_random_element_indexes(element_indexes);
-        assert_eq!(selected_indexes.len(), expected_len);
     }
 }
