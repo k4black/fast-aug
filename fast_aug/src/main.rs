@@ -1,38 +1,41 @@
-use rand::{Rng, SeedableRng};
-use rand::rngs::SmallRng;
-use rand_pcg::Pcg64;
-use rand_xorshift::XorShiftRng;
-use instant::Instant;
-use rand::seq::SliceRandom;
+use std::fs::File;
+use std::io;
+use std::io::BufRead;
+use std::path::Path;
+use criterion::black_box;
+use rand::SeedableRng;
+use fast_aug::BaseAugmenter;
+use fast_aug::text::{RandomCharsAugmenter, TextAction, TextAugmentParameters};
+
+
+const BENCHMARK_DATASET_PATH: &str = "data/tweet_eval_sentiment_train_text.txt";
+
+
+// Function to load txt file and return a vector of strings
+fn load_txt_to_string_vector<P: AsRef<Path>>(path: P) -> io::Result<Vec<String>> {
+    let file = File::open(path)?;
+    let reader = io::BufReader::new(file);
+    let lines = reader.lines().collect(); // Collects the lines into a Result<Vec<String>, Error>
+    lines
+}
 
 
 fn main() {
-    let iterations = 10_000;
-    let vector_size = 1_000;
-    let sample_vector: Vec<u32> = (0..vector_size as u32).collect();
+    let mut rng = rand::rngs::SmallRng::from_entropy();
 
-    benchmark_rng(&mut SmallRng::from_entropy(), "SmallRng", &sample_vector, iterations);
-    benchmark_rng(&mut rand::thread_rng(), "ThreadRng", &sample_vector, iterations);
-    benchmark_rng(&mut Pcg64::from_entropy(), "Pcg64", &sample_vector, iterations);
-    benchmark_rng(&mut XorShiftRng::from_entropy(), "XorShiftRng", &sample_vector, iterations);
-}
+    // Load dataset
+    let text_data = load_txt_to_string_vector(BENCHMARK_DATASET_PATH).expect("Unable to load dataset");
+    let text_data = text_data[0..text_data.len()/4].to_vec();
 
-fn benchmark_rng(rng: &mut impl Rng, rng_name: &str, sample_vector: &Vec<u32>, iterations: u32) {
-    let start_generation = Instant::now();
-    for _ in 0..iterations {
-        let _: u32 = rng.gen();
+    for _ in 0..10 {
+        let aug = RandomCharsAugmenter::new(
+            TextAction::Delete,
+            TextAugmentParameters::new(0.5,  Some(1), Some(10)),
+            TextAugmentParameters::new(0.5,  Some(1), Some(10)),
+            None,
+        );
+        for text in text_data.iter() {
+            black_box(aug.augment(text.clone(), &mut rng));
+        }
     }
-    let duration_generation = start_generation.elapsed();
-
-    let start_selection = Instant::now();
-    for _ in 0..iterations {
-        let _: Vec<u32> = sample_vector
-            .as_slice()
-            .choose_multiple(rng, sample_vector.len() * 30 / 100)
-            .cloned()
-            .collect();
-    }
-    let duration_selection = start_selection.elapsed();
-
-    println!("{}:\n  Gen Time: {:?}\n  Vec Time: {:?}", rng_name, duration_generation, duration_selection);
 }
