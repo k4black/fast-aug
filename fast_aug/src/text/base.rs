@@ -1,10 +1,9 @@
-use std::collections::HashSet;
-use rand::prelude::IteratorRandom;
 use super::doc::Doc;
-use crate::base::BaseAugmenter;
 use super::token::Token;
+use crate::base::BaseAugmenter;
+use rand::prelude::IteratorRandom;
 use rand::seq::SliceRandom;
-
+use std::collections::HashSet;
 
 /// Actions enum, which action BaseTextAugmenter will perform
 #[derive(Clone, Copy, PartialEq, Debug)]
@@ -15,9 +14,7 @@ pub enum TextAction {
     Swap,
 }
 
-
-pub trait BaseTextAugmenter: BaseAugmenter<String,Doc> {
-
+pub trait BaseTextAugmenter: BaseAugmenter<String, Doc> {
     /// Select random word tokens to augment given a number of elements
     /// Returns a vector of tuples (index, &mut token)
     /// TODO: optimize this function
@@ -49,9 +46,7 @@ pub trait BaseTextAugmenter: BaseAugmenter<String,Doc> {
         }
 
         // Return random subset of num_elements len
-        filtered_tokens
-            .into_iter()
-            .choose_multiple(rng, num_elements)
+        filtered_tokens.into_iter().choose_multiple(rng, num_elements)
     }
 
     /// Select random elements to augment.
@@ -73,20 +68,16 @@ pub trait BaseTextAugmenter: BaseAugmenter<String,Doc> {
         }
 
         // Randomly select indexes from the input vector
-        let selected_elements: Vec<usize> = element_indexes
-            .choose_multiple(rng, num_elements)
-            .cloned()
-            .collect();
+        let selected_elements: Vec<usize> = element_indexes.choose_multiple(rng, num_elements).cloned().collect();
 
         selected_elements
     }
 }
 
-
 #[cfg(test)]
 mod tests {
-    use test_case::test_case;
     use super::*;
+    use test_case::test_case;
 
     // #[test_case(0.5, 10, 5)]
     // #[test_case(0.7, 10, 7)]

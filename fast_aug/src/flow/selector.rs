@@ -1,20 +1,19 @@
-use std::sync::Arc;
-use rand::Rng;
-use rand::distributions::{Distribution, WeightedIndex};
 use crate::base::BaseAugmenter;
+use rand::distributions::{Distribution, WeightedIndex};
+use rand::Rng;
+use std::sync::Arc;
 
-
-pub struct SelectorAugmenter<T,K> {
+pub struct SelectorAugmenter<T, K> {
     /// The augmenters to choose one from
     /// Added Send + Sync for multi-threading safety
-    augmenters: Vec<Arc<dyn BaseAugmenter<T,K> + Send + Sync>>,
+    augmenters: Vec<Arc<dyn BaseAugmenter<T, K> + Send + Sync>>,
     /// Optional weights for each augmenter
     /// If None, uniform probability is used
     weights: Option<Vec<f64>>,
 }
 
-impl<T,K> SelectorAugmenter<T,K> {
-    pub fn new(augmenters: Vec<Arc<dyn BaseAugmenter<T,K> + Send + Sync>>, weights: Option<Vec<f64>>) -> Self {
+impl<T, K> SelectorAugmenter<T, K> {
+    pub fn new(augmenters: Vec<Arc<dyn BaseAugmenter<T, K> + Send + Sync>>, weights: Option<Vec<f64>>) -> Self {
         if augmenters.is_empty() {
             panic!("SelectorAugmenter must have at least one augmenter");
         }
@@ -22,7 +21,7 @@ impl<T,K> SelectorAugmenter<T,K> {
     }
 }
 
-impl<T,K> BaseAugmenter<T,K> for SelectorAugmenter<T,K> {
+impl<T, K> BaseAugmenter<T, K> for SelectorAugmenter<T, K> {
     fn augment_inner(&self, input: K, rng: &mut dyn rand::RngCore) -> K {
         if let Some(weights) = &self.weights {
             let augmenter_index = WeightedIndex::new(weights).unwrap().sample(rng);
@@ -42,15 +41,14 @@ impl<T,K> BaseAugmenter<T,K> for SelectorAugmenter<T,K> {
     }
 }
 
-
 #[cfg(test)]
 mod tests {
-    use test_case::test_case;
     use super::*;
+    use test_case::test_case;
 
     struct DummyMultiplyAugmenter;
 
-    impl BaseAugmenter<i32,i32> for DummyMultiplyAugmenter {
+    impl BaseAugmenter<i32, i32> for DummyMultiplyAugmenter {
         fn augment_inner(&self, input: i32, _rng: &mut dyn rand::RngCore) -> i32 {
             input * 2
         }
@@ -64,7 +62,7 @@ mod tests {
 
     struct DummyAddAugmenter;
 
-    impl BaseAugmenter<i32,i32> for DummyAddAugmenter {
+    impl BaseAugmenter<i32, i32> for DummyAddAugmenter {
         fn augment_inner(&self, input: i32, _rng: &mut dyn rand::RngCore) -> i32 {
             input + 1
         }
@@ -115,7 +113,10 @@ mod tests {
     #[test_case(vec![1.0, 0.0] ; "1.0 and 0.0 weights")]
     #[test_case(vec![100.0, 100.0] ; "100.0 and 100.0 weights")]
     fn test_weighted_selection(weights: Vec<f64>) {
-        let weights_normalized = weights.iter().map(|w| w / weights.iter().sum::<f64>()).collect::<Vec<f64>>();
+        let weights_normalized = weights
+            .iter()
+            .map(|w| w / weights.iter().sum::<f64>())
+            .collect::<Vec<f64>>();
 
         let augmenter1 = Arc::new(DummyMultiplyAugmenter);
         let augmenter2 = Arc::new(DummyAddAugmenter);

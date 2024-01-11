@@ -21,6 +21,11 @@ cargo install cargo-flamegraph
 sudo cargo flamegraph --dev
 ```
 
+Format code
+```shell
+cargo fmt
+``` 
+
 
 To measure compile time
 ```shell

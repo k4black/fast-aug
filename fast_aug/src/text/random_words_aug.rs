@@ -1,10 +1,9 @@
-use std::collections::HashSet;
-use crate::base::BaseAugmenter;
-use super::doc::Doc;
-use super::token::TokenType;
-use super::parameters::TextAugmentParameters;
 use super::base::{BaseTextAugmenter, TextAction};
-
+use super::doc::Doc;
+use super::parameters::TextAugmentParameters;
+use super::token::TokenType;
+use crate::base::BaseAugmenter;
+use std::collections::HashSet;
 
 pub struct RandomWordsAugmenter {
     /// Action to augmentation, set of values {'substitute', 'swap', 'delete'}
@@ -15,13 +14,8 @@ pub struct RandomWordsAugmenter {
     stopwords: Option<HashSet<String>>,
 }
 
-
 impl RandomWordsAugmenter {
-    pub fn new(
-        action: TextAction,
-        aug_params_word: TextAugmentParameters,
-        stopwords: Option<HashSet<String>>,
-    ) -> Self {
+    pub fn new(action: TextAction, aug_params_word: TextAugmentParameters, stopwords: Option<HashSet<String>>) -> Self {
         RandomWordsAugmenter {
             action,
             aug_params_word,
@@ -33,7 +27,8 @@ impl RandomWordsAugmenter {
         // Select random word tokens
         let word_tokens_indexes = doc.get_word_indexes(false, self.stopwords.as_ref());
         let num_tokens_to_change = self.aug_params_word.num_elements(word_tokens_indexes.len());
-        let selected_tokens_indexes = self.select_random_element_indexes(rng, word_tokens_indexes, num_tokens_to_change);
+        let selected_tokens_indexes =
+            self.select_random_element_indexes(rng, word_tokens_indexes, num_tokens_to_change);
 
         // For all selected tokens set TokenType::Deleted
         for index in selected_tokens_indexes {
@@ -48,7 +43,8 @@ impl RandomWordsAugmenter {
         // Select random word tokens (shuffle selected tokens to make swaps)
         let word_tokens_indexes = doc.get_word_indexes(false, self.stopwords.as_ref());
         let num_tokens_to_change = self.aug_params_word.num_elements(word_tokens_indexes.len());
-        let selected_tokens_indexes = self.select_random_element_indexes(rng, word_tokens_indexes, num_tokens_to_change);
+        let selected_tokens_indexes =
+            self.select_random_element_indexes(rng, word_tokens_indexes, num_tokens_to_change);
 
         // For all selected tokens swap pairs
         // As shuffled we can swap adjacent pairs (using chunks)
@@ -71,11 +67,9 @@ impl RandomWordsAugmenter {
     }
 }
 
+impl BaseTextAugmenter for RandomWordsAugmenter {}
 
-impl BaseTextAugmenter for RandomWordsAugmenter{}
-
-
-impl BaseAugmenter<String,Doc> for RandomWordsAugmenter {
+impl BaseAugmenter<String, Doc> for RandomWordsAugmenter {
     fn augment_inner(&self, input: Doc, rng: &mut dyn rand::RngCore) -> Doc {
         match self.action {
             TextAction::Delete => self.delete(input, rng),
@@ -93,11 +87,10 @@ impl BaseAugmenter<String,Doc> for RandomWordsAugmenter {
     }
 }
 
-
 #[cfg(test)]
 mod tests {
-    use test_case::test_case;
     use super::*;
+    use test_case::test_case;
 
     #[test_case(vec!["A", "B", "C", "D", "E"], 0.5, 3, 3 ; "round 2.5 as 3 of 5")]
     #[test_case(vec!["A", "B", "C", "D", "E", "D"], 0.5, 3, 3 ; "3 of 6")]
@@ -122,7 +115,13 @@ mod tests {
             assert_eq!(doc_tokens_before.len(), doc_tokens_after.len());
             assert_ne!(doc_tokens_before, doc_tokens_after);
             assert_eq!(doc.num_changes, expected_doc_changes);
-            assert_eq!(doc_tokens_after.iter().filter(|token| token.kind() == &TokenType::Deleted).count(), expected_deleted_tokens);
+            assert_eq!(
+                doc_tokens_after
+                    .iter()
+                    .filter(|token| token.kind() == &TokenType::Deleted)
+                    .count(),
+                expected_deleted_tokens
+            );
         }
     }
 
@@ -149,6 +148,4 @@ mod tests {
             assert_eq!(doc.num_changes, expected_doc_changes);
         }
     }
-
 }
-

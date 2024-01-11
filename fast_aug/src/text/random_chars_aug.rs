@@ -1,9 +1,8 @@
-use std::collections::HashSet;
-use crate::base::BaseAugmenter;
+use super::base::{BaseTextAugmenter, TextAction};
 use super::doc::Doc;
 use super::parameters::TextAugmentParameters;
-use super::base::{BaseTextAugmenter, TextAction};
-
+use crate::base::BaseAugmenter;
+use std::collections::HashSet;
 
 pub struct RandomCharsAugmenter {
     /// Action to augmentation, set of values {'substitute', 'swap', 'delete'}
@@ -15,7 +14,6 @@ pub struct RandomCharsAugmenter {
     /// Filter, Set of words that cannot be augmented
     stopwords: Option<HashSet<String>>,
 }
-
 
 impl RandomCharsAugmenter {
     pub fn new(
@@ -36,14 +34,16 @@ impl RandomCharsAugmenter {
         // Select random word tokens
         let word_tokens_indexes = doc.get_word_indexes(false, self.stopwords.as_ref());
         let num_tokens_to_change = self.aug_params_word.num_elements(word_tokens_indexes.len());
-        let selected_tokens_indexes = self.select_random_element_indexes(rng, word_tokens_indexes, num_tokens_to_change);
+        let selected_tokens_indexes =
+            self.select_random_element_indexes(rng, word_tokens_indexes, num_tokens_to_change);
 
         // For all selected tokens select random chars and remove them
         for token_index in selected_tokens_indexes {
             let token = &mut doc.tokens[token_index];
             let num_chars_to_change = self.aug_params_char.num_elements(token.token().len());
 
-            let selected_chars_indexes = self.select_random_element_indexes(rng, (0..token.token().len()).collect(), num_chars_to_change);
+            let selected_chars_indexes =
+                self.select_random_element_indexes(rng, (0..token.token().len()).collect(), num_chars_to_change);
             let mut new_token = String::with_capacity(token.token().len());
             for (idx, char) in token.token().char_indices() {
                 if !selected_chars_indexes.contains(&idx) {
@@ -63,14 +63,16 @@ impl RandomCharsAugmenter {
         // Select random word tokens
         let word_tokens_indexes = doc.get_word_indexes(false, self.stopwords.as_ref());
         let num_tokens_to_change = self.aug_params_word.num_elements(word_tokens_indexes.len());
-        let selected_tokens_indexes = self.select_random_element_indexes(rng, word_tokens_indexes, num_tokens_to_change);
+        let selected_tokens_indexes =
+            self.select_random_element_indexes(rng, word_tokens_indexes, num_tokens_to_change);
 
         // For all selected tokens select random chars and swap them
         for token_index in selected_tokens_indexes {
             let token = &mut doc.tokens[token_index];
             let num_chars_to_change = self.aug_params_char.num_elements(token.token().len());
 
-            let selected_chars_indexes = self.select_random_element_indexes(rng, (0..token.token().len()).collect(), num_chars_to_change);
+            let selected_chars_indexes =
+                self.select_random_element_indexes(rng, (0..token.token().len()).collect(), num_chars_to_change);
             let mut chars = token.token().chars().collect::<Vec<char>>();
             selected_chars_indexes.chunks(2).for_each(|chunk| {
                 if chunk.len() == 2 {
@@ -87,11 +89,9 @@ impl RandomCharsAugmenter {
     }
 }
 
+impl BaseTextAugmenter for RandomCharsAugmenter {}
 
-impl BaseTextAugmenter for RandomCharsAugmenter{}
-
-
-impl BaseAugmenter<String,Doc> for RandomCharsAugmenter {
+impl BaseAugmenter<String, Doc> for RandomCharsAugmenter {
     fn augment_inner(&self, input: Doc, rng: &mut dyn rand::RngCore) -> Doc {
         match self.action {
             TextAction::Delete => self.delete(input, rng),
@@ -109,17 +109,22 @@ impl BaseAugmenter<String,Doc> for RandomCharsAugmenter {
     }
 }
 
-
 #[cfg(test)]
 mod tests {
-    use test_case::test_case;
-    use crate::text::random_words_aug::RandomWordsAugmenter;
     use super::*;
+    use crate::text::random_words_aug::RandomWordsAugmenter;
+    use test_case::test_case;
 
     #[test_case(vec!["AAAA", "BBBB", "CCCC", "DDDD", "EEEE"], 0.5, 0.5, 3, 3 ; "round 2.5 as 3 words round 2.5 as 3 chars each")]
     #[test_case(vec!["AAAA", "BBBB", "CCCC", "DDDD", "EEEE"], 0.0, 0.5, 0, 0 ; "delete chars in 0 words - no changes")]
     #[test_case(vec!["AAAA", "BBBB", "CCCC", "DDDD", "EEEE"], 0.5, 0.0, 0, 0 ; "delete 0 chars - no changes")]
-    fn test_delete(input_tokens: Vec<&str>, words_p: f32, chars_p: f32, expected_changed_words: usize, expected_doc_changes: usize) {
+    fn test_delete(
+        input_tokens: Vec<&str>,
+        words_p: f32,
+        chars_p: f32,
+        expected_changed_words: usize,
+        expected_doc_changes: usize,
+    ) {
         let mut doc = Doc::from_tokens(input_tokens);
         let words_params = TextAugmentParameters::new(words_p, None, None);
         let chars_params = TextAugmentParameters::new(chars_p, None, None);

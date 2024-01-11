@@ -1,24 +1,22 @@
-use std::sync::Arc;
-use rand::{Rng, thread_rng};
 use crate::base::BaseAugmenter;
+use rand::{thread_rng, Rng};
+use std::sync::Arc;
 
-
-pub struct ChanceAugmenter<T,K> {
+pub struct ChanceAugmenter<T, K> {
     /// The augmenter to apply with a given probability
     /// Added Send + Sync for multi-threading safety
-    augmenter: Arc<dyn BaseAugmenter<T,K> + Send + Sync>,
+    augmenter: Arc<dyn BaseAugmenter<T, K> + Send + Sync>,
     /// The probability of applying the augmenter
     probability: f64,
 }
 
-
-impl<T,K> ChanceAugmenter<T,K> {
-    pub fn new(augmenter: Arc<dyn BaseAugmenter<T,K> + Send + Sync>, probability: f64) -> Self {
+impl<T, K> ChanceAugmenter<T, K> {
+    pub fn new(augmenter: Arc<dyn BaseAugmenter<T, K> + Send + Sync>, probability: f64) -> Self {
         ChanceAugmenter { augmenter, probability }
     }
 }
 
-impl<T,K> BaseAugmenter<T,K> for ChanceAugmenter<T,K> {
+impl<T, K> BaseAugmenter<T, K> for ChanceAugmenter<T, K> {
     fn augment_inner(&self, input: K, rng: &mut dyn rand::RngCore) -> K {
         if thread_rng().gen_bool(self.probability) {
             self.augmenter.augment_inner(input, rng)
@@ -36,15 +34,14 @@ impl<T,K> BaseAugmenter<T,K> for ChanceAugmenter<T,K> {
     }
 }
 
-
 #[cfg(test)]
 mod tests {
-    use test_case::test_case;
     use super::*;
+    use test_case::test_case;
 
     struct DummyMultiplyAugmenter;
 
-    impl BaseAugmenter<i32,i32> for DummyMultiplyAugmenter {
+    impl BaseAugmenter<i32, i32> for DummyMultiplyAugmenter {
         fn augment_inner(&self, input: i32, _rng: &mut dyn rand::RngCore) -> i32 {
             input * 2
         }

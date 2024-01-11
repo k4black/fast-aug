@@ -1,8 +1,7 @@
-use std::collections::HashSet;
 use icu_locid::Locale;
-use icu_properties::{sets,exemplar_chars};
+use icu_properties::{exemplar_chars, sets};
 use icu_provider::DataLocale;
-
+use std::collections::HashSet;
 
 pub struct AlphabetModel {
     pub main: HashSet<char>,
@@ -15,7 +14,6 @@ pub struct AlphabetModel {
 }
 
 impl AlphabetModel {
-
     pub fn new(
         main: HashSet<char>,
         main_capitalized: Option<HashSet<char>>,
@@ -25,7 +23,6 @@ impl AlphabetModel {
         numbers: HashSet<char>,
         locale_string: String,
     ) -> Self {
-
         let main_capitalized = match main_capitalized {
             Some(main_capitalized) => main_capitalized,
             None => main.iter().map(|c| c.to_uppercase().next().unwrap()).collect(),
@@ -43,11 +40,10 @@ impl AlphabetModel {
 
     fn unicode_set_data_to_hashset(data: &sets::UnicodeSetData) -> HashSet<char> {
         HashSet::from_iter(
-            data
-                .as_code_point_inversion_list_string_list()
+            data.as_code_point_inversion_list_string_list()
                 .unwrap()
                 .code_points()
-                .iter_chars()
+                .iter_chars(),
         )
     }
 
@@ -96,17 +92,15 @@ impl AlphabetModel {
     /// assert_eq!(alphabet_model.main.len(), 27);
     /// ```
     pub fn from_locale_str(locale_str: &str) -> Self {
-        let locale = Locale::try_from_bytes(locale_str.as_bytes())
-            .expect("language tag should be valid");
+        let locale = Locale::try_from_bytes(locale_str.as_bytes()).expect("language tag should be valid");
         Self::from_locale(&locale)
     }
 }
 
-
 #[cfg(test)]
 mod tests {
-    use test_case::test_case;
     use super::*;
+    use test_case::test_case;
 
     #[test_case("en")]
     #[test_case("de")]

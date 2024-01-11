@@ -1,7 +1,6 @@
-use std::collections::HashSet;
 use super::token::{Token, TokenType};
+use std::collections::HashSet;
 use unicode_segmentation::UnicodeSegmentation;
-
 
 /// Doc struct holds content as a list of tokens.
 /// TODO: Lazy loading of tokens while not requested.
@@ -19,10 +18,7 @@ impl Doc {
     /// * `text` - A string slice that holds the text to be tokenized.
     pub fn new(text: &str) -> Self {
         let tokens = Doc::tokenize(text);
-        Doc {
-            tokens,
-            num_changes: 0,
-        }
+        Doc { tokens, num_changes: 0 }
     }
 
     /// Create a new Doc from a list of tokens.
@@ -31,11 +27,11 @@ impl Doc {
     /// # Arguments
     /// * `tokens` - A vector of string slices that holds the tokens.
     pub fn from_tokens(tokens: Vec<&str>) -> Self {
-        let tokens = tokens.iter().map(|&token| Token::from_str(token)).collect::<Vec<Token>>();
-        Doc {
-            tokens,
-            num_changes: 0,
-        }
+        let tokens = tokens
+            .iter()
+            .map(|&token| Token::from_str(token))
+            .collect::<Vec<Token>>();
+        Doc { tokens, num_changes: 0 }
     }
 
     /// Tokenize a string slice on word boundaries (words, spaces, and special symbols).
@@ -56,7 +52,11 @@ impl Doc {
 
     /// Convert Doc to string
     pub fn to_string(&self) -> String {
-        self.tokens.iter().map(|token| token.token().as_str()).collect::<Vec<&str>>().join("")
+        self.tokens
+            .iter()
+            .map(|token| token.token().as_str())
+            .collect::<Vec<&str>>()
+            .join("")
     }
 
     /// Calculate number of word tokens
@@ -94,7 +94,7 @@ impl Doc {
                         }
                     }
                     word_indexes.push(idx);
-                },
+                }
                 (TokenType::Special, true) => word_indexes.push(idx),
                 (_, _) => (),
             }
@@ -113,11 +113,10 @@ impl Doc {
     }
 }
 
-
 #[cfg(test)]
 mod tests {
-    use test_case::test_case;
     use super::*;
+    use test_case::test_case;
 
     #[test_case("Hello, world!", vec!["Hello", ",", " ", "world", "!"] ; "basic latin script")]
     #[test_case("    Some\t\t    spaces", vec!["    ", "Some", "\t", "\t", "    ", "spaces"] ; "complicated spaces")]
@@ -127,7 +126,10 @@ mod tests {
     #[test_case(":clown_face: :see_no_evil: :laughing:", vec![":", "clown_face", ":", " ", ":", "see_no_evil", ":", " ", ":", "laughing", ":"] ; "emoji aliases")]
     fn test_docs_spesial_cases(input_text: &str, expected_tokens: Vec<&str>) {
         let doc = Doc::new(input_text);
-        let expected_tokens = expected_tokens.iter().map(|&token| Token::from_str(token)).collect::<Vec<Token>>();
+        let expected_tokens = expected_tokens
+            .iter()
+            .map(|&token| Token::from_str(token))
+            .collect::<Vec<Token>>();
         assert_eq!(doc.tokens.len(), expected_tokens.len());
         assert_eq!(doc.tokens, expected_tokens);
     }
@@ -186,7 +188,10 @@ mod tests {
     )]
     fn test_multilingual_lorem_ipsum(input_text: &str, expected_tokens: Vec<&str>) {
         let doc = Doc::new(input_text);
-        let expected_tokens = expected_tokens.iter().map(|&token| Token::from_str(token)).collect::<Vec<Token>>();
+        let expected_tokens = expected_tokens
+            .iter()
+            .map(|&token| Token::from_str(token))
+            .collect::<Vec<Token>>();
         assert_eq!(doc.tokens.len(), expected_tokens.len());
         assert_eq!(doc.tokens, expected_tokens);
     }
@@ -195,7 +200,10 @@ mod tests {
     #[test_case(vec!["    ", "Some", "\t", "\t", "    ", "spaces"] ; "complicated spaces")]
     fn test_docs_from_tokens(tokens: Vec<&str>) {
         let doc = Doc::from_tokens(tokens.clone());
-        let expected_tokens = tokens.iter().map(|&token| Token::from_str(token)).collect::<Vec<Token>>();
+        let expected_tokens = tokens
+            .iter()
+            .map(|&token| Token::from_str(token))
+            .collect::<Vec<Token>>();
         assert_eq!(doc.tokens.len(), tokens.len());
         assert_eq!(doc.tokens, expected_tokens);
     }
@@ -236,8 +244,16 @@ mod tests {
     #[test_case(vec!["A", ",", " ", "B", "C", "!"], false, vec!["A", "B"], vec![4] ; "filter existing")]
     #[test_case(vec!["A", ",", " ", "B", "C", "!"], false, vec!["C", "E", "R"], vec![0, 3] ; "filter not existing")]
     #[test_case(vec!["A", "B", "C", "D"], true, vec!["A", "B", "C", "D", "F"], vec![] ; "all words filter all")]
-    fn test_get_word_indexes_without_stopwords(tokens: Vec<&str>, include_special_char: bool, stopwords: Vec<&str>, expected: Vec<usize>) {
-        let stopwords = stopwords.iter().map(|&token| token.to_string()).collect::<HashSet<String>>();
+    fn test_get_word_indexes_without_stopwords(
+        tokens: Vec<&str>,
+        include_special_char: bool,
+        stopwords: Vec<&str>,
+        expected: Vec<usize>,
+    ) {
+        let stopwords = stopwords
+            .iter()
+            .map(|&token| token.to_string())
+            .collect::<HashSet<String>>();
         let mut doc = Doc::from_tokens(tokens);
         let word_tokens = doc.get_word_indexes(include_special_char, Some(&stopwords));
         assert_eq!(word_tokens, expected);
