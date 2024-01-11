@@ -20,3 +20,6 @@ Note: requires sudo to run
 cargo install cargo-flamegraph
 sudo cargo flamegraph --dev
 ```
+
+
+TBA: More commands from https://endler.dev/2020/rust-compile-times/

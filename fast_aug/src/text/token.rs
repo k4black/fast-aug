@@ -1,4 +1,4 @@
-use regex::Regex;
+// use regex::Regex;
 
 /// Token types
 ///
@@ -99,19 +99,19 @@ impl Token {
     ///   space regex -> Space
     ///   else -> Special
     /// Slowest speed
-    #[allow(dead_code, unused_variables, unreachable_code)]
-    fn classify_token_by_regex(token: &str, re_word: &Regex, re_space: &Regex) -> TokenType {
-        panic!("Not implemented");
-        if token.is_empty() {
-            TokenType::Deleted
-        } else if re_word.is_match(token) {
-            TokenType::Word
-        } else if re_space.is_match(token) {
-            TokenType::Space
-        } else {
-            TokenType::Special
-        }
-    }
+    // #[allow(dead_code, unused_variables, unreachable_code)]
+    // fn classify_token_by_regex(token: &str, re_word: &Regex, re_space: &Regex) -> TokenType {
+    //     panic!("Not implemented");
+    //     if token.is_empty() {
+    //         TokenType::Deleted
+    //     } else if re_word.is_match(token) {
+    //         TokenType::Word
+    //     } else if re_space.is_match(token) {
+    //         TokenType::Space
+    //     } else {
+    //         TokenType::Special
+    //     }
+    // }
 
     /// Get respective TokenType
     pub fn kind(&self) -> &TokenType {

@@ -23,7 +23,6 @@ bench = false
 lazy_static = "1.4"
 rand = "0.8"
 rand_distr = "0.4"
-regex = "1.10"
 unicode-segmentation = "1.10"  # think about moving to https://crates.io/crates/finl_unicode
 finalfusion = "0.18"
 icu_locid = "1.4"
@@ -31,20 +30,15 @@ icu_properties = "1.4"
 icu_provider = "1.4"
 serde = "1.0"
 serde_json = "1.0"
-flate2 = "1.0"
-#candle-core = "0.3.2"
+#flate2 = "1.0"
+candle-core = "0.3.2"
 #half = "2.3"
 #hf-hub = "0.3.0"
 #tokenizers = { version = "0.13.4", default-features = false }
-criterion = "0.5"
-
-
-finl_unicode = "1.2.0"
-icu_segmenter = "1.4.0"
 
 
 [build-dependencies]
-flate2 = "1.0"
+#flate2 = "1.0"
 serde = "1.0"
 serde_json = "1.0"
 
@@ -69,3 +63,6 @@ debug = true
 
 [profile.bench]
 debug = true
+
+[profile.dev]
+split-debuginfo = "unpacked"
