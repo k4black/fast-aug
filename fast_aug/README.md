@@ -22,4 +22,9 @@ sudo cargo flamegraph --dev
 ```
 
 
+To measure compile time
+```shell
+cargo build --timings --profile=dev  # optimized and cached
+cargo build --timings --profile=release
+```
 TBA: More commands from https://endler.dev/2020/rust-compile-times/
