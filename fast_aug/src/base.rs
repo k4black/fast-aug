@@ -1,5 +1,4 @@
-
-pub trait BaseAugmenter<T,K> {
+pub trait BaseAugmenter<T, K> {
     /// Public method to augment an input
     /// 1. Convert input to inner type (K)
     /// 2. Augment using inner type

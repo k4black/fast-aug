@@ -136,8 +136,8 @@ impl Token {
 
 #[cfg(test)]
 mod tests {
-    use test_case::test_case;
     use super::*;
+    use test_case::test_case;
 
     #[test_case("6", TokenType::Word, 1, 1 ; "single char")]
     #[test_case("4Kadf3321s", TokenType::Word, 10, 10 ; "multiple chars")]
@@ -163,7 +163,6 @@ mod tests {
         assert_eq!(token_obj, target_token);
     }
 
-
     #[test_case("6", TokenType::Special ; "single digit")]
     #[test_case("123", TokenType::Special ; "only digits")]
     #[test_case("hello", TokenType::Word ; "only alphabetic")]
@@ -188,5 +187,4 @@ mod tests {
         let token_obj = Token::from_str(token);
         assert_eq!(token_obj.kind(), &kind);
     }
-
 }

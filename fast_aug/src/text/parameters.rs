@@ -1,4 +1,3 @@
-
 /// Parameters for augmentation
 #[derive(Clone)]
 pub struct TextAugmentParameters {
@@ -85,8 +84,8 @@ impl TextAugmentParameters {
 
 #[cfg(test)]
 mod tests {
-    use test_case::test_case;
     use super::*;
+    use test_case::test_case;
 
     #[test_case(0.0, 10, 0)]
     #[test_case(0.5, 10, 5)]
@@ -137,7 +136,13 @@ mod tests {
     #[test_case(0.5, 10, 3, 7, 5)]
     #[test_case(0.5, 10, 0, 3, 3)]
     #[test_case(0.5, 10, 6, 10, 6)]
-    fn test_num_elements_min_max_limit(p: f32, input_size: usize, min_elements: usize, max_elements: usize, expected: usize) {
+    fn test_num_elements_min_max_limit(
+        p: f32,
+        input_size: usize,
+        min_elements: usize,
+        max_elements: usize,
+        expected: usize,
+    ) {
         let params = TextAugmentParameters::new(p, Some(min_elements), Some(max_elements));
         assert_eq!(params.num_elements(input_size), expected);
     }

@@ -1,14 +1,14 @@
-use std::sync::Arc;
 use crate::base::BaseAugmenter;
+use std::sync::Arc;
 
-pub struct SequentialAugmenter<T,K> {
+pub struct SequentialAugmenter<T, K> {
     /// The augmenters to apply in sequence
     /// Added Send + Sync for multi-threading safety
-    augmenters: Vec<Arc<dyn BaseAugmenter<T,K> + Send + Sync>>,
+    augmenters: Vec<Arc<dyn BaseAugmenter<T, K> + Send + Sync>>,
 }
 
-impl<T,K> SequentialAugmenter<T,K> {
-    pub fn new(augmenters: Vec<Arc<dyn BaseAugmenter<T,K> + Send + Sync>>) -> Self {
+impl<T, K> SequentialAugmenter<T, K> {
+    pub fn new(augmenters: Vec<Arc<dyn BaseAugmenter<T, K> + Send + Sync>>) -> Self {
         if augmenters.is_empty() {
             panic!("SequentialAugmenter must have at least one augmenter");
         }
@@ -16,9 +16,11 @@ impl<T,K> SequentialAugmenter<T,K> {
     }
 }
 
-impl<T,K> BaseAugmenter<T,K> for SequentialAugmenter<T,K> {
+impl<T, K> BaseAugmenter<T, K> for SequentialAugmenter<T, K> {
     fn augment_inner(&self, input: K, rng: &mut dyn rand::RngCore) -> K {
-        self.augmenters.iter().fold(input, |acc, augmenter| augmenter.augment_inner(acc, rng))
+        self.augmenters
+            .iter()
+            .fold(input, |acc, augmenter| augmenter.augment_inner(acc, rng))
     }
 
     fn convert_to_inner(&self, input: T) -> K {
@@ -30,15 +32,14 @@ impl<T,K> BaseAugmenter<T,K> for SequentialAugmenter<T,K> {
     }
 }
 
-
 #[cfg(test)]
 mod tests {
-    use test_case::test_case;
     use super::*;
+    use test_case::test_case;
 
     struct DummyMultiplyAugmenter;
 
-    impl BaseAugmenter<i32,i32> for DummyMultiplyAugmenter {
+    impl BaseAugmenter<i32, i32> for DummyMultiplyAugmenter {
         fn augment_inner(&self, input: i32, _rng: &mut dyn rand::RngCore) -> i32 {
             input * 2
         }
@@ -52,7 +53,7 @@ mod tests {
 
     struct DummyAddAugmenter;
 
-    impl BaseAugmenter<i32,i32> for DummyAddAugmenter {
+    impl BaseAugmenter<i32, i32> for DummyAddAugmenter {
         fn augment_inner(&self, input: i32, _rng: &mut dyn rand::RngCore) -> i32 {
             input + 1
         }

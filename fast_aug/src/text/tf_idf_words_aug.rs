@@ -1,9 +1,8 @@
-use std::collections::HashSet;
-use crate::base::BaseAugmenter;
+use super::base::{BaseTextAugmenter, TextAction};
 use super::doc::Doc;
 use super::parameters::TextAugmentParameters;
-use super::base::{BaseTextAugmenter, TextAction};
-
+use crate::base::BaseAugmenter;
+use std::collections::HashSet;
 
 pub struct TfIdfWordsAugmenter {
     /// Action to augmentation, set of values {'substitute', 'swap', 'delete'}
@@ -16,13 +15,8 @@ pub struct TfIdfWordsAugmenter {
     top_k: usize,
 }
 
-
 impl TfIdfWordsAugmenter {
-    pub fn new(
-        aug_params_word: TextAugmentParameters,
-        stopwords: Option<HashSet<String>>,
-        top_k: usize,
-    ) -> Self {
+    pub fn new(aug_params_word: TextAugmentParameters, stopwords: Option<HashSet<String>>, top_k: usize) -> Self {
         TfIdfWordsAugmenter {
             action: TextAction::Substitute,
             aug_params_word,
@@ -35,7 +29,8 @@ impl TfIdfWordsAugmenter {
         // Select random word tokens
         let word_tokens_indexes = doc.get_word_indexes(false, self.stopwords.as_ref());
         let num_tokens_to_change = self.aug_params_word.num_elements(word_tokens_indexes.len());
-        let selected_tokens_indexes = self.select_random_element_indexes(rng, word_tokens_indexes, num_tokens_to_change);
+        let selected_tokens_indexes =
+            self.select_random_element_indexes(rng, word_tokens_indexes, num_tokens_to_change);
 
         // For all selected tokens randomly select one word with closest tf-idf and substitute
         for index in selected_tokens_indexes {
@@ -47,11 +42,9 @@ impl TfIdfWordsAugmenter {
     }
 }
 
+impl BaseTextAugmenter for TfIdfWordsAugmenter {}
 
-impl BaseTextAugmenter for TfIdfWordsAugmenter{}
-
-
-impl BaseAugmenter<String,Doc> for TfIdfWordsAugmenter {
+impl BaseAugmenter<String, Doc> for TfIdfWordsAugmenter {
     fn augment_inner(&self, input: Doc, rng: &mut dyn rand::RngCore) -> Doc {
         match self.action {
             TextAction::Substitute => self.substitute(input, rng),
@@ -68,13 +61,8 @@ impl BaseAugmenter<String,Doc> for TfIdfWordsAugmenter {
     }
 }
 
-
 #[cfg(test)]
 mod tests {
-    use test_case::test_case;
     use super::*;
-
-
-
+    use test_case::test_case;
 }
-

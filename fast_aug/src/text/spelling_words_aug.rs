@@ -1,9 +1,8 @@
-use std::collections::HashSet;
-use crate::base::BaseAugmenter;
+use super::base::{BaseTextAugmenter, TextAction};
 use super::doc::Doc;
 use super::parameters::TextAugmentParameters;
-use super::base::{BaseTextAugmenter, TextAction};
-
+use crate::base::BaseAugmenter;
+use std::collections::HashSet;
 
 pub struct SpellingWordsAugmenter {
     /// Action to augmentation, set of values {'substitute', 'swap', 'delete'}
@@ -14,12 +13,8 @@ pub struct SpellingWordsAugmenter {
     stopwords: Option<HashSet<String>>,
 }
 
-
 impl SpellingWordsAugmenter {
-    pub fn new(
-        aug_params_word: TextAugmentParameters,
-        stopwords: Option<HashSet<String>>,
-    ) -> Self {
+    pub fn new(aug_params_word: TextAugmentParameters, stopwords: Option<HashSet<String>>) -> Self {
         SpellingWordsAugmenter {
             action: TextAction::Substitute,
             aug_params_word,
@@ -31,7 +26,8 @@ impl SpellingWordsAugmenter {
         // Select random word tokens
         let word_tokens_indexes = doc.get_word_indexes(false, self.stopwords.as_ref());
         let num_tokens_to_change = self.aug_params_word.num_elements(word_tokens_indexes.len());
-        let selected_tokens_indexes = self.select_random_element_indexes(rng, word_tokens_indexes, num_tokens_to_change);
+        let selected_tokens_indexes =
+            self.select_random_element_indexes(rng, word_tokens_indexes, num_tokens_to_change);
 
         // For all selected tokens randomly introduce spelling mistakes
         for index in selected_tokens_indexes {
@@ -43,11 +39,9 @@ impl SpellingWordsAugmenter {
     }
 }
 
+impl BaseTextAugmenter for SpellingWordsAugmenter {}
 
-impl BaseTextAugmenter for SpellingWordsAugmenter{}
-
-
-impl BaseAugmenter<String,Doc> for SpellingWordsAugmenter {
+impl BaseAugmenter<String, Doc> for SpellingWordsAugmenter {
     fn augment_inner(&self, input: Doc, rng: &mut dyn rand::RngCore) -> Doc {
         match self.action {
             TextAction::Substitute => self.substitute(input, rng),
@@ -64,13 +58,8 @@ impl BaseAugmenter<String,Doc> for SpellingWordsAugmenter {
     }
 }
 
-
 #[cfg(test)]
 mod tests {
-    use test_case::test_case;
     use super::*;
-
-
-
+    use test_case::test_case;
 }
-

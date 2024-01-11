@@ -1,9 +1,8 @@
-use std::collections::HashSet;
-use crate::base::BaseAugmenter;
+use super::base::{BaseTextAugmenter, TextAction};
 use super::doc::Doc;
 use super::parameters::TextAugmentParameters;
-use super::base::{BaseTextAugmenter, TextAction};
-
+use crate::base::BaseAugmenter;
+use std::collections::HashSet;
 
 pub struct KeyboardCharsAugmenter {
     /// Action to augmentation, set of values {'substitute', 'swap', 'delete'}
@@ -15,7 +14,6 @@ pub struct KeyboardCharsAugmenter {
     /// Filter, Set of words that cannot be augmented
     stopwords: Option<HashSet<String>>,
 }
-
 
 impl KeyboardCharsAugmenter {
     pub fn new(
@@ -41,7 +39,8 @@ impl KeyboardCharsAugmenter {
         // Select random word tokens
         let word_tokens_indexes = doc.get_word_indexes(false, self.stopwords.as_ref());
         let num_tokens_to_change = self.aug_params_word.num_elements(word_tokens_indexes.len());
-        let selected_tokens_indexes = self.select_random_element_indexes(rng, word_tokens_indexes, num_tokens_to_change);
+        let selected_tokens_indexes =
+            self.select_random_element_indexes(rng, word_tokens_indexes, num_tokens_to_change);
 
         // For all selected tokens select random chars and swap them
         for token_index in selected_tokens_indexes {
@@ -54,11 +53,9 @@ impl KeyboardCharsAugmenter {
     }
 }
 
+impl BaseTextAugmenter for KeyboardCharsAugmenter {}
 
-impl BaseTextAugmenter for KeyboardCharsAugmenter{}
-
-
-impl BaseAugmenter<String,Doc> for KeyboardCharsAugmenter {
+impl BaseAugmenter<String, Doc> for KeyboardCharsAugmenter {
     fn augment_inner(&self, input: Doc, rng: &mut dyn rand::RngCore) -> Doc {
         match self.action {
             TextAction::Substitute => self.substitute(input, rng),
@@ -76,11 +73,9 @@ impl BaseAugmenter<String,Doc> for KeyboardCharsAugmenter {
     }
 }
 
-
 #[cfg(test)]
 mod tests {
-    use test_case::test_case;
-    use crate::text::random_words_aug::RandomWordsAugmenter;
     use super::*;
-
+    use crate::text::random_words_aug::RandomWordsAugmenter;
+    use test_case::test_case;
 }
