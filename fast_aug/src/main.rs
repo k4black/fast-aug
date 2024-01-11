@@ -2,7 +2,7 @@ use std::fs::File;
 use std::io;
 use std::io::BufRead;
 use std::path::Path;
-use criterion::black_box;
+// use criterion::black_box;
 use rand::SeedableRng;
 use fast_aug::BaseAugmenter;
 use fast_aug::text::{RandomCharsAugmenter, TextAction, TextAugmentParameters};
@@ -34,8 +34,8 @@ fn main() {
             TextAugmentParameters::new(0.5,  Some(1), Some(10)),
             None,
         );
-        for text in text_data.iter() {
-            black_box(aug.augment(text.clone(), &mut rng));
-        }
+        // for text in text_data.iter() {
+            // black_box(aug.augment(text.clone(), &mut rng));
+        // }
     }
 }
