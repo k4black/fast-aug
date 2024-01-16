@@ -1,3 +1,4 @@
+# fast-aug - rust library
 
 All commands relative to this directory with rust library (`fast_aug/`)
 

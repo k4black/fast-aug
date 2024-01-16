@@ -7,27 +7,56 @@ on:
     branches: [ main ]
 
 
+env:
+  RUST_BACKTRACE: full
+  RUST_SRC_DIRECTORY: ./fast_aug
+  PYTHON_SRC_DIRECTORY: ./bindings/python
+
+
 jobs:
+  lint-rust:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install rust stable
+        uses: dtolnay/rust-toolchain@stable
+      - name: Cache rust
+        uses: Swatinem/rust-cache@v2
+        with:
+          path: ~/.cargo
+          key: ${{ runner.os }}-rust-${{ hashFiles('**/Cargo.toml') }}
+      - name: Run clippy
+        working-directory: ${{ env.RUST_SRC_DIRECTORY }}
+        run: cargo clippy --all-targets --all-features -- -D warnings
+      - name: Run rustfmt
+        working-directory: ${{ env.RUST_SRC_DIRECTORY }}
+        run: cargo fmt --all -- --check
+
   test-rust:
     strategy:
       fail-fast: false
       matrix:
         os: [ubuntu-latest]
 #        os: [ubuntu-latest, macos-latest, windows-latest]
+        debug: [true, false]  # test with a debug build as it picks up errors which optimised release builds do not
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
-      - uses: moonrepo/setup-rust@v1
-        with:
-          rust-version: stable
-          profile: minimal
-      - uses: Swatinem/rust-cache@v2
+      - name: Install rust stable
+        uses: dtolnay/rust-toolchain@stable
+      - name: Cache rust
+        uses: Swatinem/rust-cache@v2
         with:
           path: ~/.cargo
           key: ${{ runner.os }}-rust-${{ hashFiles('**/Cargo.toml') }}
-      - name: Run tests
-        working-directory: ./fast_aug  # rust library directory
-        run: cargo test
+      - name: Run tests in ${{ matrix.debug }} mode
+        working-directory: ${{ env.RUST_SRC_DIRECTORY }}
+        run: |
+          if ${{ matrix.debug }}; then
+            cargo test
+          else
+            cargo test --release
+          fi
 
   # TODO: fix benchmark running, currently it fails with:
   # No benchmark result was found in the ....
@@ -68,3 +97,82 @@ jobs:
 #          alert-threshold: '200%'
 #          comment-on-alert: true
 #          fail-on-alert: true
+
+  lint-python:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install rust stable
+        uses: dtolnay/rust-toolchain@stable
+      - name: Cache rust
+        uses: Swatinem/rust-cache@v2
+        with:
+          path: ~/.cargo
+          key: ${{ runner.os }}-rust-${{ hashFiles('**/Cargo.toml') }}
+      - name: Run clippy
+        working-directory: ${{ env.PYTHON_SRC_DIRECTORY }}
+        run: cargo clippy --all-targets --all-features -- -D warnings
+      - name: Run rustfmt
+        working-directory: ${{ env.PYTHON_SRC_DIRECTORY }}
+        run: cargo fmt --all -- --check
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+      - name: Install dependencies
+        run: |
+          pip install -e .[test] -v
+      - name: Run ruff
+        run: |
+          ruff check ${{ env.PYTHON_SRC_DIRECTORY }}
+      - name: Run mypy
+        run: |
+          mypy ${{ env.PYTHON_SRC_DIRECTORY }}
+
+  test-python:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+    #        os: [ubuntu-latest, macos-latest, windows-latest]
+        python-version: [3.12]
+    #       python-version: [3.8, 3.9, 3.10, 3.11, 3.12]
+        debug: [true, false]  # test with a debug build as it picks up errors which optimised release builds do not
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install rust stable
+        uses: dtolnay/rust-toolchain@stable
+      - name: Cache rust
+        uses: Swatinem/rust-cache@v2
+        with:
+          path: ~/.cargo
+          key: ${{ runner.os }}-rust-${{ hashFiles('**/Cargo.toml') }}
+      - name: Run tests in ${{ matrix.debug }} mode
+        working-directory: ${{ env.PYTHON_SRC_DIRECTORY }}
+        run: |
+          if ${{ matrix.debug }}; then
+            cargo test
+          else
+            cargo test --release
+          fi
+      - uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: 'pip'
+      - name: Install dependencies
+        working-directory: ${{ env.PYTHON_SRC_DIRECTORY }}
+        run: |
+          if ${{ matrix.debug }}; then
+            pip install -e .[test] -v --config-settings=build-args='--profile dev'
+          else
+            pip install -e .[test] -v
+          fi
+      - name: Check stubs up to date
+        working-directory: ${{ env.PYTHON_SRC_DIRECTORY }}
+        run: |
+          python generate_stubs.py --check
+      - name: Run tests
+        working-directory: ${{ env.PYTHON_SRC_DIRECTORY }}
+        run: |
+          pytest ${{ env.PYTHON_SRC_DIRECTORY }}
