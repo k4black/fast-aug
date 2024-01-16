@@ -1,21 +1,73 @@
 [build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
+requires = ["maturin>=1.0,<2.0"]
+build-backend = "maturin"
 
+[tool.maturin]
+#python-source = "python"
+#module-name = "pydantic_core._pydantic_core"
+bindings = 'pyo3'
+features = ["pyo3/extension-module"]
+
+
+# maturin will use Cargo.toml metadata if not specified
+# pyproject.toml takes precedence over Cargo.toml
 [project]
 name = "fast-aug"
-version = "0.0.2"
-authors = [
-  { name="Konstantin Chernyshev", email="kdchernyshev@gmail.com" },
-]
+#version =
+#authors =
 description = "Fast nlp augmentation library with rust backend"
-readme = "README.md"
+#readme = "README.md"
 requires-python = ">=3.8"
 classifiers = [
     "Programming Language :: Python :: 3",
-    "Development Status :: 1 - Planning",
-    "License :: OSI Approved :: MIT License",
+    "Development Status :: 2 - Pre-Alpha",
 ]
+dynamic = [
+    'license',
+    'readme',
+    'version'
+]
+#dependencies = []
 
 [project.urls]
 Homepage = "https://github.com/k4black/fast-aug"
+
+[project.optional-dependencies]
+test = [
+    "pytest >=6.0.0,<8.0.0",
+    "black ==23.12.1",
+    "mypy >=1.0.0",
+    "ruff ==0.1.7",
+    "maturin >=1.0,<2.0"
+]
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+testpaths = "tests"
+
+[tool.ruff]
+target-version = "py312"
+# Enable the pycodestyle (`E`) and Pyflakes (`F`) rules by default.
+# Unlike Flake8, Ruff doesn't enable pycodestyle warnings (`W`) or
+# McCabe complexity (`C901`) by default.
+extend-select = ["E", "F", "Q", "RUF100", "C90", "I"]
+ignore = []
+isort = { known-first-party = ['fast_aug', 'tests'] }
+
+[tool.mypy]
+no_incremental = true
+ignore_missing_imports = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+disallow_subclassing_any = true
+disallow_any_generics = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_unreachable = true
+allow_untyped_decorators = true
+exclude = [
+    "tests/",
+    ".tmp/",
+    ".venv/"
+]
