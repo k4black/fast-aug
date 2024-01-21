@@ -115,7 +115,7 @@ jobs:
       - name: Run rustfmt
         working-directory: ${{ env.PYTHON_SRC_DIRECTORY }}
         run: cargo fmt --all -- --check
-      - uses: actions/setup-python@v2
+      - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
           cache: 'pip'
@@ -156,7 +156,7 @@ jobs:
           else
             cargo test --release
           fi
-      - uses: actions/setup-python@v2
+      - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
           cache: 'pip'
