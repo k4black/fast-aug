@@ -120,6 +120,16 @@ def py_file(module, origin):
     for member in members:
         name = member.__name__
         string += f"{name} = {origin}.{name}\n"
+
+    # if have __all__ attribute, use it, otherwise generate it
+    print(f"    - __all__ = {module.__dict__.get("__all__")}")
+    print(f"    - __doc__ = {module.__dict__.get('__doc__')}")
+
+    if module.__dict__.get("__all__"):
+        string += f"__all__ = {origin}.__all__\n"
+    else:
+        string += f"__all__ = [{', '.join([f'\"{m.__name__}\"' for m in members])}]\n"
+
     return string
 
 
@@ -165,6 +175,7 @@ def generate_stubs_and_imports(
     print("  -", module)
 
     submodules = [(name, member) for name, member in inspect.getmembers(module) if inspect.ismodule(member)]
+    print("    - dict", module.__dict__)
 
     stub_filename = folder / "__init__.pyi"
     pyi_content = pyi_file(module)
