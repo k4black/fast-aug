@@ -27,17 +27,18 @@ Text
 - [ ] RandomTfIdfAugmenter
 - [ ] RandomPosAugmenter
 - [ ] [EmojiNormalizer](https://github.com/unicode-org/cldr-json/blob/858baad63c1d51e1d576ef99dccc229d92cedda4/cldr-json/cldr-annotations-full/annotations/en-AU/annotations.json#L1498)
+- [ ] Keep labels (e.g. POS tags) unchanged
 
 Models and utils
-- Models lazy loading
+- [ ] Models lazy loading
   - [ ] At creation time
   - [ ] At first use
   - [ ] Background after creation
 - [ ] [candle](https://github.com/huggingface/candle) support for DL models loading
-  - HF loading
-  - ONNX loading
-  - Optimizations (fp16/int8/int4/layers/etc)
-  - GPU support
+  - [ ] HF loading
+  - [ ] ONNX loading
+  - [ ] Optimizations (fp16/int8/int4/layers/etc)
+  - [ ] GPU support
 - [ ] TF-IDF model
   - [ ] json file loading
   - [ ] sklearn model loading
@@ -45,7 +46,7 @@ Models and utils
 - [ ] Embeddings model
   - [ ] fasttext model loading
   - [ ] word2vec model loading
-- WordNet model
+- [ ] WordNet model
   - [ ] English
   - [ ] German
   - [ ] More?
