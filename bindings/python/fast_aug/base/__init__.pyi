@@ -1,8 +1,13 @@
 # Generated content DO NOT EDIT
+from __future__ import annotations
+
+from typings import Any
 
 class BaseAugmenter:
-    def __init__():
+    """
+    Abstract Base Class for Augmentation
+    """
+    def __init__(self):
         pass
-
 
 

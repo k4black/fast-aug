@@ -18,7 +18,7 @@ impl<T, K> ChanceAugmenter<T, K> {
 
 impl<T, K> BaseAugmenter<T, K> for ChanceAugmenter<T, K> {
     fn augment_inner(&self, input: K, rng: &mut dyn rand::RngCore) -> K {
-        if thread_rng().gen_bool(self.probability) {
+        if rng.gen_bool(self.probability) {
             self.augmenter.augment_inner(input, rng)
         } else {
             input

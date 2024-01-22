@@ -9,11 +9,11 @@ pub struct SelectorAugmenter<T, K> {
     augmenters: Vec<Arc<dyn BaseAugmenter<T, K> + Send + Sync>>,
     /// Optional weights for each augmenter
     /// If None, uniform probability is used
-    weights: Option<Vec<f64>>,
+    weights: Option<Vec<f32>>,
 }
 
 impl<T, K> SelectorAugmenter<T, K> {
-    pub fn new(augmenters: Vec<Arc<dyn BaseAugmenter<T, K> + Send + Sync>>, weights: Option<Vec<f64>>) -> Self {
+    pub fn new(augmenters: Vec<Arc<dyn BaseAugmenter<T, K> + Send + Sync>>, weights: Option<Vec<f32>>) -> Self {
         if augmenters.is_empty() {
             panic!("SelectorAugmenter must have at least one augmenter");
         }

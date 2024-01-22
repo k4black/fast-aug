@@ -63,10 +63,14 @@ Rust
 
 
 Python 
+- [ ] Custom Python Augmenter class
 - [ ] Bindings with 
-  - [ ] Base pyo3 bindings
+  - [x] Base pyo3 bindings
   - [x] [maturin](https://github.com/PyO3/maturin) auto build from pyproject.toml
-  - [ ] Auto stubs (.pyi) files generation
+  - [x] Stubs (.pyi) files generation
+  - [ ] Auto generate stubs on maturing build
+  - [x] Text
+  - [x] Flow
 - [ ] [flamegraph profiling](https://ohadravid.github.io/posts/2023-03-rusty-python/)
 - [ ] Optimizations - see [this](https://ohadravid.github.io/posts/2023-03-rusty-python/)
 - [ ] Integration tests

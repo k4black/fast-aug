@@ -24,9 +24,5 @@ fn fast_aug(py: Python, m: &PyModule) -> PyResult<()> {
 
     m.add("__version__", env!("CARGO_PKG_VERSION"))?;
 
-    // Manually construct the __all__ list
-    // let all = PyList::new(py, &["__version__", "BaseAugmenter", "BaseTextAugmenter", "base", "flow", "text", "models"]);
-    // m.add("__all__", all)?;
-
     Ok(())
 }
