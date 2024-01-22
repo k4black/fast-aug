@@ -175,4 +175,4 @@ jobs:
       - name: Run python tests
         working-directory: ${{ env.PYTHON_SRC_DIRECTORY }}
         run: |
-          pytest ${{ env.PYTHON_SRC_DIRECTORY }}
+          pytest

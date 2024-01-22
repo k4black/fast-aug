@@ -103,7 +103,7 @@ mod tests {
         }
 
         // Allow for some variance in the number of changes due to randomness
-        assert!((num_augmenter1 as f64 - num_augmenter2 as f64).abs() / 1000.0 < 0.1);
+        assert!((num_augmenter1 as f32 - num_augmenter2 as f32).abs() / 1000.0 < 0.1);
     }
 
     #[test_case(vec![0.0, 1.0] ; "0.0 and 1.0 weights")]
@@ -112,11 +112,11 @@ mod tests {
     #[test_case(vec![0.9, 0.1] ; "0.9 and 0.1 weights")]
     #[test_case(vec![1.0, 0.0] ; "1.0 and 0.0 weights")]
     #[test_case(vec![100.0, 100.0] ; "100.0 and 100.0 weights")]
-    fn test_weighted_selection(weights: Vec<f64>) {
+    fn test_weighted_selection(weights: Vec<f32>) {
         let weights_normalized = weights
             .iter()
-            .map(|w| w / weights.iter().sum::<f64>())
-            .collect::<Vec<f64>>();
+            .map(|w| w / weights.iter().sum::<f32>())
+            .collect::<Vec<f32>>();
 
         let augmenter1 = Arc::new(DummyMultiplyAugmenter);
         let augmenter2 = Arc::new(DummyAddAugmenter);
@@ -136,14 +136,14 @@ mod tests {
 
         // Allow for some variance in the number of changes due to randomness
         // Test only the first, as the second is the complement
-        assert!((num_augmenter1 as f64 / 1000.0 - weights_normalized[0]).abs() < 0.1);
+        assert!((num_augmenter1 as f32 / 1000.0 - weights_normalized[0]).abs() < 0.1);
     }
 
     #[test_case(None)]
     #[test_case(Some(vec![0.5]))]
     #[test_case(Some(vec![1.0]))]
     #[test_case(Some(vec![100.0]))]
-    fn test_only_one_augmenter(weights: Option<Vec<f64>>) {
+    fn test_only_one_augmenter(weights: Option<Vec<f32>>) {
         let augmenter1 = Arc::new(DummyMultiplyAugmenter);
         let selector_augmenter = SelectorAugmenter::new(vec![augmenter1], weights);
 
