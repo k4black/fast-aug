@@ -1,18 +1,14 @@
-use std::sync::Arc;
 use fast_aug_rust::flow::{ChanceAugmenter, SelectorAugmenter, SequentialAugmenter};
+use std::sync::Arc;
 
+use crate::base::{AugmenterTypes, PyBaseAugmenter};
+
+use pyo3::exceptions::{PyTypeError, PyValueError};
 use pyo3::prelude::*;
-use pyo3::types::{PyList, PyType};
-use pyo3::wrap_pymodule;
-use pyo3::types::PyAny;
-use pyo3::exceptions::{PyNotImplementedError, PyTypeError, PyValueError};
+
+use pyo3::types::PyList;
 use rand::rngs::SmallRng;
 use rand::SeedableRng;
-use fast_aug_rust::BaseAugmenter;
-use fast_aug_rust::text::{BaseTextAugmenter, Doc, RandomWordsAugmenter};
-use crate::base::{AugmenterTypes, PyBaseAugmenter};
-use crate::text::{PyBaseTextAugmenter, PyRandomWordsAugmenter, PyRandomCharsAugmenter};
-
 
 /// Given other augmenter apply it with a given probability
 /// :param augmenter: The augmenter to apply with a given probability
@@ -29,39 +25,25 @@ impl PyChanceAugmenter {
         let rng = SmallRng::from_entropy();
 
         // Process parameters
-        let probability = match probability {
-            0.0..=1.0 => probability,
-            _ => return Err(PyValueError::new_err("probability must be between 0.0 and 1.0")),
-        };
-
+        if probability < 0.0 || probability > 1.0 {
+            return Err(PyValueError::new_err("probability must be between 0 and 1"));
+        }
 
         // Create Rust object of AugmenterTypes
         // TODO: other types than String
         let rust_augmenter = match &augmenter.inner {
             AugmenterTypes::Text(augmenter) => {
-                AugmenterTypes::Text(
-                    Arc::new(
-                        ChanceAugmenter::new(
-                            augmenter.clone(),
-                            probability,
-                        )
-                    )
-                )
-            },
+                AugmenterTypes::Text(Arc::new(ChanceAugmenter::new(augmenter.clone(), probability)))
+            }
             _ => return Err(PyTypeError::new_err("augmenter must be a text augmenter")),
         };
 
         // Create Python object with respective parent classes
-        Ok(
-            PyClassInitializer::from(
-                PyBaseAugmenter {
-                    inner: rust_augmenter,
-                    rng,
-                }
-            ).add_subclass(
-                PyChanceAugmenter {}
-            )
-        )
+        Ok(PyClassInitializer::from(PyBaseAugmenter {
+            inner: rust_augmenter,
+            rng,
+        })
+        .add_subclass(PyChanceAugmenter {}))
     }
 
     /// Augment the data
@@ -81,14 +63,12 @@ impl PyChanceAugmenter {
     }
 }
 
-
 /// Given a list of augmenters, apply one of them randomly
 /// :param augmenters: The list of augmenters to choose from
 /// :param weights: Optional weights for each augmenter
 #[pyclass(extends=PyBaseAugmenter)]
 #[pyo3(name = "SelectorAugmenter")]
 pub struct PySelectorAugmenter;
-
 
 #[pymethods]
 impl PySelectorAugmenter {
@@ -106,7 +86,10 @@ impl PySelectorAugmenter {
                 return Err(PyValueError::new_err("weights must be the same length as augmenters"));
             }
         }
-        let augmenters = augmenters.iter().map(|x| x.extract::<PyBaseAugmenter>()).collect::<Result<Vec<_>, _>>();
+        let augmenters = augmenters
+            .iter()
+            .map(|x| x.extract::<PyBaseAugmenter>())
+            .collect::<Result<Vec<_>, _>>();
         let augmenters = match augmenters {
             Ok(augmenters) => augmenters,
             Err(_) => return Err(PyTypeError::new_err("augmenters must be a list of BaseAugmenter")),
@@ -116,33 +99,24 @@ impl PySelectorAugmenter {
         // TODO: other types than String
         let rust_augmenter = match augmenters[0].inner {
             AugmenterTypes::Text(_) => {
-                let augmenters = augmenters.into_iter().map(|x| match x.inner {
-                    AugmenterTypes::Text(augmenter) => augmenter,
-                    _ => panic!("Augmenter is not a TextAugmenter"),
-                }).collect::<Vec<_>>();
-                AugmenterTypes::Text(
-                    Arc::new(
-                        SelectorAugmenter::new(
-                            augmenters,
-                            weights,
-                        )
-                    )
-                )
-            },
+                let augmenters = augmenters
+                    .into_iter()
+                    .map(|x| match x.inner {
+                        AugmenterTypes::Text(augmenter) => augmenter,
+                        _ => panic!("Augmenter is not a TextAugmenter"),
+                    })
+                    .collect::<Vec<_>>();
+                AugmenterTypes::Text(Arc::new(SelectorAugmenter::new(augmenters, weights)))
+            }
             _ => return Err(PyTypeError::new_err("augmenters must be a list of text augmenters")),
         };
 
         // Create Python object with respective parent classes
-        Ok(
-            PyClassInitializer::from(
-                PyBaseAugmenter {
-                    inner: rust_augmenter,
-                    rng,
-                }
-            ).add_subclass(
-                PySelectorAugmenter {}
-            )
-        )
+        Ok(PyClassInitializer::from(PyBaseAugmenter {
+            inner: rust_augmenter,
+            rng,
+        })
+        .add_subclass(PySelectorAugmenter {}))
     }
 
     /// Augment the data
@@ -162,13 +136,11 @@ impl PySelectorAugmenter {
     }
 }
 
-
 /// Given a list of augmenters, apply them sequentially
 /// :param augmenters: The list of augmenters to apply sequentially
 #[pyclass(extends=PyBaseAugmenter)]
 #[pyo3(name = "SequentialAugmenter")]
 pub struct PySequentialAugmenter;
-
 
 #[pymethods]
 impl PySequentialAugmenter {
@@ -181,7 +153,10 @@ impl PySequentialAugmenter {
         if augmenters.len() <= 1 {
             return Err(PyValueError::new_err("augmenters must have at least 2 augmenters"));
         }
-        let augmenters = augmenters.iter().map(|x| x.extract::<PyBaseAugmenter>()).collect::<Result<Vec<_>, _>>();
+        let augmenters = augmenters
+            .iter()
+            .map(|x| x.extract::<PyBaseAugmenter>())
+            .collect::<Result<Vec<_>, _>>();
         let augmenters = match augmenters {
             Ok(augmenters) => augmenters,
             Err(_) => return Err(PyTypeError::new_err("augmenters must be a list of BaseAugmenter")),
@@ -190,32 +165,24 @@ impl PySequentialAugmenter {
         // Create Rust object of AugmenterTypes
         let rust_augmenter = match augmenters[0].inner {
             AugmenterTypes::Text(_) => {
-                let augmenters = augmenters.into_iter().map(|x| match x.inner {
-                    AugmenterTypes::Text(augmenter) => augmenter,
-                    _ => panic!("Augmenter is not a TextAugmenter"),
-                }).collect::<Vec<_>>();
-                AugmenterTypes::Text(
-                    Arc::new(
-                        SequentialAugmenter::new(
-                            augmenters,
-                        )
-                    )
-                )
-            },
+                let augmenters = augmenters
+                    .into_iter()
+                    .map(|x| match x.inner {
+                        AugmenterTypes::Text(augmenter) => augmenter,
+                        _ => panic!("Augmenter is not a TextAugmenter"),
+                    })
+                    .collect::<Vec<_>>();
+                AugmenterTypes::Text(Arc::new(SequentialAugmenter::new(augmenters)))
+            }
             _ => return Err(PyTypeError::new_err("augmenters must be a list of text augmenters")),
         };
 
         // Create Python object with respective parent classes
-        Ok(
-            PyClassInitializer::from(
-                PyBaseAugmenter {
-                    inner: rust_augmenter,
-                    rng,
-                }
-            ).add_subclass(
-                PySequentialAugmenter {}
-            )
-        )
+        Ok(PyClassInitializer::from(PyBaseAugmenter {
+            inner: rust_augmenter,
+            rng,
+        })
+        .add_subclass(PySequentialAugmenter {}))
     }
 
     /// Augment the data
@@ -234,7 +201,6 @@ impl PySequentialAugmenter {
         Ok(rust_augmenter.augment(data, &mut super_base.rng))
     }
 }
-
 
 /// Flow Module - Pipelines, Random Selection, etc.
 #[pymodule]

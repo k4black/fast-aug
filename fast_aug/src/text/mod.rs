@@ -9,7 +9,6 @@ mod tf_idf_words_aug;
 mod token;
 
 pub use base::{BaseTextAugmenter, TextAction};
-pub use token::{Token, TokenType};
 pub use doc::Doc;
 pub use keyboard_chars_aug::KeyboardCharsAugmenter;
 pub use parameters::TextAugmentParameters;
@@ -17,3 +16,4 @@ pub use random_chars_aug::RandomCharsAugmenter;
 pub use random_words_aug::RandomWordsAugmenter;
 pub use spelling_words_aug::SpellingWordsAugmenter;
 pub use tf_idf_words_aug::TfIdfWordsAugmenter;
+pub use token::{Token, TokenType};

@@ -1,22 +1,17 @@
+use fast_aug_rust::text::RandomCharsAugmenter;
+use fast_aug_rust::text::RandomWordsAugmenter;
+use fast_aug_rust::text::TextAction;
+use fast_aug_rust::text::TextAugmentParameters;
 use std::collections::HashSet;
 use std::panic;
 use std::sync::Arc;
-use rand;
-use fast_aug_rust::text::{BaseTextAugmenter, TextAction};
-use fast_aug_rust::text::RandomCharsAugmenter;
-use fast_aug_rust::text::RandomWordsAugmenter;
-use fast_aug_rust::text::TextAugmentParameters;
 
-use pyo3::prelude::*;
-use pyo3::wrap_pymodule;
-use pyo3::types::PyList;
-use pyo3::types::PyAny;
+use crate::base::{AugmenterTypes, PyBaseAugmenter};
 use pyo3::exceptions::{PyNotImplementedError, PyValueError};
+use pyo3::prelude::*;
+use pyo3::types::PyAny;
 use rand::rngs::SmallRng;
 use rand::SeedableRng;
-use fast_aug_rust::BaseAugmenter;
-use crate::base::{PyBaseAugmenter, AugmenterTypes};
-
 
 #[derive(FromPyObject)]
 enum PyConvertTextAugmentParameters {
@@ -28,11 +23,12 @@ impl Into<TextAugmentParameters> for PyConvertTextAugmentParameters {
     fn into(self) -> TextAugmentParameters {
         match self {
             PyConvertTextAugmentParameters::Float(p) => TextAugmentParameters::new(p, None, None),
-            PyConvertTextAugmentParameters::Tuple(p, min_elements, max_elements) => TextAugmentParameters::new(p, min_elements, max_elements),
+            PyConvertTextAugmentParameters::Tuple(p, min_elements, max_elements) => {
+                TextAugmentParameters::new(p, min_elements, max_elements)
+            }
         }
     }
 }
-
 
 #[pyclass]
 #[pyo3(name = "TextAction")]
@@ -43,7 +39,6 @@ enum PyTextAction {
     SWAP = 2,
     DELETE = 3,
 }
-
 
 #[derive(FromPyObject)]
 enum PyConvertTextAction {
@@ -59,7 +54,7 @@ impl Into<TextAction> for PyConvertTextAction {
                 "substitute" => TextAction::Substitute,
                 "swap" => TextAction::Swap,
                 "delete" => TextAction::Delete,
-                _ => panic!("Action not implemented")
+                _ => panic!("Action not implemented"),
             },
             PyConvertTextAction::TextAction(action) => match action {
                 PyTextAction::INSERT => TextAction::Insert,
@@ -70,7 +65,6 @@ impl Into<TextAction> for PyConvertTextAction {
         }
     }
 }
-
 
 /// Abstract Base Class for Text Augmentation
 #[pyclass(extends=PyBaseAugmenter, subclass)]
@@ -89,11 +83,10 @@ impl PyBaseTextAugmenter {
     /// :param data: The String data to augment
     /// :return: The augmented data
     #[pyo3(text_signature = "(self, data: str) -> str")]
-    fn augment(&self, data: &PyAny) -> PyResult<PyObject> {
+    fn augment(&self, _data: &PyAny) -> PyResult<PyObject> {
         Err(PyNotImplementedError::new_err("Not implemented"))
     }
 }
-
 
 /// Randomly augment chars in the words
 /// :param action: The action to perform - insert, substitute, swap, delete
@@ -107,64 +100,53 @@ pub struct PyRandomCharsAugmenter;
 #[pymethods]
 impl PyRandomCharsAugmenter {
     #[new]
-    #[pyo3(text_signature = "(self, action: str | TextAction, aug_params_word: float | tuple[float, int | None, int | None] | None = None, aug_params_char: float | tuple[float, int | None, int | None] | None = None, stopwords: set[str] | None = None)")]
+    #[pyo3(
+        text_signature = "(self, action: str | TextAction, aug_params_word: float | tuple[float, int | None, int | None] | None = None, aug_params_char: float | tuple[float, int | None, int | None] | None = None, stopwords: set[str] | None = None)"
+    )]
     fn py_new(
         action: PyConvertTextAction,
         aug_params_word: Option<PyConvertTextAugmentParameters>,
         aug_params_char: Option<PyConvertTextAugmentParameters>,
         stopwords: Option<HashSet<String>>,
     ) -> PyResult<PyClassInitializer<Self>> {
-        let rng = SmallRng::from_entropy();  // TODO: make from seed
+        let rng = SmallRng::from_entropy(); // TODO: make from seed
 
         // Process parameters
-        let action = panic::catch_unwind(|| {
-            action.into()
-        });
+        let action = panic::catch_unwind(|| action.into());
         if action.is_err() {
             return Err(PyErr::new::<PyValueError, _>("Action not implemented"));
         }
-        let aug_params_word= match aug_params_word {
+        let aug_params_word = match aug_params_word {
             Some(p) => p.into(),
             None => TextAugmentParameters::default(),
         };
-        let aug_params_char= match aug_params_char {
+        let aug_params_char = match aug_params_char {
             Some(p) => p.into(),
             None => TextAugmentParameters::default(),
         };
 
         // Create Rust object of AugmenterTypes
-        let rust_augmenter = AugmenterTypes::Text(
-            Arc::new(
-                RandomCharsAugmenter::new(
-                    action.unwrap(),
-                    aug_params_word,
-                    aug_params_char,
-                    stopwords,
-                )
-            )
-        );
+        let rust_augmenter = AugmenterTypes::Text(Arc::new(RandomCharsAugmenter::new(
+            action.unwrap(),
+            aug_params_word,
+            aug_params_char,
+            stopwords,
+        )));
 
         // Create Python object with respective parent classes
-        Ok(
-            PyClassInitializer::from(
-                PyBaseAugmenter {
-                    inner: rust_augmenter,
-                    rng,
-                }
-            ).add_subclass(
-                PyBaseTextAugmenter {}
-            ).add_subclass(
-                PyRandomCharsAugmenter {}
-            )
-        )
-
+        Ok(PyClassInitializer::from(PyBaseAugmenter {
+            inner: rust_augmenter,
+            rng,
+        })
+        .add_subclass(PyBaseTextAugmenter {})
+        .add_subclass(PyRandomCharsAugmenter {}))
     }
 
     /// Augment the data
     /// :param data: The String data to augment
     /// :return: The augmented data
     #[pyo3(text_signature = "(self, data: str) -> str")]
-    fn augment(mut self_: PyRefMut<'_, Self>, data: String) -> PyResult<String> {
+    fn augment(self_: PyRefMut<'_, Self>, data: String) -> PyResult<String> {
         // Get base class
         let mut super_text = self_.into_super();
         let super_base = super_text.as_mut();
@@ -189,57 +171,47 @@ pub struct PyRandomWordsAugmenter;
 #[pymethods]
 impl PyRandomWordsAugmenter {
     #[new]
-    #[pyo3(text_signature = "(self, action: str | TextAction, aug_params_word: float | tuple[float, int | None, int | None] | None = None, stopwords: set[str] | None = None)")]
+    #[pyo3(
+        text_signature = "(self, action: str | TextAction, aug_params_word: float | tuple[float, int | None, int | None] | None = None, stopwords: set[str] | None = None)"
+    )]
     fn py_new(
         action: PyConvertTextAction,
         aug_params_word: Option<PyConvertTextAugmentParameters>,
         stopwords: Option<HashSet<String>>,
     ) -> PyResult<PyClassInitializer<Self>> {
-        let rng = SmallRng::from_entropy();  // TODO: make from seed
+        let rng = SmallRng::from_entropy(); // TODO: make from seed
 
         // Process parameters
-        let action = panic::catch_unwind(|| {
-            action.into()
-        });
+        let action = panic::catch_unwind(|| action.into());
         if action.is_err() {
             return Err(PyErr::new::<PyValueError, _>("Action not implemented"));
         }
-        let aug_params_word= match aug_params_word {
+        let aug_params_word = match aug_params_word {
             Some(p) => p.into(),
             None => TextAugmentParameters::default(),
         };
 
         // Create Rust object of AugmenterTypes
-        let rust_augmenter = AugmenterTypes::Text(
-            Arc::new(
-                RandomWordsAugmenter::new(
-                    action.unwrap(),
-                    aug_params_word,
-                    stopwords,
-                )
-            )
-        );
+        let rust_augmenter = AugmenterTypes::Text(Arc::new(RandomWordsAugmenter::new(
+            action.unwrap(),
+            aug_params_word,
+            stopwords,
+        )));
 
         // Create Python object with respective parent classes
-        Ok(
-            PyClassInitializer::from(
-                PyBaseAugmenter {
-                    inner: rust_augmenter,
-                    rng,
-                }
-            ).add_subclass(
-                PyBaseTextAugmenter {}
-            ).add_subclass(
-                PyRandomWordsAugmenter {}
-            )
-        )
+        Ok(PyClassInitializer::from(PyBaseAugmenter {
+            inner: rust_augmenter,
+            rng,
+        })
+        .add_subclass(PyBaseTextAugmenter {})
+        .add_subclass(PyRandomWordsAugmenter {}))
     }
 
     /// Augment the data
     /// :param data: The String data to augment
     /// :return: The augmented data
     #[pyo3(text_signature = "(self, data: str) -> str")]
-    fn augment(mut self_: PyRefMut<'_, Self>, data: String) -> PyResult<String> {
+    fn augment(self_: PyRefMut<'_, Self>, data: String) -> PyResult<String> {
         // Get base class
         let mut super_text = self_.into_super();
         let super_base = super_text.as_mut();
@@ -252,7 +224,6 @@ impl PyRandomWordsAugmenter {
         Ok(rust_augmenter.augment(data, &mut super_base.rng))
     }
 }
-
 
 /// Text Augmentation Module
 #[pymodule]

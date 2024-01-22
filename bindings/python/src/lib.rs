@@ -1,7 +1,7 @@
 extern crate fast_aug as fast_aug_rust;
 
 use pyo3::prelude::*;
-use pyo3::types::PyList;
+
 use pyo3::wrap_pymodule;
 
 mod base;
@@ -10,10 +10,9 @@ mod models;
 mod text;
 mod utils;
 
-
 /// Main fast_aug Module
 #[pymodule]
-fn fast_aug(py: Python, m: &PyModule) -> PyResult<()> {
+fn fast_aug(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_class::<base::PyBaseAugmenter>()?;
     m.add_class::<text::PyBaseTextAugmenter>()?;
 

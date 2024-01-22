@@ -4,7 +4,7 @@ use std::io::BufRead;
 use std::path::Path;
 // use criterion::black_box;
 use fast_aug::text::{RandomCharsAugmenter, TextAction, TextAugmentParameters};
-use fast_aug::BaseAugmenter;
+
 use rand::SeedableRng;
 
 const BENCHMARK_DATASET_PATH: &str = "data/tweet_eval_sentiment_train_text.txt";
@@ -18,14 +18,14 @@ fn load_txt_to_string_vector<P: AsRef<Path>>(path: P) -> io::Result<Vec<String>>
 }
 
 fn main() {
-    let mut rng = rand::rngs::SmallRng::from_entropy();
+    let _rng = rand::rngs::SmallRng::from_entropy();
 
     // Load dataset
     let text_data = load_txt_to_string_vector(BENCHMARK_DATASET_PATH).expect("Unable to load dataset");
-    let text_data = text_data[0..text_data.len() / 4].to_vec();
+    let _text_data = text_data[0..text_data.len() / 4].to_vec();
 
     for _ in 0..10 {
-        let aug = RandomCharsAugmenter::new(
+        let _aug = RandomCharsAugmenter::new(
             TextAction::Delete,
             TextAugmentParameters::new(0.5, Some(1), Some(10)),
             TextAugmentParameters::new(0.5, Some(1), Some(10)),
