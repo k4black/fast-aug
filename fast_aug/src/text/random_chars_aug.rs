@@ -40,11 +40,11 @@ impl RandomCharsAugmenter {
         // For all selected tokens select random chars and remove them
         for token_index in selected_tokens_indexes {
             let token = &mut doc.tokens[token_index];
-            let num_chars_to_change = self.aug_params_char.num_elements(token.token().len());
+            let num_chars_to_change = self.aug_params_char.num_elements(token.utf8_len());
 
             let selected_chars_indexes =
-                self.select_random_element_indexes(rng, (0..token.token().len()).collect(), num_chars_to_change);
-            let mut new_token = String::with_capacity(token.token().len());
+                self.select_random_element_indexes(rng, (0..token.utf8_len()).collect(), num_chars_to_change);
+            let mut new_token = String::with_capacity(token.utf8_len());
             for (idx, char) in token.token().char_indices() {
                 if !selected_chars_indexes.contains(&idx) {
                     new_token.push(char);
@@ -69,10 +69,10 @@ impl RandomCharsAugmenter {
         // For all selected tokens select random chars and swap them
         for token_index in selected_tokens_indexes {
             let token = &mut doc.tokens[token_index];
-            let num_chars_to_change = self.aug_params_char.num_elements(token.token().len());
+            let num_chars_to_change = self.aug_params_char.num_elements(token.utf8_len());
 
             let selected_chars_indexes =
-                self.select_random_element_indexes(rng, (0..token.token().len()).collect(), num_chars_to_change);
+                self.select_random_element_indexes(rng, (0..token.utf8_len()).collect(), num_chars_to_change);
             let mut chars = token.token().chars().collect::<Vec<char>>();
             selected_chars_indexes.chunks(2).for_each(|chunk| {
                 if chunk.len() == 2 {
@@ -186,5 +186,22 @@ mod tests {
             }
         }
         assert_eq!(num_changed_words, expected_doc_changes);
+    }
+
+    #[test_case("It’s ” #NBAwards" ; "utf8 len not equal bytes len")]
+    fn test_swap_bugs(text: &str) {
+        let mut doc = Doc::new(text);
+        let words_params = TextAugmentParameters::new(1.0, None, None);
+        let chars_params = TextAugmentParameters::new(0.3, None, None);
+        let aug = RandomCharsAugmenter::new(TextAction::Swap, words_params, chars_params, None);
+
+        let doc_tokens_before = doc.tokens.clone();
+
+        doc = aug.swap(doc, &mut rand::thread_rng());
+
+        let doc_tokens_after = doc.tokens.clone();
+
+        assert_eq!(doc_tokens_before.len(), doc_tokens_after.len());
+        assert_ne!(doc_tokens_before, doc_tokens_after);
     }
 }
