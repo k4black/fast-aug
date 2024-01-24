@@ -100,8 +100,21 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install linux-tools-common linux-tools-generic linux-tools-`uname -r`
+
+      - name: Check Kernel Version
+        run: uname -a
+      - name: Verify perf Installation
+        run: perf --version
+      - name: Test perf
+        run: sudo perf list
+      - name: Simple perf Test
+        run: sudo perf stat ls
+      - name: Check Virtualization
+        run: |
+          grep -cw vmx /proc/cpuinfo || echo "No VMX support. Might be running in a VM without virtualization extensions."
+
       - name: Run profiling in release mode
-        run: make profile-python
+        run: sudo make profile-python
       - name: Upload profiling results
         uses: actions/upload-artifact@v4
         with:
