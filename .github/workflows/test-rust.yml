@@ -62,10 +62,6 @@ jobs:
         with:
           path: ~/.cargo
           key: ${{ runner.os }}-rust-${{ hashFiles('**/Cargo.toml') }}
-      - name: Install pref
-        run: |
-          sudo apt-get update
-          sudo apt-get install linux-tools-common linux-tools-generic linux-tools-`uname -r`
       - name: Run profiling in release mode
         run: sudo make profile-rust
       - name: Upload profiling results
