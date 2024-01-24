@@ -29,14 +29,10 @@ jobs:
           cache: 'pip'
       - name: Update pip
         run: python -m pip install --upgrade pip
-      - name: Make bindings/python/.venv/bin/python softlink to global python
-        run: |
-          mkdir -p bindings/python/.venv/bin
-          ln -s $(which python) bindings/python/.venv/bin/python
       - name: Build and install package
-        run: make build-python
+        run: make build-python PYTHON_INTERPRETER=$(which python)
       - name: Run linters
-        run: make lint-python
+        run: make lint-python PYTHON_INTERPRETER=$(which python)
 
   test-python:
     strategy:
@@ -63,21 +59,16 @@ jobs:
           cache: 'pip'
       - name: Update pip
         run: python -m pip install --upgrade pip
-      - name: Make bindings/python/.venv/bin/python softlink to global python
-        run: |
-          mkdir -p bindings/python/.venv/bin
-          ln -s $(which python) bindings/python/.venv/bin/python
       - name: Run rust tests in debug=${{ matrix.debug }} mode
         run: |
           if ${{ matrix.debug }}; then
-            make test-python BUILD_PROFILE=dev
+            make test-python BUILD_PROFILE=dev PYTHON_INTERPRETER=$(which python)
           else
-            make test-python BUILD_PROFILE=release
+            make test-python BUILD_PROFILE=release PYTHON_INTERPRETER=$(which python)
           fi
 
   profile-python:
-#    runs-on: ubuntu-latest
-    runs-on: macos-latest
+    runs-on: macos-latest  # not working on linux, kernel virtualization blocked
     steps:
       - uses: actions/checkout@v4
       - name: Install rust stable
@@ -93,29 +84,8 @@ jobs:
           cache: 'pip'
       - name: Update pip
         run: python -m pip install --upgrade pip
-      - name: Make bindings/python/.venv/bin/python softlink to global python
-        run: |
-          mkdir -p bindings/python/.venv/bin
-          ln -s $(which python) bindings/python/.venv/bin/python
-#      - name: Install pref
-#        run: |
-#          sudo apt-get update
-#          sudo apt-get install linux-tools-common linux-tools-generic linux-tools-`uname -r`
-
-#      - name: Check Kernel Version
-#        run: uname -a
-#      - name: Verify perf Installation
-#        run: perf --version
-#      - name: Test perf
-#        run: sudo perf list
-#      - name: Simple perf Test
-#        run: sudo perf stat ls
-#      - name: Check Virtualization
-#        run: |
-#          grep -cw vmx /proc/cpuinfo || echo "No VMX support. Might be running in a VM without virtualization extensions."
-
       - name: Run profiling in release mode
-        run: sudo make profile-python
+        run: sudo make profile-python PYTHON_INTERPRETER=$(which python)
       - name: Upload profiling results
         uses: actions/upload-artifact@v4
         with:

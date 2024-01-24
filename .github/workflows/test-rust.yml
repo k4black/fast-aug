@@ -52,7 +52,7 @@ jobs:
           fi
 
   profile-rust:
-    runs-on: ubuntu-latest
+    runs-on: macos-latest  # not working on linux, kernel virtualization blocked
     steps:
       - uses: actions/checkout@v4
       - name: Install rust stable

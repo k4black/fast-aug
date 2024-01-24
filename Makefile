@@ -1,14 +1,10 @@
 .DEFAULT_GOAL := help
 
 BUILD_PROFILE ?= release
+PYTHON_INTERPRETER ?= $(CURDIR)/bindings/python/.venv/bin/python
 
-RUST_SRC_DIRECTORY = fast_aug
-PYTHON_SRC_DIRECTORY = bindings/python
-PYTHON_VENV_INTERPRETER = .venv/bin/python
-
-
-.PHONY: all
-all: help
+RUST_SRC_DIRECTORY = $(CURDIR)/fast_aug
+PYTHON_SRC_DIRECTORY = $(CURDIR)/bindings/python
 
 
 .PHONY: help
@@ -48,11 +44,11 @@ build-rust:
 
 .PHONY: build-python
 build-python:
-	cd $(PYTHON_SRC_DIRECTORY) && .venv/bin/python -m pip wheel . --no-deps -w dist --config-settings=build-args='--profile $(BUILD_PROFILE)' && .venv/bin/python -m pip install dist/*.whl
+	cd $(PYTHON_SRC_DIRECTORY) && $(PYTHON_INTERPRETER) -m pip wheel . --no-deps -w dist --config-settings=build-args='--profile $(BUILD_PROFILE)' && $(PYTHON_INTERPRETER) -m pip install dist/*.whl
 
 .PHONY: build-python-dev
 build-python-dev:
-	cd $(PYTHON_SRC_DIRECTORY) && .venv/bin/python -m pip install -v -e .\[test\] --config-settings=build-args='--profile $(BUILD_PROFILE)'
+	cd $(PYTHON_SRC_DIRECTORY) && $(PYTHON_INTERPRETER) -m pip install -v -e .\[test\] --config-settings=build-args='--profile $(BUILD_PROFILE)'
 
 
 .PHONY: test
@@ -65,9 +61,9 @@ test-rust:
 .PHONY: test-python
 test-python: build-python-dev
 	cd $(PYTHON_SRC_DIRECTORY) && cargo test --profile $(BUILD_PROFILE)
-	cd $(PYTHON_SRC_DIRECTORY) && .venv/bin/python -m pip install maturin
-	cd $(PYTHON_SRC_DIRECTORY) && .venv/bin/python generate_stubs.py --check
-	cd $(PYTHON_SRC_DIRECTORY) && .venv/bin/python -m pytest tests/
+	cd $(PYTHON_SRC_DIRECTORY) && $(PYTHON_INTERPRETER) -m pip install maturin
+	cd $(PYTHON_SRC_DIRECTORY) && $(PYTHON_INTERPRETER) generate_stubs.py --check
+	cd $(PYTHON_SRC_DIRECTORY) && $(PYTHON_INTERPRETER) -m pytest tests/
 
 
 .PHONY: format
@@ -80,8 +76,8 @@ format-rust:
 .PHONY: format-python
 format-python:
 	cd $(PYTHON_SRC_DIRECTORY) && cargo fmt
-	cd $(PYTHON_SRC_DIRECTORY) && .venv/bin/python -m isort .
-	cd $(PYTHON_SRC_DIRECTORY) && .venv/bin/python -m black .
+	cd $(PYTHON_SRC_DIRECTORY) && $(PYTHON_INTERPRETER) -m isort .
+	cd $(PYTHON_SRC_DIRECTORY) && $(PYTHON_INTERPRETER) -m black .
 
 
 .PHONY: lint
@@ -96,10 +92,10 @@ lint-rust:
 lint-python:
 	cd $(PYTHON_SRC_DIRECTORY) && cargo clippy --all-targets --all-features -- -D warnings
 	cd $(PYTHON_SRC_DIRECTORY) && cargo fmt --all -- --check
-	cd $(PYTHON_SRC_DIRECTORY) && .venv/bin/python -m ruff check
-	cd $(PYTHON_SRC_DIRECTORY) && .venv/bin/python -m mypy .
-	cd $(PYTHON_SRC_DIRECTORY) && .venv/bin/python -m isort . --check-only
-	cd $(PYTHON_SRC_DIRECTORY) && .venv/bin/python -m black . --check
+	cd $(PYTHON_SRC_DIRECTORY) && $(PYTHON_INTERPRETER) -m ruff check
+	cd $(PYTHON_SRC_DIRECTORY) && $(PYTHON_INTERPRETER) -m mypy .
+	cd $(PYTHON_SRC_DIRECTORY) && $(PYTHON_INTERPRETER) -m isort . --check-only
+	cd $(PYTHON_SRC_DIRECTORY) && $(PYTHON_INTERPRETER) -m black . --check
 
 
 .PHONY: bench-rust
@@ -108,7 +104,7 @@ bench-rust:
 
 .PHONY: bench-python
 bench-python: build-python-dev
-	cd $(PYTHON_SRC_DIRECTORY) && .venv/bin/python -m pytest -k bench_ --benchmark-only --benchmark-histogram=python-bench --benchmark-name=long --benchmark-columns='min, mean, max, stddev, outliers, rounds, iterations' benchmarks/
+	cd $(PYTHON_SRC_DIRECTORY) && $(PYTHON_INTERPRETER) -m pytest -k bench_ --benchmark-only --benchmark-histogram=python-bench --benchmark-name=long --benchmark-columns='min, mean, max, stddev, outliers, rounds, iterations' benchmarks/
 
 
 # for bench in "SequentialAugmenter/default" "SelectorAugmenter/default" "ChanceAugmenter/default" "RandomWordsAugmenter/swap" "RandomWordsAugmenter/delete" "RandomCharsAugmenter/swap" "RandomCharsAugmenter/delete" ; do \
@@ -125,7 +121,7 @@ profile-python: build-python-dev
 	cd $(PYTHON_SRC_DIRECTORY) && cargo install flamegraph
 	for bench in text flow; do \
 		cd $(PYTHON_SRC_DIRECTORY) ; \
-		flamegraph --root --output flamegraph-python-bench-$$bench.svg --notes $$bench -- .venv/bin/python -m pytest -k bench_ --benchmark-only --benchmark-histogram=python-bench-$$bench --benchmark-name=long --benchmark-columns='min, mean, max, stddev, outliers, rounds, iterations' benchmarks/bench_$$bench.py ; \
+		flamegraph --root --output flamegraph-python-bench-$$bench.svg --notes $$bench -- $(PYTHON_INTERPRETER) -m pytest -k bench_ --benchmark-only --benchmark-histogram=python-bench-$$bench --benchmark-name=long --benchmark-columns='min, mean, max, stddev, outliers, rounds, iterations' benchmarks/bench_$$bench.py ; \
 	done
 
 
