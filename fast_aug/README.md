@@ -1,36 +1,9 @@
 # fast-aug - rust library
 
-All commands relative to this directory with rust library (`fast_aug/`)
+[![Test Rust library](https://github.com/k4black/fast-aug/actions/workflows/test-rust.yml/badge.svg?branch=main&event=push)](https://github.com/k4black/fast-aug/actions/workflows/test-rust.yml)
 
+---
 
-Run all rust tests
-```shell
-cargo test
-```
+For building and profiling see `Makefile` in the project root.
 
-Run rust benchmarks
-```shell
-cargo bench
-# or, for specific benchmark
-cargo bench --bench text
-```
-
-Run profiler against main binary  
-Note: requires sudo to run
-```shell
-cargo install flamegraph
-sudo cargo flamegraph --dev
-```
-
-Format code
-```shell
-cargo fmt
-``` 
-
-
-To measure compile time
-```shell
-cargo build --timings --profile=dev  # optimized and cached
-cargo build --timings --profile=release
-```
-TBA: More commands from https://endler.dev/2020/rust-compile-times/
+TBA
