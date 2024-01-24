@@ -40,7 +40,6 @@ test = [
     "ruff ==0.1.7",
     "isort >=5.0.0,<6.0.0",
     "maturin >=1.0,<2.0",
-    "py-spy >=0.3.14,<1.0.0",
     "pytest-benchmark[histogram] >=4.0.0,<5.0.0",
 ]
 

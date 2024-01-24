@@ -30,7 +30,7 @@ jobs:
       - name: Update pip
         run: python -m pip install --upgrade pip
       - name: Build and install package
-        run: make build-python PYTHON_INTERPRETER=$(which python)
+        run: make build-python-dev PYTHON_INTERPRETER=$(which python)
       - name: Run linters
         run: make lint-python PYTHON_INTERPRETER=$(which python)
 

@@ -10,3 +10,4 @@ BaseTextAugmenter = fast_aug.text.BaseTextAugmenter
 
 __all__ = ["text", "flow", "base", "models", "BaseAugmenter", "BaseTextAugmenter"]
 __doc__ = fast_aug.__doc__
+__version__ = fast_aug.__version__

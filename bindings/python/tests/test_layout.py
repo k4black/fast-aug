@@ -4,7 +4,6 @@ import fast_aug
 def test_module_layout() -> None:
     assert sorted(fast_aug.__all__) == sorted(
         [
-            "__version__",
             "BaseAugmenter",
             "BaseTextAugmenter",
             "base",
