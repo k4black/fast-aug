@@ -77,3 +77,36 @@ Python
 - [x] CI build and tests
 - [ ] CI publish to pypi
 
+
+## Development
+
+### Prerequisites
+
+For rust library development:
+* [rustup](https://rustup.rs/)
+* [cargo](https://doc.rust-lang.org/cargo/getting-started/installation.html)
+
+For python bindings development:
+* All rust library prerequisites
+* `cd python/bindings && python -m venv .venv`
+
+
+### Make
+
+The `Makefile` contains all the commands needed for development.
+```shell
+make help
+```
+
+- `*-rust` - all targets related to rust library (`fast_aug/` folder)
+- `*-python` - all targets related to python bindings (`bindings/python/` folder)
+
+
+### Benchmarks
+
+All text benchmarks are run on the [tweet_eval dataset](https://github.com/cardiffnlp/tweeteval/) - sentiment task, test set, 12k rows.
+```shell
+cat test_data/tweet_eval_sentiment_test_text.txt | wc
+12284  182576 1156877
+```
+

@@ -14,6 +14,17 @@ pub enum TextAction {
     Swap,
 }
 
+impl std::fmt::Display for TextAction {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            TextAction::Insert => write!(f, "Insert"),
+            TextAction::Delete => write!(f, "Delete"),
+            TextAction::Substitute => write!(f, "Substitute"),
+            TextAction::Swap => write!(f, "Swap"),
+        }
+    }
+}
+
 pub trait BaseTextAugmenter: BaseAugmenter<String, Doc> {
     /// Select random word tokens to augment given a number of elements
     /// Returns a vector of tuples (index, &mut token)

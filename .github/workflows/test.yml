@@ -25,12 +25,8 @@ jobs:
         with:
           path: ~/.cargo
           key: ${{ runner.os }}-rust-${{ hashFiles('**/Cargo.toml') }}
-      - name: Run clippy
-        working-directory: ${{ env.RUST_SRC_DIRECTORY }}
-        run: cargo clippy --all-targets --all-features -- -D warnings
-      - name: Run rustfmt
-        working-directory: ${{ env.RUST_SRC_DIRECTORY }}
-        run: cargo fmt --all -- --check
+      - name: Run linters
+        run: make lint-rust
 
   test-rust:
     strategy:
@@ -50,53 +46,39 @@ jobs:
           path: ~/.cargo
           key: ${{ runner.os }}-rust-${{ hashFiles('**/Cargo.toml') }}
       - name: Run tests in debug=${{ matrix.debug }} mode
-        working-directory: ${{ env.RUST_SRC_DIRECTORY }}
         run: |
           if ${{ matrix.debug }}; then
-            cargo test
+            make test-rust BUILD_PROFILE=dev
           else
-            cargo test --release
+            make test-rust BUILD_PROFILE=release
           fi
 
-  # TODO: fix benchmark running, currently it fails with:
-  # No benchmark result was found in the ....
-#  benchmark-rust:
-#    strategy:
-#      fail-fast: false
-#      matrix:
-#        os: [ubuntu-latest]
-##        os: [ubuntu-latest, macos-latest, windows-latest]
-#    runs-on: ${{ matrix.os }}
-#    steps:
-#      - uses: actions/checkout@v4
-#      - uses: moonrepo/setup-rust@v1
-#        with:
-#          rust-version: stable
-#          profile: minimal
-#      - uses: Swatinem/rust-cache@v2
-#        with:
-#          path: ~/.cargo
-#          key: ${{ runner.os }}-rust-${{ hashFiles('**/Cargo.toml') }}
-#      - name: Run benchmarks
-#        working-directory: ./fast_aug  # rust library directory
-#        run: cargo bench | tee benchmark.json
-#      - name: Download previous benchmark data
-#        uses: actions/cache@v1
-#        with:
-#          path: /tmp/cache
-#          key: ${{ runner.os }}-benchmark
-#      - name: Store benchmark result
-#        uses: benchmark-action/github-action-benchmark@v1
-#        with:
-#          name: Rust Benchmark
-#          tool: 'cargo'
-#          output-file-path: fast_aug/benchmark.json
-#          external-data-json-path: /tmp/cache/benchmark-data.json
-#          github-token: ${{ secrets.GITHUB_TOKEN }}
-#          # Show alert with commit comment on detecting possible performance regression
-#          alert-threshold: '200%'
-#          comment-on-alert: true
-#          fail-on-alert: true
+  profile-rust:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install rust stable
+        uses: dtolnay/rust-toolchain@stable
+      - name: Cache rust
+        uses: Swatinem/rust-cache@v2
+        with:
+          path: ~/.cargo
+          key: ${{ runner.os }}-rust-${{ hashFiles('**/Cargo.toml') }}
+      - name: Run profiling in release mode
+        run: make profile-rust
+      - name: Upload profiling results
+        uses: actions/upload-artifact@v4
+        with:
+          name: rust-profiling-results
+          path: |
+            # build timings 
+            fast_aug/target/cargo-timings/cargo-timing.html
+            # benchmarking results
+            fast_aug/target/criterion
+            # flamegraph
+            fast_aug/*.svg
+          if-no-files-found: error
+
 
   lint-python:
     runs-on: ubuntu-latest
@@ -109,25 +91,17 @@ jobs:
         with:
           path: ~/.cargo
           key: ${{ runner.os }}-rust-${{ hashFiles('**/Cargo.toml') }}
-      - name: Run clippy
-        working-directory: ${{ env.PYTHON_SRC_DIRECTORY }}
-        run: cargo clippy --all-targets --all-features -- -D warnings
-      - name: Run rustfmt
-        working-directory: ${{ env.PYTHON_SRC_DIRECTORY }}
-        run: cargo fmt --all -- --check
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
           cache: 'pip'
-      - name: Install dependencies
+      - name: Make bindings/python/.venv/bin/python softlink to global python
         run: |
-          pip install -e .[test] -v
-      - name: Run ruff
-        run: |
-          ruff check ${{ env.PYTHON_SRC_DIRECTORY }}
-      - name: Run mypy
-        run: |
-          mypy ${{ env.PYTHON_SRC_DIRECTORY }}
+          ln -s $(which python) bindings/python/.venv/bin/python
+      - name: Build and install package
+        run: make build-python
+      - name: Run linters
+        run: make lint-python
 
   test-python:
     strategy:
@@ -148,31 +122,44 @@ jobs:
         with:
           path: ~/.cargo
           key: ${{ runner.os }}-rust-${{ hashFiles('**/Cargo.toml') }}
-      - name: Run rust tests in debug=${{ matrix.debug }} mode
-        working-directory: ${{ env.PYTHON_SRC_DIRECTORY }}
-        run: |
-          if ${{ matrix.debug }}; then
-            cargo test
-          else
-            cargo test --release
-          fi
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
           cache: 'pip'
-      - name: Install package in debug=${{ matrix.debug }} mode
-        working-directory: ${{ env.PYTHON_SRC_DIRECTORY }}
+      - name: Make bindings/python/.venv/bin/python softlink to global python
+        run: ln -s $(which python) bindings/python/.venv/bin/python
+      - name: Run rust tests in debug=${{ matrix.debug }} mode
         run: |
           if ${{ matrix.debug }}; then
-            pip install -e .[test] -v --config-settings=build-args='--profile dev'
+            make test-python BUILD_PROFILE=dev
           else
-            pip install -e .[test] -v
+            make test-python BUILD_PROFILE=release
           fi
-      - name: Check stubs up to date
-        working-directory: ${{ env.PYTHON_SRC_DIRECTORY }}
-        run: |
-          python generate_stubs.py --check
-      - name: Run python tests
-        working-directory: ${{ env.PYTHON_SRC_DIRECTORY }}
-        run: |
-          pytest
+
+  profile-python:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install rust stable
+        uses: dtolnay/rust-toolchain@stable
+      - name: Cache rust
+        uses: Swatinem/rust-cache@v2
+        with:
+          path: ~/.cargo
+          key: ${{ runner.os }}-rust-${{ hashFiles('**/Cargo.toml') }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: 'pip'
+      - name: Make bindings/python/.venv/bin/python softlink to global python
+        run: ln -s $(which python) bindings/python/.venv/bin/python
+      - name: Run profiling in release mode
+        run: make profile-python
+      - name: Upload profiling results
+        uses: actions/upload-artifact@v4
+        with:
+          name: python-profiling-results
+          path: |
+            # benchmarking results and flamegraph
+            bindings/python/*.svg
+          if-no-files-found: error

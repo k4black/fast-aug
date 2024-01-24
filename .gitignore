@@ -1,6 +1,9 @@
 .idea/
 .DS_Store
 
+.benchmarks/
+
+
 # https://github.com/rust-lang/cargo/issues/315#issuecomment-51075730
 Cargo.lock
 

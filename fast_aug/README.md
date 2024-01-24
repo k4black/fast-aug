@@ -18,7 +18,7 @@ cargo bench --bench text
 Run profiler against main binary  
 Note: requires sudo to run
 ```shell
-cargo install cargo-flamegraph
+cargo install flamegraph
 sudo cargo flamegraph --dev
 ```
 
