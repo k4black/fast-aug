@@ -89,7 +89,7 @@ For rust library development:
 For python bindings development:
 * All rust library prerequisites
 * `cd python/bindings && python -m venv .venv`
-
+* `pip >= 23.1` to use `--config-settings`, see [pip issue](https://github.com/pypa/pip/issues/11859)
 
 ### Make
 
