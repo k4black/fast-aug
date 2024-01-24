@@ -108,7 +108,7 @@ bench-rust:
 
 .PHONY: bench-python
 bench-python: build-python-dev
-	cd $(PYTHON_SRC_DIRECTORY) && .venv/bin/python -m pytest --benchmark-only --benchmark-histogram=python-bench -k bench_ --benchmark-name=long --benchmark-columns='min, mean, max, stddev, outliers, rounds, iterations' benchmarks/
+	cd $(PYTHON_SRC_DIRECTORY) && .venv/bin/python -m pytest -k bench_ --benchmark-only --benchmark-histogram=python-bench --benchmark-name=long --benchmark-columns='min, mean, max, stddev, outliers, rounds, iterations' benchmarks/
 
 
 # for bench in "SequentialAugmenter/default" "SelectorAugmenter/default" "ChanceAugmenter/default" "RandomWordsAugmenter/swap" "RandomWordsAugmenter/delete" "RandomCharsAugmenter/swap" "RandomCharsAugmenter/delete" ; do \
@@ -125,7 +125,7 @@ profile-python: build-python-dev
 	cd $(PYTHON_SRC_DIRECTORY) && cargo install flamegraph
 	for bench in text flow; do \
 		cd $(PYTHON_SRC_DIRECTORY) ; \
-		flamegraph --root --output flamegraph-python-bench-$$bench.svg --notes $$bench -- .venv/bin/python -m 	cd $(PYTHON_SRC_DIRECTORY) && .venv/bin/python -m pytest --benchmark-only --benchmark-histogram=python-bench-$$bench -k bench_ --benchmark-name=long --benchmark-columns='min, mean, max, stddev, outliers, rounds, iterations' benchmarks/bench_$$bench.py ; \
+		flamegraph --root --output flamegraph-python-bench-$$bench.svg --notes $$bench -- .venv/bin/python -m pytest -k bench_ --benchmark-only --benchmark-histogram=python-bench-$$bench --benchmark-name=long --benchmark-columns='min, mean, max, stddev, outliers, rounds, iterations' benchmarks/bench_$$bench.py ; \
 	done
 
 
