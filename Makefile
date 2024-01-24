@@ -8,58 +8,35 @@ PYTHON_SRC_DIRECTORY = $(CURDIR)/bindings/python
 
 
 .PHONY: help
-help:
-	@echo "Usage: make [target]"
-	@echo ""
-	@echo "Arguments:"
-	@echo "  BUILD_PROFILE  - release/dev"
-	@echo ""
-	@echo "Targets:"
-	@echo "  help           - Show this help"
-	@echo "  build          - Build all targets"
-	@echo "  build-rust     - Build rust library"
-	@echo "  build-python   - Build python library (and install)"
-	@echo "  test           - Run all tests"
-	@echo "  test-rust      - Run rust tests"
-	@echo "  test-python    - Run python tests"
-	@echo "  format         - Format all code"
-	@echo "  format-rust    - Format rust code"
-	@echo "  format-python  - Format python code"
-	@echo "  lint           - Lint all code"
-	@echo "  lint-rust      - Lint rust code"
-	@echo "  lint-python    - Lint python code"
-	@echo "  bench-rust     - Run rust benchmarks"
-	@echo "  bench-python   - Run python benchmarks"
-	@echo "  profile-rust   - Produce flamegraph for rust benchmarks"
-	@echo "  profile-python - Produce flamegraph for python benchmarks"
-	@echo "  clean          - Clean all targets"
+help:  ## Show this help.
+	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make \033[36m<target>\033[0m\n"} /^[a-zA-Z0-9_-]+:.*?##/ { printf "  \033[36m%-16s\033[0m %s\n", $$1, $$2 } /^##@/ { printf "\n\033[1m%s\033[0m\n", substr($$0, 5) } ' $(MAKEFILE_LIST)
 
 
 .PHONY: build
-build: build-rust build-python
+build: build-rust build-python  ## Build all targets
 
 .PHONY: build-rust
-build-rust:
+build-rust:  ## Build rust library
 	cd $(RUST_SRC_DIRECTORY) && cargo build --timings --profile $(BUILD_PROFILE)
 
 .PHONY: build-python
-build-python:
+build-python:  ## Build python library (and install)
 	cd $(PYTHON_SRC_DIRECTORY) && $(PYTHON_INTERPRETER) -m pip wheel . --no-deps -w dist --config-settings=build-args='--profile $(BUILD_PROFILE)' && $(PYTHON_INTERPRETER) -m pip install dist/*.whl
 
 .PHONY: build-python-dev
-build-python-dev:
+build-python-dev:  ## Build python library (and install in editable mode)
 	cd $(PYTHON_SRC_DIRECTORY) && $(PYTHON_INTERPRETER) -m pip install -v -e .\[test\] --config-settings=build-args='--profile $(BUILD_PROFILE)'
 
 
 .PHONY: test
-test: test-rust test-python
+test: test-rust test-python  ## Run all tests
 
 .PHONY: test-rust
-test-rust:
+test-rust:  ## Run rust tests
 	cd $(RUST_SRC_DIRECTORY) && cargo test --profile $(BUILD_PROFILE)
 
 .PHONY: test-python
-test-python: build-python-dev
+test-python: build-python-dev  ## Run python tests
 	cd $(PYTHON_SRC_DIRECTORY) && cargo test --profile $(BUILD_PROFILE)
 	cd $(PYTHON_SRC_DIRECTORY) && $(PYTHON_INTERPRETER) -m pip install maturin
 	cd $(PYTHON_SRC_DIRECTORY) && $(PYTHON_INTERPRETER) generate_stubs.py --check
@@ -67,29 +44,29 @@ test-python: build-python-dev
 
 
 .PHONY: format
-format: format-rust format-python
+format: format-rust format-python  ## Format all code
 
 .PHONY: format-rust
-format-rust:
+format-rust:  ## Format rust code
 	cd $(RUST_SRC_DIRECTORY) && cargo fmt
 
 .PHONY: format-python
-format-python:
+format-python:  ## Format python code
 	cd $(PYTHON_SRC_DIRECTORY) && cargo fmt
 	cd $(PYTHON_SRC_DIRECTORY) && $(PYTHON_INTERPRETER) -m isort .
 	cd $(PYTHON_SRC_DIRECTORY) && $(PYTHON_INTERPRETER) -m black .
 
 
 .PHONY: lint
-lint: lint-rust lint-python
+lint: lint-rust lint-python  ## Lint all code
 
 .PHONY: lint-rust
-lint-rust:
+lint-rust:  ## Lint rust code
 	cd $(RUST_SRC_DIRECTORY) && cargo clippy --all-targets --all-features -- -D warnings
 	cd $(RUST_SRC_DIRECTORY) && cargo fmt --all -- --check
 
 .PHONY: lint-python
-lint-python:
+lint-python:  ## Lint python code
 	cd $(PYTHON_SRC_DIRECTORY) && cargo clippy --all-targets --all-features -- -D warnings
 	cd $(PYTHON_SRC_DIRECTORY) && cargo fmt --all -- --check
 	cd $(PYTHON_SRC_DIRECTORY) && $(PYTHON_INTERPRETER) -m ruff check
@@ -99,17 +76,17 @@ lint-python:
 
 
 .PHONY: bench-rust
-bench-rust:
+bench-rust:  ## Run rust benchmarks
 	cd $(RUST_SRC_DIRECTORY) && cargo bench
 
 .PHONY: bench-python
-bench-python: build-python-dev
+bench-python: build-python-dev  ## Run python benchmarks
 	cd $(PYTHON_SRC_DIRECTORY) && $(PYTHON_INTERPRETER) -m pytest -k bench_ --benchmark-only --benchmark-histogram=python-bench --benchmark-name=long --benchmark-columns='min, mean, max, stddev, outliers, rounds, iterations' benchmarks/
 
 
 # for bench in "SequentialAugmenter/default" "SelectorAugmenter/default" "ChanceAugmenter/default" "RandomWordsAugmenter/swap" "RandomWordsAugmenter/delete" "RandomCharsAugmenter/swap" "RandomCharsAugmenter/delete" ; do \
 .PHONY: profile-rust
-profile-rust:
+profile-rust:  ## Produce flamegraph for rust benchmarks
 	cd $(RUST_SRC_DIRECTORY) && cargo install flamegraph
 	for bench in text flow ; do \
 		cd $(RUST_SRC_DIRECTORY) ; \
@@ -117,7 +94,7 @@ profile-rust:
 	done
 
 .PHONY: profile-python
-profile-python: build-python-dev
+profile-python: build-python-dev  ## Produce flamegraph for python benchmarks
 	cd $(PYTHON_SRC_DIRECTORY) && cargo install flamegraph
 	for bench in text flow; do \
 		cd $(PYTHON_SRC_DIRECTORY) ; \
@@ -126,6 +103,6 @@ profile-python: build-python-dev
 
 
 .PHONY: clean
-clean:
+clean:  ## Clean all targets
 	cd $(RUST_SRC_DIRECTORY) && cargo clean
 	cd $(PYTHON_SRC_DIRECTORY) && cargo clean && rm -rf dist
