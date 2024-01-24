@@ -1,3 +1,4 @@
+
 .idea/
 .DS_Store
 
@@ -6,6 +7,11 @@
 
 # https://github.com/rust-lang/cargo/issues/315#issuecomment-51075730
 Cargo.lock
+
+
+# Benchmarking charts
+fast_aug/*.svg
+bindings/python/*.svg
 
 
 # Byte-compiled / optimized / DLL files
