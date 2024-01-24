@@ -31,9 +31,10 @@ impl Token {
     ///
     /// # Arguments
     /// * `token` - A string slice that holds the token content.
+    #[allow(clippy::should_implement_trait)]
     pub fn from_str(token: &str) -> Self {
         let token_len = token.chars().count();
-        let kind = Token::classify_token_by_any_chars(&token);
+        let kind = Token::classify_token_by_any_chars(token);
         Token {
             kind,
             token: token.to_string(),
@@ -144,7 +145,7 @@ mod tests {
     #[test_case("نشأت", TokenType::Word, 4, 8 ; "non-english chars taking 2 bytes")]
     #[test_case("假", TokenType::Word, 1, 3 ; "non-english chars taking 3 bytes")]
     fn test_token_interface(token: &str, kind: TokenType, utf8_len: usize, byte_len: usize) {
-        let kind_clone = kind.clone();
+        let kind_clone = kind;
         let token_obj = Token::new(token, kind);
         assert_eq!(token_obj.kind(), &kind_clone);
         assert_eq!(token_obj.token(), &token);
@@ -157,7 +158,7 @@ mod tests {
     #[test_case("don't", TokenType::Word, "", TokenType::Deleted ; "word with apostrophe to empty")]
     #[test_case("!", TokenType::Special, "word", TokenType::Word ; "special to alphabetic")]
     fn test_change_token(token: &str, kind: TokenType, new_token: &str, new_kind: TokenType) {
-        let target_token = Token::new(new_token, new_kind.clone());
+        let target_token = Token::new(new_token, new_kind);
         let mut token_obj = Token::new(token, kind);
         token_obj.change(new_token, new_kind);
         assert_eq!(token_obj, target_token);

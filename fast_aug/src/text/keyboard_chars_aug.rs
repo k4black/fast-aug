@@ -1,3 +1,5 @@
+#![allow(dead_code, unused_variables, unreachable_code, unused_imports)]
+
 use super::base::{BaseTextAugmenter, TextAction};
 use super::doc::Doc;
 use super::parameters::TextAugmentParameters;
@@ -30,7 +32,7 @@ impl KeyboardCharsAugmenter {
         }
     }
 
-    fn substitute(&self, mut doc: Doc, rng: &mut dyn rand::RngCore) -> Doc {
+    fn substitute(&self, mut _doc: Doc, _rng: &mut dyn rand::RngCore) -> Doc {
         todo!();
     }
 

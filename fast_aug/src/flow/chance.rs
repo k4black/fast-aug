@@ -1,5 +1,5 @@
 use crate::base::BaseAugmenter;
-use rand::{thread_rng, Rng};
+use rand::Rng;
 use std::sync::Arc;
 
 pub struct ChanceAugmenter<T, K> {
@@ -73,7 +73,7 @@ mod tests {
         assert_eq!(output, 1);
     }
 
-    #[test_case(0.0, 1, 1 ; "0.0 probability")]
+    #[test_case(0.0, 1, 2 ; "0.0 probability")]
     #[test_case(0.1, 1, 2 ; "0.1 probability")]
     #[test_case(0.5, 1, 2 ; "0.5 probability")]
     #[test_case(0.9, 1, 2 ; "0.9 probability")]
@@ -86,7 +86,7 @@ mod tests {
         let mut num_changes = 0;
         for _ in 0..1000 {
             let output = chance_augmenter.augment(input, &mut rand::thread_rng());
-            num_changes += (output != input) as usize;
+            num_changes += (output == expected_output) as usize;
         }
 
         // Allow for some variance in the number of changes due to randomness

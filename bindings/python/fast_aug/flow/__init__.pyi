@@ -1,7 +1,7 @@
 # Generated content DO NOT EDIT
 from __future__ import annotations
 
-from typings import Any
+from ..base import BaseAugmenter
 
 class ChanceAugmenter(BaseAugmenter):
     """
@@ -9,9 +9,16 @@ class ChanceAugmenter(BaseAugmenter):
     :param augmenter: The augmenter to apply with a given probability
     :param probability: The probability of applying the augmenter
     """
-    def __init__(augmenter: BaseAugmenter, probability: float):
-        pass
 
+    def __init__(self, augmenter: BaseAugmenter, probability: float) -> None:
+        pass
+    def augment(self, data: str):
+        """
+        Augment the data
+        :param data: The String data to augment
+        :return: The augmented data
+        """
+        pass
 
 class SelectorAugmenter(BaseAugmenter):
     """
@@ -19,16 +26,29 @@ class SelectorAugmenter(BaseAugmenter):
     :param augmenters: The list of augmenters to choose from
     :param weights: Optional weights for each augmenter
     """
-    def __init__(self, augmenters: list[BaseAugmenter], weights: Optional[list[float]] = None):
-        pass
 
+    def __init__(self, augmenters: list[BaseAugmenter], weights: list[float] | None = None) -> None:
+        pass
+    def augment(self, data: str):
+        """
+        Augment the data
+        :param data: The String data to augment
+        :return: The augmented data
+        """
+        pass
 
 class SequentialAugmenter(BaseAugmenter):
     """
     Given a list of augmenters, apply them sequentially
     :param augmenters: The list of augmenters to apply sequentially
     """
-    def __init__(self, augmenters: list[BaseAugmenter]):
+
+    def __init__(self, augmenters: list[BaseAugmenter]) -> None:
         pass
-
-
+    def augment(self, data: str):
+        """
+        Augment the data
+        :param data: The String data to augment
+        :return: The augmented data
+        """
+        pass

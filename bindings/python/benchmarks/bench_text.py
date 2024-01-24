@@ -1,7 +1,7 @@
+from common import bench_text_augmenter
 from pytest_benchmark.fixture import BenchmarkFixture
 
 import fast_aug
-from common import bench_text_augmenter
 
 
 class TestRandomWordsAugmenter:

@@ -76,6 +76,7 @@ Python
   - [ ] Auto generate stubs on maturing build
   - [x] Text
   - [x] Flow
+- [ ] Auto generate return type in stubs, see [pyo3 issue](https://github.com/PyO3/pyo3/issues/1112) 
 - [x] [flamegraph profiling](https://ohadravid.github.io/posts/2023-03-rusty-python/)
 - [ ] Optimizations - see [this](https://ohadravid.github.io/posts/2023-03-rusty-python/)
 - [ ] Integration tests

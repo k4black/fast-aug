@@ -112,7 +112,6 @@ impl BaseAugmenter<String, Doc> for RandomCharsAugmenter {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::text::random_words_aug::RandomWordsAugmenter;
     use test_case::test_case;
 
     #[test_case(vec!["AAAA", "BBBB", "CCCC", "DDDD", "EEEE"], 0.5, 0.5, 3, 3 ; "round 2.5 as 3 words round 2.5 as 3 chars each")]

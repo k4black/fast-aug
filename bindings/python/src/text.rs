@@ -19,6 +19,7 @@ enum PyConvertTextAugmentParameters {
     Tuple(f32, Option<usize>, Option<usize>),
 }
 
+#[allow(clippy::from_over_into)]
 impl Into<TextAugmentParameters> for PyConvertTextAugmentParameters {
     fn into(self) -> TextAugmentParameters {
         match self {
@@ -33,6 +34,7 @@ impl Into<TextAugmentParameters> for PyConvertTextAugmentParameters {
 #[pyclass]
 #[pyo3(name = "TextAction")]
 #[derive(Clone, Copy)]
+#[allow(non_camel_case_types, clippy::upper_case_acronyms)]
 enum PyTextAction {
     INSERT = 0,
     SUBSTITUTE = 1,
@@ -46,6 +48,7 @@ enum PyConvertTextAction {
     TextAction(PyTextAction),
 }
 
+#[allow(clippy::from_over_into)]
 impl Into<TextAction> for PyConvertTextAction {
     fn into(self) -> TextAction {
         match self {
@@ -82,7 +85,7 @@ impl PyBaseTextAugmenter {
     /// Augment the data
     /// :param data: The String data to augment
     /// :return: The augmented data
-    #[pyo3(text_signature = "(self, data: str) -> str")]
+    #[pyo3(text_signature = "(self, data: str)")]
     fn augment(&self, _data: &PyAny) -> PyResult<PyObject> {
         Err(PyNotImplementedError::new_err("Not implemented"))
     }
@@ -90,8 +93,10 @@ impl PyBaseTextAugmenter {
 
 /// Randomly augment chars in the words
 /// :param action: The action to perform - insert, substitute, swap, delete
-/// :param aug_params_word: The parameters for the word augmentation - probability or (probability, min_elements, max_elements)
-/// :param aug_params_char: The parameters for the char augmentation - probability or (probability, min_elements, max_elements)
+/// :param aug_params_word: The parameters for the word augmentation
+///     - probability or (probability, min_elements, max_elements)
+/// :param aug_params_char: The parameters for the char augmentation
+///     - probability or (probability, min_elements, max_elements)
 /// :param stopwords: The set of stopwords to ignore
 #[pyclass(extends=PyBaseTextAugmenter)]
 #[pyo3(name = "RandomCharsAugmenter")]
@@ -145,7 +150,7 @@ impl PyRandomCharsAugmenter {
     /// Augment the data
     /// :param data: The String data to augment
     /// :return: The augmented data
-    #[pyo3(text_signature = "(self, data: str) -> str")]
+    #[pyo3(text_signature = "(self, data: str)")]
     fn augment(self_: PyRefMut<'_, Self>, data: String) -> PyResult<String> {
         // Get base class
         let mut super_text = self_.into_super();
@@ -162,7 +167,8 @@ impl PyRandomCharsAugmenter {
 
 /// Randomly augment the words
 /// :param action: The action to perform - insert, substitute, swap, delete
-/// :param aug_params_word: The parameters for the word augmentation - probability or (probability, min_elements, max_elements)
+/// :param aug_params_word: The parameters for the word augmentation
+///     - probability or (probability, min_elements, max_elements)
 /// :param stopwords: The set of stopwords to ignore
 #[pyclass(extends=PyBaseTextAugmenter)]
 #[pyo3(name = "RandomWordsAugmenter")]
@@ -210,7 +216,7 @@ impl PyRandomWordsAugmenter {
     /// Augment the data
     /// :param data: The String data to augment
     /// :return: The augmented data
-    #[pyo3(text_signature = "(self, data: str) -> str")]
+    #[pyo3(text_signature = "(self, data: str)")]
     fn augment(self_: PyRefMut<'_, Self>, data: String) -> PyResult<String> {
         // Get base class
         let mut super_text = self_.into_super();
@@ -222,6 +228,19 @@ impl PyRandomWordsAugmenter {
         };
         // Call original augment function
         Ok(rust_augmenter.augment(data, &mut super_base.rng))
+    }
+
+    /// Tokenize a sequence
+    ///
+    /// Args:
+    ///     sequence (:obj:`str`):
+    ///         A sequence to tokenize
+    ///
+    /// Returns:
+    ///     A :obj:`List` of :class:`~tokenizers.Token`: The generated tokens
+    #[pyo3(text_signature = "(self, sequence: str)")]
+    fn tokenize(&self, sequence: &str) -> PyResult<String> {
+        Ok(sequence.to_string())
     }
 }
 

@@ -1,7 +1,7 @@
+from common import bench_text_augmenter
 from pytest_benchmark.fixture import BenchmarkFixture
 
 import fast_aug
-from common import bench_text_augmenter
 
 
 class TestSequentialAugmenter:
@@ -15,7 +15,8 @@ class TestSequentialAugmenter:
             ]
         )
         bench_text_augmenter(benchmark, augmenter)
-        
+
+
 class TestSelectorAugmenter:
     def test_text(self, benchmark: BenchmarkFixture) -> None:
         augmenter = fast_aug.flow.SelectorAugmenter(
@@ -27,7 +28,8 @@ class TestSelectorAugmenter:
             ]
         )
         bench_text_augmenter(benchmark, augmenter)
-        
+
+
 class TestChanceAugmenter:
     def test_text(self, benchmark: BenchmarkFixture) -> None:
         augmenter = fast_aug.flow.ChanceAugmenter(

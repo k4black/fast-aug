@@ -20,12 +20,12 @@ pub struct PyChanceAugmenter;
 #[pymethods]
 impl PyChanceAugmenter {
     #[new]
-    #[pyo3(text_signature = "(augmenter: BaseAugmenter, probability: float)")]
+    #[pyo3(text_signature = "(self, augmenter: BaseAugmenter, probability: float)")]
     fn py_new(augmenter: &PyBaseAugmenter, probability: f64) -> PyResult<PyClassInitializer<Self>> {
         let rng = SmallRng::from_entropy();
 
         // Process parameters
-        if probability < 0.0 || probability > 1.0 {
+        if !(0.0..=1.0).contains(&probability) {
             return Err(PyValueError::new_err("probability must be between 0 and 1"));
         }
 
@@ -49,7 +49,7 @@ impl PyChanceAugmenter {
     /// Augment the data
     /// :param data: The String data to augment
     /// :return: The augmented data
-    #[pyo3(text_signature = "(self, data: str) -> str")]
+    #[pyo3(text_signature = "(self, data: str)")]
     fn augment(mut self_: PyRefMut<'_, Self>, data: String) -> PyResult<String> {
         // Get base class
         let super_base = self_.as_mut();
@@ -73,7 +73,7 @@ pub struct PySelectorAugmenter;
 #[pymethods]
 impl PySelectorAugmenter {
     #[new]
-    #[pyo3(text_signature = "(self, augmenters: list[BaseAugmenter], weights: Optional[list[float]] = None)")]
+    #[pyo3(text_signature = "(self, augmenters: list[BaseAugmenter], weights: list[float] | None = None)")]
     fn py_new(augmenters: &PyList, weights: Option<Vec<f32>>) -> PyResult<PyClassInitializer<Self>> {
         let rng = SmallRng::from_entropy();
 
@@ -122,7 +122,7 @@ impl PySelectorAugmenter {
     /// Augment the data
     /// :param data: The String data to augment
     /// :return: The augmented data
-    #[pyo3(text_signature = "(self, data: str) -> str")]
+    #[pyo3(text_signature = "(self, data: str)")]
     fn augment(mut self_: PyRefMut<'_, Self>, data: String) -> PyResult<String> {
         // Get base class
         let super_base = self_.as_mut();
@@ -188,7 +188,7 @@ impl PySequentialAugmenter {
     /// Augment the data
     /// :param data: The String data to augment
     /// :return: The augmented data
-    #[pyo3(text_signature = "(self, data: str) -> str")]
+    #[pyo3(text_signature = "(self, data: str)")]
     fn augment(mut self_: PyRefMut<'_, Self>, data: String) -> PyResult<String> {
         // Get base class
         let super_base = self_.as_mut();

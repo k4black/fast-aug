@@ -35,7 +35,6 @@ impl<T, K> BaseAugmenter<T, K> for SequentialAugmenter<T, K> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use test_case::test_case;
 
     struct DummyMultiplyAugmenter;
 

@@ -2,27 +2,41 @@
 Adapted from huggingface/tokenizers library:
 https://github.com/huggingface/tokenizers/blob/main/bindings/python/stub.py
 """
+from __future__ import annotations
+
 import argparse
 import inspect
+from collections.abc import Callable
+from modulefinder import Module
 from pathlib import Path
+from types import GetSetDescriptorType, ModuleType
+from typing import Any
 
+import black
+import isort
+import isort.exceptions
 
 INDENT = " " * 4
 GENERATED_COMMENT_LINE = "# Generated content DO NOT EDIT\n"
 PYTHON_SOURCE_FOLDER = Path(__file__).parent / "fast_aug"
 
-def do_indent(text: str, indent: str):
+
+def do_indent(text: str, indent: str) -> str:
     return text.replace("\n", f"\n{indent}")
 
 
-def function(obj, indent, text_signature=None):
+def function(
+    obj: GetSetDescriptorType | Callable[..., Any],
+    indent: str,
+    text_signature: str | None = None,
+) -> str:
     if text_signature is None:
-        text_signature = obj.__text_signature__
+        text_signature = obj.__text_signature__  # type: ignore
     string = ""
     string += f"{indent}def {obj.__name__}{text_signature}:\n"
     indent += INDENT
     string += f'{indent}"""\n'
-    string += f"{indent}{do_indent(obj.__doc__, indent)}\n"
+    string += f"{indent}{do_indent(obj.__doc__ or '', indent)}\n"
     string += f'{indent}"""\n'
     string += f"{indent}pass\n"
     string += "\n"
@@ -30,7 +44,7 @@ def function(obj, indent, text_signature=None):
     return string
 
 
-def member_sort(member):
+def member_sort(member: type) -> int:
     if inspect.isclass(member):
         value = 10 + len(inspect.getmro(member))
     else:
@@ -38,16 +52,15 @@ def member_sort(member):
     return value
 
 
-def fn_predicate(obj):
-    value = inspect.ismethoddescriptor(obj) or inspect.isbuiltin(obj)
-    if value:
-        return obj.__doc__ and obj.__text_signature__ and not obj.__name__.startswith("_")
+def fn_predicate(obj: Callable[..., Any]) -> bool:
+    if inspect.ismethoddescriptor(obj) or inspect.isbuiltin(obj):
+        return bool(obj.__doc__ and obj.__text_signature__ and not obj.__name__.startswith("_"))  # type: ignore
     if inspect.isgetsetdescriptor(obj):
-        return obj.__doc__ and not obj.__name__.startswith("_")
+        return bool(obj.__doc__ and not obj.__name__.startswith("_"))
     return False
 
 
-def get_module_members(module):
+def get_module_members(module: object) -> list[ModuleType]:
     members = [
         member
         for name, member in inspect.getmembers(module)
@@ -57,15 +70,26 @@ def get_module_members(module):
     return members
 
 
-def pyi_file(obj, indent=""):
+def pyi_file(obj: ModuleType | Module | Callable[..., Any] | object, indent: str = "") -> str:  # noqa: C901
     string = ""
     if inspect.ismodule(obj):
         string += GENERATED_COMMENT_LINE
-        string += f"from __future__ import annotations\n\n"
-        string += f"from typings import Any\n\n"
+
+        #  pre-read content to check if we need imports
+        content = ""
         members = get_module_members(obj)
         for member in members:
-            string += pyi_file(member, indent=indent)
+            content += pyi_file(member, indent=indent)
+
+        # Add imports
+        string += "from __future__ import annotations\n\n"
+        if "Any" in content:
+            string += "from typing import Any\n\n"
+        if "BaseAugmenter" in content and obj.__name__ != "base" and obj.__name__ != "fast_aug":
+            string += "from ..base import BaseAugmenter\n\n"
+
+        # Add content
+        string += content
 
     elif inspect.isclass(obj):
         indent += INDENT
@@ -84,11 +108,11 @@ def pyi_file(obj, indent=""):
 
         # Init and add docs from new
         if obj.__text_signature__:
-            body += f"{indent}def __init__{obj.__text_signature__}:\n"
+            body += f"{indent}def __init__{obj.__text_signature__} -> None:\n"
             body += f"{indent+INDENT}pass\n"
             body += "\n"
 
-        for (name, fn) in fns:
+        for name, fn in fns:
             body += pyi_file(fn, indent=indent)
 
         if not body:
@@ -115,7 +139,7 @@ def pyi_file(obj, indent=""):
     return string
 
 
-def py_file(module, origin):
+def py_file(module: ModuleType, origin: str) -> str:
     members = get_module_members(module)
 
     string = GENERATED_COMMENT_LINE
@@ -130,15 +154,39 @@ def py_file(module, origin):
     if module.__dict__.get("__all__"):
         string += f"__all__ = {origin}.__all__\n"
     else:
-        string += f"__all__ = [{', '.join([f'\"{m.__name__}\"' for m in members])}]\n"
+        all_content = ", ".join([f'"{m.__name__}"' for m in members])
+        string += f"__all__ = [{all_content}]\n"
 
     # add docs
-    string += f'__doc__ = {origin}.__doc__\n'
+    string += f"__doc__ = {origin}.__doc__\n"
 
     return string
 
 
-def save_file_if_generated_and_different(root: Path, filename: Path, content: str, raise_if_different: bool = False) -> None:
+def do_isort(content: str) -> str:
+    try:
+        return isort.code(content, config=isort.Config(profile="black", line_length=120))
+    except isort.exceptions.FileSkipComment:
+        return content
+
+
+def do_black(content: str, is_pyi: bool) -> str:
+    mode = black.Mode(
+        target_versions={black.TargetVersion.PY312},
+        line_length=120,
+        is_pyi=is_pyi,
+        string_normalization=True,
+        experimental_string_processing=False,
+    )
+    try:
+        return black.format_file_contents(content, fast=True, mode=mode)
+    except black.NothingChanged:
+        return content
+
+
+def save_file_if_generated_and_different(
+    root: Path, filename: Path, content: str, raise_if_different: bool = False
+) -> None:
     relative_filename = filename.relative_to(root)
 
     # read file content
@@ -170,10 +218,10 @@ def save_file_if_generated_and_different(root: Path, filename: Path, content: st
 
 
 def generate_stubs_and_imports(
-        module: object,
-        folder: Path,
-        module_name: str,
-        check: bool = False,
+    module: ModuleType,
+    folder: Path,
+    module_name: str,
+    check: bool = False,
 ) -> None:
     folder.mkdir(parents=True, exist_ok=True)
 
@@ -183,15 +231,18 @@ def generate_stubs_and_imports(
 
     stub_filename = folder / "__init__.pyi"
     pyi_content = pyi_file(module)
+    pyi_content = do_isort(pyi_content)
+    pyi_content = do_black(pyi_content, is_pyi=True)
     save_file_if_generated_and_different(PYTHON_SOURCE_FOLDER, stub_filename, pyi_content, raise_if_different=check)
 
     init_filename = folder / "__init__.py"
     py_content = py_file(module, module_name)
+    py_content = do_isort(py_content)
+    py_content = do_black(py_content, is_pyi=False)
     save_file_if_generated_and_different(PYTHON_SOURCE_FOLDER, init_filename, py_content, raise_if_different=check)
 
     for name, submodule in submodules:
         generate_stubs_and_imports(submodule, folder / name, str(name), check=check)
-
 
 
 if __name__ == "__main__":
@@ -213,8 +264,10 @@ if __name__ == "__main__":
 
     import fast_aug
 
-    print('fast_aug', fast_aug)
-    print('fast_aug.__dict__', fast_aug.__dict__.keys())
-
     print("Processing fast_aug:")
-    generate_stubs_and_imports(fast_aug.fast_aug, PYTHON_SOURCE_FOLDER, "fast_aug", check=args.check)
+    generate_stubs_and_imports(
+        fast_aug.fast_aug,  # type: ignore
+        PYTHON_SOURCE_FOLDER,
+        "fast_aug",
+        check=args.check,
+    )

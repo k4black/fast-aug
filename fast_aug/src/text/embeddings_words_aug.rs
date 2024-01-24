@@ -1,3 +1,5 @@
+#![allow(dead_code, unused_variables, unreachable_code)]
+
 use std::collections::HashSet;
 use std::fs::File;
 use std::io::BufReader;

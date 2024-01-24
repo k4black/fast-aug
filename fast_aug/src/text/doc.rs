@@ -51,6 +51,7 @@ impl Doc {
     }
 
     /// Convert Doc to string
+    #[allow(clippy::inherent_to_string)]
     pub fn to_string(&self) -> String {
         self.tokens
             .iter()

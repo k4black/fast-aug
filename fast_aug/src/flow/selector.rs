@@ -85,6 +85,7 @@ mod tests {
         assert_eq!(output, 2)
     }
 
+    #[test]
     fn test_uniform_selection() {
         let augmenter1 = Arc::new(DummyMultiplyAugmenter);
         let augmenter2 = Arc::new(DummyAddAugmenter);
@@ -124,13 +125,10 @@ mod tests {
 
         // Calculate the number of times each augmenter is selected
         let mut num_augmenter1 = 0;
-        let mut num_augmenter2 = 0;
         for _ in 0..1000 {
             let output = selector_augmenter.augment(10, &mut rand::thread_rng());
             if output == 20 {
                 num_augmenter1 += 1;
-            } else if output == 11 {
-                num_augmenter2 += 1;
             }
         }
 

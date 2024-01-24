@@ -28,6 +28,11 @@ build-python-dev:  ## Build python library (and install in editable mode)
 	cd $(PYTHON_SRC_DIRECTORY) && $(PYTHON_INTERPRETER) -m pip install -v -e .\[test\] --config-settings=build-args='--profile $(BUILD_PROFILE)'
 
 
+.PHONY: generate-stubs
+generate-stubs: build-python-dev  ## Generate python stubs
+	cd $(PYTHON_SRC_DIRECTORY) && $(PYTHON_INTERPRETER) generate_stubs.py
+
+
 .PHONY: test
 test: test-rust test-python  ## Run all tests
 
@@ -51,7 +56,7 @@ format-rust:  ## Format rust code
 	cd $(RUST_SRC_DIRECTORY) && cargo fmt
 
 .PHONY: format-python
-format-python:  ## Format python code
+format-python: build-python-dev  ## Format python code
 	cd $(PYTHON_SRC_DIRECTORY) && cargo fmt
 	cd $(PYTHON_SRC_DIRECTORY) && $(PYTHON_INTERPRETER) -m isort .
 	cd $(PYTHON_SRC_DIRECTORY) && $(PYTHON_INTERPRETER) -m black .
@@ -70,7 +75,7 @@ lint-python:  ## Lint python code
 	cd $(PYTHON_SRC_DIRECTORY) && cargo clippy --all-targets --all-features -- -D warnings
 	cd $(PYTHON_SRC_DIRECTORY) && cargo fmt --all -- --check
 	cd $(PYTHON_SRC_DIRECTORY) && $(PYTHON_INTERPRETER) -m ruff check
-	cd $(PYTHON_SRC_DIRECTORY) && $(PYTHON_INTERPRETER) -m mypy .
+	#cd $(PYTHON_SRC_DIRECTORY) && $(PYTHON_INTERPRETER) -m mypy .  # TODO bring back when return type annotations are added
 	cd $(PYTHON_SRC_DIRECTORY) && $(PYTHON_INTERPRETER) -m isort . --check-only
 	cd $(PYTHON_SRC_DIRECTORY) && $(PYTHON_INTERPRETER) -m black . --check
 

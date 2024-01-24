@@ -5,5 +5,8 @@ flow = fast_aug.flow
 base = fast_aug.base
 models = fast_aug.models
 
-__all__ = fast_aug.__all__
+BaseAugmenter = fast_aug.base.BaseAugmenter
+BaseTextAugmenter = fast_aug.text.BaseTextAugmenter
+
+__all__ = ["text", "flow", "base", "models", "BaseAugmenter", "BaseTextAugmenter"]
 __doc__ = fast_aug.__doc__

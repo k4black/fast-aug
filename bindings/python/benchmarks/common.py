@@ -17,7 +17,7 @@ def bench_text_augmenter(benchmark: BenchmarkFixture, augmenter: BaseAugmenter) 
     text_data = [line.strip() for line in open(FILENAME, "r").readlines()]
 
     # benchmark
-    def augment_data():
+    def augment_data() -> None:
         for d in text_data:
             augmenter.augment(d)
 

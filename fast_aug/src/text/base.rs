@@ -87,9 +87,6 @@ pub trait BaseTextAugmenter: BaseAugmenter<String, Doc> {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
-    use test_case::test_case;
-
     // #[test_case(0.5, 10, 5)]
     // #[test_case(0.7, 10, 7)]
     // #[test_case(0.3, 10, 3)]

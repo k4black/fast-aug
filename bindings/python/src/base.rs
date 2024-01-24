@@ -35,7 +35,7 @@ impl PyBaseAugmenter {
     /// Augment data
     /// :param data: Data to augment
     /// :returns: Augmented data
-    #[pyo3(text_signature = "(self, data: Any) -> Any")]
+    #[pyo3(text_signature = "(self, data: Any)")]
     pub fn augment(&self, _data: &PyAny) -> PyResult<PyObject> {
         Err(PyNotImplementedError::new_err("Not implemented"))
     }

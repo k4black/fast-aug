@@ -1,3 +1,5 @@
+#![allow(dead_code, unused_variables, unreachable_code, unused_imports)]
+
 use super::base::{BaseTextAugmenter, TextAction};
 use super::doc::Doc;
 use super::parameters::TextAugmentParameters;

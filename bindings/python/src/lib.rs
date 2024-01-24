@@ -13,9 +13,6 @@ mod utils;
 /// Main fast_aug Module
 #[pymodule]
 fn fast_aug(_py: Python, m: &PyModule) -> PyResult<()> {
-    m.add_class::<base::PyBaseAugmenter>()?;
-    m.add_class::<text::PyBaseTextAugmenter>()?;
-
     m.add_wrapped(wrap_pymodule!(base::base))?;
     m.add_wrapped(wrap_pymodule!(flow::flow))?;
     m.add_wrapped(wrap_pymodule!(models::models))?;
