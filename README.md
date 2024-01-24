@@ -60,7 +60,7 @@ Rust
 - [x] Formatting
   - [x] rustfmt
   - [x] clippy
-- [ ] [rust flamegraph profiling](https://www.jibbow.com/posts/criterion-flamegraphs/)
+- [x] [rust flamegraph profiling](https://www.jibbow.com/posts/criterion-flamegraphs/)
 - [x] Unit tests
 - [ ] Integration tests
 - [x] CI build and tests
@@ -76,7 +76,7 @@ Python
   - [ ] Auto generate stubs on maturing build
   - [x] Text
   - [x] Flow
-- [ ] [flamegraph profiling](https://ohadravid.github.io/posts/2023-03-rusty-python/)
+- [x] [flamegraph profiling](https://ohadravid.github.io/posts/2023-03-rusty-python/)
 - [ ] Optimizations - see [this](https://ohadravid.github.io/posts/2023-03-rusty-python/)
 - [ ] Integration tests
 - [x] CI build and tests
