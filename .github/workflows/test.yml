@@ -97,6 +97,7 @@ jobs:
           cache: 'pip'
       - name: Make bindings/python/.venv/bin/python softlink to global python
         run: |
+          mkdir -p bindings/python/.venv/bin
           ln -s $(which python) bindings/python/.venv/bin/python
       - name: Build and install package
         run: make build-python
@@ -127,7 +128,9 @@ jobs:
           python-version: ${{ matrix.python-version }}
           cache: 'pip'
       - name: Make bindings/python/.venv/bin/python softlink to global python
-        run: ln -s $(which python) bindings/python/.venv/bin/python
+        run: |
+          mkdir -p bindings/python/.venv/bin
+          ln -s $(which python) bindings/python/.venv/bin/python
       - name: Run rust tests in debug=${{ matrix.debug }} mode
         run: |
           if ${{ matrix.debug }}; then
@@ -152,7 +155,9 @@ jobs:
           python-version: ${{ matrix.python-version }}
           cache: 'pip'
       - name: Make bindings/python/.venv/bin/python softlink to global python
-        run: ln -s $(which python) bindings/python/.venv/bin/python
+        run: |
+          mkdir -p bindings/python/.venv/bin
+          ln -s $(which python) bindings/python/.venv/bin/python
       - name: Run profiling in release mode
         run: make profile-python
       - name: Upload profiling results
