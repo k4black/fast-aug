@@ -65,6 +65,7 @@ test-rust:
 .PHONY: test-python
 test-python: build-python-dev
 	cd $(PYTHON_SRC_DIRECTORY) && cargo test --profile $(BUILD_PROFILE)
+	cd $(PYTHON_SRC_DIRECTORY) && .venv/bin/python -m pip install maturin
 	cd $(PYTHON_SRC_DIRECTORY) && .venv/bin/python generate_stubs.py --check
 	cd $(PYTHON_SRC_DIRECTORY) && .venv/bin/python -m pytest tests/
 
