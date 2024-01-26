@@ -89,7 +89,8 @@ jobs:
           name: python-profiling-results
           path: |
             # benchmarking results and flamegraph
-            bindings/python/*.svg
+            bindings/python/flamegraph*.svg
+            bindings/python/python-bench*.svg
           if-no-files-found: error
 
   compare-python:

@@ -143,7 +143,7 @@ def _nlpaug_words_swap(batched: bool = False) -> None:
             augmenter.augment(d)
 
 
-def _fastnlpaug_words_swap(batched: bool = False) -> None:
+def _fasttextaug_words_swap(batched: bool = False) -> None:
     from fasttextaug.augmenter.word import RandomWordAug
 
     augmenter = RandomWordAug(action="swap", aug_p=0.3)
@@ -177,7 +177,7 @@ def measure_words_swap() -> pd.DataFrame:
         for name, function in [
             ("fast-aug", _fast_aug_words_swap),
             ("nlpaug", _nlpaug_words_swap),
-            ("fastnlpaug", _fastnlpaug_words_swap),
+            ("fasttextaug", _fasttextaug_words_swap),
             # ("augmenty", _augmenty_words_swap),
         ]:
             for result in tqdm(
@@ -216,7 +216,7 @@ def _nlpaug_words_delete(batched: bool = False) -> None:
             augmenter.augment(d)
 
 
-def _fastnlpaug_words_delete(batched: bool = False) -> None:
+def _fasttextaug_words_delete(batched: bool = False) -> None:
     from fasttextaug.augmenter.word import RandomWordAug
 
     augmenter = RandomWordAug(action="delete", aug_p=0.3)
@@ -235,7 +235,7 @@ def measure_words_delete() -> pd.DataFrame:
         for name, function in [
             ("fast-aug", _fast_aug_words_delete),
             ("nlpaug", _nlpaug_words_delete),
-            ("fastnlpaug", _fastnlpaug_words_delete),
+            ("fasttextaug", _fasttextaug_words_delete),
             # ("augmenty", None),
         ]:
             for result in tqdm(
@@ -274,7 +274,7 @@ def _nlpaug_chars_swap(batched: bool = False) -> None:
             augmenter.augment(d)
 
 
-def _fastnlpaug_chars_swap(batched: bool = False) -> None:
+def _fasttextaug_chars_swap(batched: bool = False) -> None:
     from fasttextaug.augmenter.char import RandomCharAug
 
     augmenter = RandomCharAug(action="swap", aug_char_p=0.3, aug_word_p=0.3)
@@ -308,7 +308,7 @@ def measure_chars_swap() -> pd.DataFrame:
         for name, function in [
             ("fast-aug", _fast_aug_chars_swap),
             ("nlpaug", _nlpaug_chars_swap),
-            ("fastnlpaug", _fastnlpaug_chars_swap),
+            ("fasttextaug", _fasttextaug_chars_swap),
             # ("augmenty", _augmenty_chars_swap),
         ]:
             for result in tqdm(
@@ -347,7 +347,7 @@ def _nlpaug_chars_delete(batched: bool = False) -> None:
             augmenter.augment(d)
 
 
-def _fastnlpaug_chars_delete(batched: bool = False) -> None:
+def _fasttextaug_chars_delete(batched: bool = False) -> None:
     from fasttextaug.augmenter.char import RandomCharAug
 
     augmenter = RandomCharAug(action="delete", aug_char_p=0.3, aug_word_p=0.3)
@@ -366,7 +366,7 @@ def measure_chars_delete() -> pd.DataFrame:
         for name, function in [
             ("fast-aug", _fast_aug_chars_delete),
             ("nlpaug", _nlpaug_chars_delete),
-            ("fastnlpaug", _fastnlpaug_chars_delete),
+            ("fasttextaug", _fasttextaug_chars_delete),
             # ("augmenty", None),
         ]:
             for result in tqdm(
@@ -506,5 +506,5 @@ if __name__ == "__main__":
             ],
         ),
         "comparison-python-text",
-        hue_order=["fast-aug", "fastnlpaug", "nlpaug"],
+        hue_order=["fast-aug", "fasttextaug", "nlpaug"],
     )

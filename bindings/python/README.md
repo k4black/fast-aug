@@ -10,18 +10,25 @@ The `fast-aug` library **x25** times faster than `nlpaug`!
 
 ## Performance Comparison
 
-Comparison of the `fast-aug` library with the other NLP augmentation libraries.  
-All libs compared on [tweeteval dataset](https://github.com/cardiffnlp/tweeteval) - sentiment test set - 12k samples.
+Comparison of the `fast-aug` library with the other NLP augmentation libraries.
+
+* `fast-aug` - this, Fast Augmentation library written in Rust, with Python bindings
+* `nlpaug` - [nlpaug](https://github.com/makcedward/nlpaug) - The most popular NLP augmentation library
+* `fasttextaug` - [fasttextaug](https://github.com/Tzinch21/fasttextaug) - re-write of some `nlpaug`'s augmenters in Rust with Python bindings
+* `augly` not included as ["Our text augmentations use nlpaug as their backbone"](https://github.com/facebookresearch/AugLy/tree/main/augly/text)
+* `augmenty` not included as it is too slow (2-8 times slower than `nlpaug`)
+
+[//]: # (* for `augmenty` spacy model loading time is included, as we measure end-to-end time and mem &#40;`spacy.lang.en.English` model was used&#41;)
+
+It is end-to-end comparison, including dataset loading, classes initialization and augmentation of all samples (one-by-one or provided as a list).  
+See [./benchmarks/compare_text.py](./benchmarks/compare_text.py) for details of the comparison.
+
 
 ![comparison time](./comparison-python-text-time.svg)
 ![comparison memory](./comparison-python-text-memory.svg)
 
-[//]: # (* for `augmenty` spacy model loading time is included, as we measure end-to-end time and mem &#40;`spacy.lang.en.English` model was used&#41;)
-* `fastnlpaug` - is re-write of a couple of `nlpaug` augmenters in rust (not really developed)
-* `augly` not included as ["Our text augmentations use nlpaug as their backbone"](https://github.com/facebookresearch/AugLy/tree/main/augly/text)
-* Try to compare `augmenty`, but it way too slow, so we exclude it from the comparison (2 times slower than `nlpaug`)
-
-See [./benchmarks/compare_text.py](./benchmarks/compare_text.py) for details.
+All libs compared on [tweeteval dataset](https://github.com/cardiffnlp/tweeteval) - sentiment test set - 12k samples.  
+Note: dataset text file size is 1.1Mb, it is included in the memory usage.
 
 
 ## Development

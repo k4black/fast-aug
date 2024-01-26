@@ -71,5 +71,5 @@ jobs:
             # benchmarking results
             fast_aug/target/criterion
             # flamegraph
-            fast_aug/*.svg
+            fast_aug/flamegraph*.svg
           if-no-files-found: error
