@@ -1,6 +1,8 @@
 # Generated content DO NOT EDIT
 from __future__ import annotations
 
+from typing import Any
+
 from ..base import BaseAugmenter
 
 class TextAction:
@@ -16,8 +18,15 @@ class BaseTextAugmenter(BaseAugmenter):
     def augment(self, data: str):
         """
         Augment the data
-        :param data: The String data to augment
+        :param data: The single String to augment
         :return: The augmented data
+        """
+        pass
+    def augment_batch(self, data: list[Any]):
+        """
+        Augment data given a batch of data
+        :param data: Vector of Strings to augment
+        :returns: Augmented data
         """
         pass
 
@@ -43,7 +52,14 @@ class RandomCharsAugmenter(BaseTextAugmenter):
     def augment(self, data: str):
         """
         Augment the data
-        :param data: The String data to augment
+        :param data: A String to augment
+        :return: The augmented data
+        """
+        pass
+    def augment_batch(self, data: list[str]):
+        """
+        Augment the data given a batch
+        :param data: The list of Strings to augment
         :return: The augmented data
         """
         pass
@@ -67,19 +83,14 @@ class RandomWordsAugmenter(BaseTextAugmenter):
     def augment(self, data: str):
         """
         Augment the data
-        :param data: The String data to augment
+        :param data: A String to augment
         :return: The augmented data
         """
         pass
-    def tokenize(self, sequence: str):
+    def augment_batch(self, data: list[str]):
         """
-        Tokenize a sequence
-
-        Args:
-            sequence (:obj:`str`):
-                A sequence to tokenize
-
-        Returns:
-            A :obj:`List` of :class:`~tokenizers.Token`: The generated tokens
+        Augment the data given a batch
+        :param data: The list of Strings to augment
+        :return: The augmented data
         """
         pass

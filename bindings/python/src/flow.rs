@@ -61,6 +61,27 @@ impl PyChanceAugmenter {
         // Call original augment function
         Ok(rust_augmenter.augment(data, &mut super_base.rng))
     }
+
+    /// Augment the data given a batch
+    /// :param data: The String data to augment
+    /// :return: The augmented data
+    #[pyo3(text_signature = "(self, data: list[str])")]
+    fn augment_batch(mut self_: PyRefMut<'_, Self>, data: Vec<String>) -> PyResult<Vec<String>> {
+        // Get base class
+        let super_base = self_.as_mut();
+        // Get inner Rust object
+        let rust_augmenter = match &super_base.inner {
+            AugmenterTypes::Text(augmenter) => augmenter,
+            _ => std::panic!("Augmenter is not a TextAugmenter"),
+        };
+        // Call original augment function
+        // TODO: make batch augmenter, not just a loop
+        let mut augmented_data = Vec::with_capacity(data.len());
+        for d in data {
+            augmented_data.push(rust_augmenter.augment(d, &mut super_base.rng));
+        }
+        Ok(augmented_data)
+    }
 }
 
 /// Given a list of augmenters, apply one of them randomly
@@ -134,6 +155,27 @@ impl PySelectorAugmenter {
         // Call original augment function
         Ok(rust_augmenter.augment(data, &mut super_base.rng))
     }
+
+    /// Augment the data given a batch
+    /// :param data: The String data to augment
+    /// :return: The augmented data
+    #[pyo3(text_signature = "(self, data: list[str])")]
+    fn augment_batch(mut self_: PyRefMut<'_, Self>, data: Vec<String>) -> PyResult<Vec<String>> {
+        // Get base class
+        let super_base = self_.as_mut();
+        // Get inner Rust object
+        let rust_augmenter = match &super_base.inner {
+            AugmenterTypes::Text(augmenter) => augmenter,
+            _ => std::panic!("Augmenter is not a TextAugmenter"),
+        };
+        // Call original augment function
+        // TODO: make batch augmenter, not just a loop
+        let mut augmented_data = Vec::with_capacity(data.len());
+        for d in data {
+            augmented_data.push(rust_augmenter.augment(d, &mut super_base.rng));
+        }
+        Ok(augmented_data)
+    }
 }
 
 /// Given a list of augmenters, apply them sequentially
@@ -199,6 +241,27 @@ impl PySequentialAugmenter {
         };
         // Call original augment function
         Ok(rust_augmenter.augment(data, &mut super_base.rng))
+    }
+
+    /// Augment the data given a batch
+    /// :param data: The String data to augment
+    /// :return: The augmented data
+    #[pyo3(text_signature = "(self, data: list[str])")]
+    fn augment_batch(mut self_: PyRefMut<'_, Self>, data: Vec<String>) -> PyResult<Vec<String>> {
+        // Get base class
+        let super_base = self_.as_mut();
+        // Get inner Rust object
+        let rust_augmenter = match &super_base.inner {
+            AugmenterTypes::Text(augmenter) => augmenter,
+            _ => std::panic!("Augmenter is not a TextAugmenter"),
+        };
+        // Call original augment function
+        // TODO: make batch augmenter, not just a loop
+        let mut augmented_data = Vec::with_capacity(data.len());
+        for d in data {
+            augmented_data.push(rust_augmenter.augment(d, &mut super_base.rng));
+        }
+        Ok(augmented_data)
     }
 }
 

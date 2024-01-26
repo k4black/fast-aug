@@ -28,15 +28,23 @@ pub struct PyBaseAugmenter {
 impl PyBaseAugmenter {
     #[new]
     #[pyo3(text_signature = "(self)")]
-    pub fn py_new() -> PyResult<Self> {
+    fn py_new() -> PyResult<Self> {
         Err(PyNotImplementedError::new_err("Not implemented"))
     }
 
     /// Augment data
-    /// :param data: Data to augment
+    /// :param data: Data to augment - single data point
     /// :returns: Augmented data
     #[pyo3(text_signature = "(self, data: Any)")]
-    pub fn augment(&self, _data: &PyAny) -> PyResult<PyObject> {
+    fn augment(&self, _data: &PyAny) -> PyResult<PyObject> {
+        Err(PyNotImplementedError::new_err("Not implemented"))
+    }
+
+    /// Augment data given a batch of data
+    /// :param data: Data to augment - vector of data points
+    /// :returns: Augmented data
+    #[pyo3(text_signature = "(self, data: list[Any])")]
+    fn augment_batch(&self, _data: Vec<&PyAny>) -> PyResult<PyObject> {
         Err(PyNotImplementedError::new_err("Not implemented"))
     }
 }

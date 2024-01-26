@@ -83,10 +83,18 @@ impl PyBaseTextAugmenter {
     }
 
     /// Augment the data
-    /// :param data: The String data to augment
+    /// :param data: The single String to augment
     /// :return: The augmented data
     #[pyo3(text_signature = "(self, data: str)")]
     fn augment(&self, _data: &PyAny) -> PyResult<PyObject> {
+        Err(PyNotImplementedError::new_err("Not implemented"))
+    }
+
+    /// Augment data given a batch of data
+    /// :param data: Vector of Strings to augment
+    /// :returns: Augmented data
+    #[pyo3(text_signature = "(self, data: list[Any])")]
+    fn augment_batch(&self, _data: Vec<&PyAny>) -> PyResult<Vec<PyObject>> {
         Err(PyNotImplementedError::new_err("Not implemented"))
     }
 }
@@ -148,7 +156,7 @@ impl PyRandomCharsAugmenter {
     }
 
     /// Augment the data
-    /// :param data: The String data to augment
+    /// :param data: A String to augment
     /// :return: The augmented data
     #[pyo3(text_signature = "(self, data: str)")]
     fn augment(self_: PyRefMut<'_, Self>, data: String) -> PyResult<String> {
@@ -162,6 +170,28 @@ impl PyRandomCharsAugmenter {
         };
         // Call original augment function
         Ok(rust_augmenter.augment(data, &mut super_base.rng))
+    }
+
+    /// Augment the data given a batch
+    /// :param data: The list of Strings to augment
+    /// :return: The augmented data
+    #[pyo3(text_signature = "(self, data: list[str])")]
+    fn augment_batch(self_: PyRefMut<'_, Self>, data: Vec<String>) -> PyResult<Vec<String>> {
+        // Get base class
+        let mut super_text = self_.into_super();
+        let super_base = super_text.as_mut();
+        // Get inner Rust object
+        let rust_augmenter = match &super_base.inner {
+            AugmenterTypes::Text(augmenter) => augmenter,
+            _ => panic!("Augmenter is not a TextAugmenter"),
+        };
+        // Call original augment function
+        // TODO: make batch augmenter, not just a loop
+        let mut augmented_data = Vec::with_capacity(data.len());
+        for d in data {
+            augmented_data.push(rust_augmenter.augment(d, &mut super_base.rng));
+        }
+        Ok(augmented_data)
     }
 }
 
@@ -214,7 +244,7 @@ impl PyRandomWordsAugmenter {
     }
 
     /// Augment the data
-    /// :param data: The String data to augment
+    /// :param data: A String to augment
     /// :return: The augmented data
     #[pyo3(text_signature = "(self, data: str)")]
     fn augment(self_: PyRefMut<'_, Self>, data: String) -> PyResult<String> {
@@ -230,17 +260,26 @@ impl PyRandomWordsAugmenter {
         Ok(rust_augmenter.augment(data, &mut super_base.rng))
     }
 
-    /// Tokenize a sequence
-    ///
-    /// Args:
-    ///     sequence (:obj:`str`):
-    ///         A sequence to tokenize
-    ///
-    /// Returns:
-    ///     A :obj:`List` of :class:`~tokenizers.Token`: The generated tokens
-    #[pyo3(text_signature = "(self, sequence: str)")]
-    fn tokenize(&self, sequence: &str) -> PyResult<String> {
-        Ok(sequence.to_string())
+    /// Augment the data given a batch
+    /// :param data: The list of Strings to augment
+    /// :return: The augmented data
+    #[pyo3(text_signature = "(self, data: list[str])")]
+    fn augment_batch(self_: PyRefMut<'_, Self>, data: Vec<String>) -> PyResult<Vec<String>> {
+        // Get base class
+        let mut super_text = self_.into_super();
+        let super_base = super_text.as_mut();
+        // Get inner Rust object
+        let rust_augmenter = match &super_base.inner {
+            AugmenterTypes::Text(augmenter) => augmenter,
+            _ => panic!("Augmenter is not a TextAugmenter"),
+        };
+        // Call original augment function
+        // TODO: make batch augmenter, not just a loop
+        let mut augmented_data = Vec::with_capacity(data.len());
+        for d in data {
+            augmented_data.push(rust_augmenter.augment(d, &mut super_base.rng));
+        }
+        Ok(augmented_data)
     }
 }
 

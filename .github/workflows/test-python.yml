@@ -108,5 +108,7 @@ jobs:
           cache: 'pip'
       - name: Update pip
         run: python -m pip install --upgrade pip
+      - name: Build and install spaCy
+        run: python -m pip install spacy && python -m spacy download en_core_web_sm
       - name: Run comparison (just to check that it works)
         run: make compare-python PYTHON_INTERPRETER=python COMPARE_REPETITIONS=1

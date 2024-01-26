@@ -1,12 +1,12 @@
 from __future__ import annotations
 
+import argparse
 import platform
 import time
 import warnings
 from collections.abc import Callable, Generator
 from multiprocessing import Process, Queue
 from typing import Any
-import argparse
 
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -46,7 +46,7 @@ def ram_info() -> None:
 
 
 def measure_function_time(queue: Queue, function: Callable, *args: Any, **kwargs: Any) -> None:
-    time.sleep(0.1)  # delay for 100 ms for more accurate RAM measurement
+    time.sleep(0.5)  # delay for 500 ms for more accurate RAM measurement
 
     try:
         start = time.perf_counter()
@@ -59,7 +59,7 @@ def measure_function_time(queue: Queue, function: Callable, *args: Any, **kwargs
     queue.put(elapsed)
 
 
-def monitor_process(pid: int, time_limit: int = 10) -> int | None:
+def monitor_process(pid: int, time_limit: int = 30) -> int | None:
     p = psutil.Process(pid)
     start_time = time.perf_counter()
     max_memory = 0
@@ -98,6 +98,8 @@ def measure_function_time_repeat(
 
         if not queue.empty():
             elapsed = queue.get()
+        else:
+            elapsed = None
 
         if max_memory is None:
             elapsed = None
@@ -123,7 +125,7 @@ def _fast_aug_words_swap(batched: bool = False) -> None:
     augmenter = RandomWordsAugmenter("swap", 0.3)
     text_data = get_text_data()
     if batched:
-        augmenter.augment(text_data)
+        augmenter.augment_batch(text_data)
     if not batched:
         for d in text_data:
             augmenter.augment(d)
@@ -153,6 +155,21 @@ def _fastnlpaug_words_swap(batched: bool = False) -> None:
             augmenter.augment(d)
 
 
+def _augmenty_words_swap(batched: bool = False) -> None:
+    import augmenty
+    from spacy.lang.en import English
+
+    nlp = English()
+    augmenter = augmenty.load("token_swap_v1", level=0.3)
+    text_data = get_text_data()
+
+    if batched:
+        list(augmenty.texts(text_data, augmenter=augmenter, nlp=nlp))
+    else:
+        for text in text_data:
+            list(augmenty.texts([text], augmenter=augmenter, nlp=nlp))
+
+
 def measure_words_swap() -> pd.DataFrame:
     method_name = "words_swap"
     results = []
@@ -161,6 +178,7 @@ def measure_words_swap() -> pd.DataFrame:
             ("fast-aug", _fast_aug_words_swap),
             ("nlpaug", _nlpaug_words_swap),
             ("fastnlpaug", _fastnlpaug_words_swap),
+            # ("augmenty", _augmenty_words_swap),
         ]:
             for result in tqdm(
                 measure_function_time_repeat(name, REPEAT_COUNT, function, (), {"batched": batched}),
@@ -180,7 +198,7 @@ def _fast_aug_words_delete(batched: bool = False) -> None:
     augmenter = RandomWordsAugmenter("delete", 0.3)
     text_data = get_text_data()
     if batched:
-        augmenter.augment(text_data)
+        augmenter.augment_batch(text_data)
     if not batched:
         for d in text_data:
             augmenter.augment(d)
@@ -218,6 +236,7 @@ def measure_words_delete() -> pd.DataFrame:
             ("fast-aug", _fast_aug_words_delete),
             ("nlpaug", _nlpaug_words_delete),
             ("fastnlpaug", _fastnlpaug_words_delete),
+            # ("augmenty", None),
         ]:
             for result in tqdm(
                 measure_function_time_repeat(name, REPEAT_COUNT, function, (), {"batched": batched}),
@@ -237,7 +256,7 @@ def _fast_aug_chars_swap(batched: bool = False) -> None:
     augmenter = RandomCharsAugmenter("swap", 0.3, 0.3)
     text_data = get_text_data()
     if batched:
-        augmenter.augment(text_data)
+        augmenter.augment_batch(text_data)
     if not batched:
         for d in text_data:
             augmenter.augment(d)
@@ -267,6 +286,21 @@ def _fastnlpaug_chars_swap(batched: bool = False) -> None:
             augmenter.augment(d)
 
 
+def _augmenty_chars_swap(batched: bool = False) -> None:
+    import augmenty
+    from spacy.lang.en import English
+
+    nlp = English()
+    augmenter = augmenty.load("token_swap_v1", level=0.3)
+    text_data = get_text_data()
+
+    if batched:
+        list(augmenty.texts(text_data, augmenter=augmenter, nlp=nlp))
+    else:
+        for text in text_data:
+            list(augmenty.texts([text], augmenter=augmenter, nlp=nlp))
+
+
 def measure_chars_swap() -> pd.DataFrame:
     method_name = "chars_swap"
     results = []
@@ -275,6 +309,7 @@ def measure_chars_swap() -> pd.DataFrame:
             ("fast-aug", _fast_aug_chars_swap),
             ("nlpaug", _nlpaug_chars_swap),
             ("fastnlpaug", _fastnlpaug_chars_swap),
+            # ("augmenty", _augmenty_chars_swap),
         ]:
             for result in tqdm(
                 measure_function_time_repeat(name, REPEAT_COUNT, function, (), {"batched": batched}),
@@ -294,7 +329,7 @@ def _fast_aug_chars_delete(batched: bool = False) -> None:
     augmenter = RandomCharsAugmenter("delete", 0.3, 0.3)
     text_data = get_text_data()
     if batched:
-        augmenter.augment(text_data)
+        augmenter.augment_batch(text_data)
     if not batched:
         for d in text_data:
             augmenter.augment(d)
@@ -332,6 +367,7 @@ def measure_chars_delete() -> pd.DataFrame:
             ("fast-aug", _fast_aug_chars_delete),
             ("nlpaug", _nlpaug_chars_delete),
             ("fastnlpaug", _fastnlpaug_chars_delete),
+            # ("augmenty", None),
         ]:
             for result in tqdm(
                 measure_function_time_repeat(name, REPEAT_COUNT, function, (), {"batched": batched}),
@@ -346,6 +382,8 @@ def measure_chars_delete() -> pd.DataFrame:
 
 
 def draw_barplot_time_memory(df: pd.DataFrame, output_name: str, hue_order: list[str]) -> None:
+    num_samples = len(get_text_data())
+
     # Plot settings
     sns.set(style="whitegrid")
 
@@ -362,14 +400,32 @@ def draw_barplot_time_memory(df: pd.DataFrame, output_name: str, hue_order: list
     axes[0].set_ylabel("Average Time (s)")
     axes[0].set_xlabel("Method")
     axes[0].legend(loc="upper left", title="Library")
-    axes[0].text(0.99, 1.03, f"Average by {REPEAT_COUNT} runs", transform=axes[0].transAxes, ha='right', va='top', fontsize=10, color='grey')
+    axes[0].text(
+        0.99,
+        1.03,
+        f"{num_samples/1000:.1f}k samples, average by {REPEAT_COUNT} runs",
+        transform=axes[0].transAxes,
+        ha="right",
+        va="top",
+        fontsize=10,
+        color="grey",
+    )
 
     sns.barplot(x="method", y="time", hue="name", data=batched_df, ax=axes[1], hue_order=hue_order)
     axes[1].set_title("Average Time - Batched")
     axes[1].set_ylabel("Average Time (s)")
     axes[1].set_xlabel("Method")
     axes[1].legend(loc="upper left", title="Library")
-    axes[1].text(0.99, 1.03, f"Average by {REPEAT_COUNT} runs", transform=axes[1].transAxes, ha='right', va='top', fontsize=10, color='grey')
+    axes[1].text(
+        0.99,
+        1.03,
+        f"{num_samples/1000:.1f}k samples, average by {REPEAT_COUNT} runs",
+        transform=axes[1].transAxes,
+        ha="right",
+        va="top",
+        fontsize=10,
+        color="grey",
+    )
 
     plt.tight_layout()
     plt.savefig(output_name + "-time" + ".svg")
@@ -381,14 +437,32 @@ def draw_barplot_time_memory(df: pd.DataFrame, output_name: str, hue_order: list
     axes[0].set_ylabel("Average Memory (MB)")
     axes[0].set_xlabel("Method")
     axes[0].legend(loc="upper left", title="Library")
-    axes[0].text(0.99, 1.03, f"Average by {REPEAT_COUNT} runs", transform=axes[0].transAxes, ha='right', va='top', fontsize=9, color='grey')
+    axes[0].text(
+        0.99,
+        1.03,
+        f"{num_samples/1000:.1f}k samples, average by {REPEAT_COUNT} runs",
+        transform=axes[0].transAxes,
+        ha="right",
+        va="top",
+        fontsize=9,
+        color="grey",
+    )
 
     sns.barplot(x="method", y="memory_MB", hue="name", data=batched_df, ax=axes[1], hue_order=hue_order)
     axes[1].set_title("Average Memory - Batched")
     axes[1].set_ylabel("Average Memory (MB)")
     axes[1].set_xlabel("Method")
     axes[1].legend(loc="upper left", title="Library")
-    axes[1].text(0.99, 1.03, f"Average by {REPEAT_COUNT} runs", transform=axes[1].transAxes, ha='right', va='top', fontsize=9, color='grey')
+    axes[1].text(
+        0.99,
+        1.03,
+        f"{num_samples/1000:.1f}k samples, average by {REPEAT_COUNT} runs",
+        transform=axes[1].transAxes,
+        ha="right",
+        va="top",
+        fontsize=9,
+        color="grey",
+    )
 
     plt.tight_layout()
     plt.savefig(output_name + "-memory" + ".svg")

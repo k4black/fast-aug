@@ -55,3 +55,22 @@ def test_input_changes(text: str) -> None:
     sequential_augmenter = SequentialAugmenter(augmenters)
 
     assert sequential_augmenter.augment(text) != text
+
+
+def test_input_changes_batch() -> None:
+    augmenters = [
+        RandomWordsAugmenter("DELETE", 0.3),
+        RandomCharsAugmenter("DELETE", 0.3),
+    ]
+    sequential_augmenter = SequentialAugmenter(augmenters)
+    texts = [
+        "word",
+        "Some sentence",
+        "Some sentence with 5 words!",
+        "This is 2 sentences. This is the second sentence.",
+    ]
+    output = sequential_augmenter.augment_batch(texts)
+    assert texts != output
+    assert len(texts) == len(output)
+    for text, out in zip(texts, output):
+        assert len(text) >= len(out)

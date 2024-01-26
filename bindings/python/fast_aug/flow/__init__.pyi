@@ -19,6 +19,13 @@ class ChanceAugmenter(BaseAugmenter):
         :return: The augmented data
         """
         pass
+    def augment_batch(self, data: list[str]):
+        """
+        Augment the data given a batch
+        :param data: The String data to augment
+        :return: The augmented data
+        """
+        pass
 
 class SelectorAugmenter(BaseAugmenter):
     """
@@ -36,6 +43,13 @@ class SelectorAugmenter(BaseAugmenter):
         :return: The augmented data
         """
         pass
+    def augment_batch(self, data: list[str]):
+        """
+        Augment the data given a batch
+        :param data: The String data to augment
+        :return: The augmented data
+        """
+        pass
 
 class SequentialAugmenter(BaseAugmenter):
     """
@@ -48,6 +62,13 @@ class SequentialAugmenter(BaseAugmenter):
     def augment(self, data: str):
         """
         Augment the data
+        :param data: The String data to augment
+        :return: The augmented data
+        """
+        pass
+    def augment_batch(self, data: list[str]):
+        """
+        Augment the data given a batch
         :param data: The String data to augment
         :return: The augmented data
         """

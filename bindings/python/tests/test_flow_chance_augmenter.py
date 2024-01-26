@@ -90,3 +90,16 @@ def test_input_changes(text: str) -> None:
         num_of_changes += chance_augmenter.augment(text) != text
 
     assert 0 < num_of_changes < 100
+
+
+def test_input_changes_batch() -> None:
+    augmenter = RandomWordsAugmenter("DELETE", 0.3)
+    chance_augmenter = ChanceAugmenter(augmenter, 0.5)
+    texts = [
+        "word",
+        "Some sentence",
+        "Some sentence with 5 words!",
+        "This is 2 sentences. This is the second sentence.",
+    ]
+    output = chance_augmenter.augment_batch(texts)
+    assert texts != output  # at least one text should be changed

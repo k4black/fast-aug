@@ -51,9 +51,9 @@ compare = [
     "psutil >=5.0.0,<6.0.0",
     "tqdm >=4.0.0,<5.0.0",
     "nlpaug ==1.1.11",
-    "augmenty ==1.4.3",
-    "AugLy ==1.0.0",
     "fasttextaug ==0.1.1",
+    #"augmenty ==1.4.3",  # too slow
+    #"augly[text] ==1.0.0",  # build on top of nlpug
 ]
 
 

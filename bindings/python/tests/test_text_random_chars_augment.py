@@ -94,3 +94,18 @@ def test_input_changes(text: str) -> None:
     output = augmenter.augment(text)
     assert text != output
     assert len(text) >= len(output)
+
+
+def test_input_changes_batch() -> None:
+    augmenter = RandomCharsAugmenter(TextAction.DELETE, 0.3, 0.3)
+    texts = [
+        "word",
+        "Some sentence",
+        "Some sentence with 5 words!",
+        "This is 2 sentences. This is the second sentence.",
+    ]
+    output = augmenter.augment_batch(texts)
+    assert texts != output
+    assert len(texts) == len(output)
+    for text, out in zip(texts, output):
+        assert len(text) >= len(out)
