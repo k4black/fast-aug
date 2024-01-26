@@ -57,6 +57,29 @@ def measure_function_time(queue: Queue, function: Callable, *args: Any, **kwargs
     queue.put(elapsed)
 
 
+def monitor_process(pid: int, time_limit: int = 10) -> int | None:
+    p = psutil.Process(pid)
+    start_time = time.perf_counter()
+    max_memory = 0
+    while True:
+        try:
+            mem = p.memory_info().rss
+            if mem > max_memory:
+                max_memory = mem
+            time.sleep(0.01)  # sample every 10 ms
+            if time.perf_counter() - start_time > time_limit:
+                print(f"Terminating process {pid} due to time limit")
+                p.terminate()
+                time.sleep(5)
+                if p.is_running():
+                    print(f"Process {p.pid} did not terminate gracefully; attempting to kill")
+                    p.kill()
+                return None
+        except psutil.NoSuchProcess:
+            break
+    return max_memory
+
+
 def measure_function_time_repeat(
     name: str, repeat: int, function: Callable, args: Any, kwargs: Any
 ) -> Generator[dict[str, float], None, None]:
@@ -68,12 +91,18 @@ def measure_function_time_repeat(
 
         max_memory = monitor_process(process.pid)
 
-        process.join()
-        elapsed = queue.get()
+        if process.is_alive():
+            process.join()
+
+        if not queue.empty():
+            elapsed = queue.get()
+
+        if max_memory is None:
+            elapsed = None
 
         if elapsed is None:
-            elapsed = None
             max_memory = None
+
         if process.exitcode != 0:
             elapsed = None
             max_memory = None
@@ -84,20 +113,6 @@ def measure_function_time_repeat(
             "memory": max_memory - starting_memory if max_memory is not None else None,
             **kwargs,
         }
-
-
-def monitor_process(pid: int) -> int:
-    p = psutil.Process(pid)
-    max_memory = 0
-    while True:
-        try:
-            mem = p.memory_info().rss
-            if mem > max_memory:
-                max_memory = mem
-            time.sleep(0.01)  # sample every 10 ms
-        except psutil.NoSuchProcess:
-            break
-    return max_memory
 
 
 def _fast_aug_words_swap(batched: bool = False) -> None:
@@ -301,6 +316,7 @@ def _fastnlpaug_chars_delete(batched: bool = False) -> None:
     augmenter = RandomCharAug(action="delete", aug_char_p=0.3, aug_word_p=0.3)
     text_data = get_text_data()
     if batched:
+        time.sleep(30)
         augmenter.augment(text_data)
     else:
         for d in text_data:
@@ -335,8 +351,8 @@ def draw_barplot_time_memory(df: pd.DataFrame, output_name: str) -> None:
     # Group by method, name, and batched, then calculate mean time and memory
     df["memory_MB"] = df["memory"] / (1024 * 1024)
     grouped_df = df.groupby(["method", "name", "batched"]).agg({"time": "mean", "memory_MB": "mean"}).reset_index()
-    not_batched_df = grouped_df[grouped_df["batched"] is False]
-    batched_df = grouped_df[grouped_df["batched"] is True]
+    not_batched_df = grouped_df[grouped_df["batched"] == False]  # noqa: E712
+    batched_df = grouped_df[grouped_df["batched"] == True]  # noqa: E712
 
     # Create subplots for time
     fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(20, 6), sharey="row")
@@ -373,7 +389,7 @@ def draw_barplot_time_memory(df: pd.DataFrame, output_name: str) -> None:
     plt.savefig(output_name + "_memory" + ".svg")
 
     # Show the plot in interactive window (both time and memory) - if interactive window is not available, show nothing
-    if plt.get_backend() != "agg" and plt.isinteractive():
+    if plt.isinteractive():
         plt.show()
         plt.close()
 
