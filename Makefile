@@ -2,6 +2,7 @@
 
 BUILD_PROFILE ?= release
 PYTHON_INTERPRETER ?= $(CURDIR)/bindings/python/.venv/bin/python
+COMPARE_REPETITIONS ?= 10
 
 RUST_SRC_DIRECTORY = $(CURDIR)/fast_aug
 PYTHON_SRC_DIRECTORY = $(CURDIR)/bindings/python
@@ -110,7 +111,7 @@ profile-python: build-python-dev  ## Produce flamegraph for python benchmarks
 .PHONY: compare-python
 compare-python:  ## Compare python bindings against other libraries
 	cd $(PYTHON_SRC_DIRECTORY) && $(PYTHON_INTERPRETER) -m pip install .\[compare\]
-	cd $(PYTHON_SRC_DIRECTORY) && $(PYTHON_INTERPRETER) benchmarks/compare_text.py
+	cd $(PYTHON_SRC_DIRECTORY) && $(PYTHON_INTERPRETER) benchmarks/compare_text.py --repeat $(COMPARE_REPETITIONS)
 
 
 .PHONY: clean

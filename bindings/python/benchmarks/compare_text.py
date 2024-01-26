@@ -6,6 +6,7 @@ import warnings
 from collections.abc import Callable, Generator
 from multiprocessing import Process, Queue
 from typing import Any
+import argparse
 
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -17,7 +18,8 @@ from tqdm import tqdm
 warnings.filterwarnings("ignore", category=FutureWarning, module="seaborn.*")
 
 
-REPEAT_COUNT = 10
+DEFAULT_REPEAT_COUNT = 10
+REPEAT_COUNT = DEFAULT_REPEAT_COUNT
 
 
 def system_info() -> None:
@@ -29,7 +31,7 @@ def system_info() -> None:
 
 
 def cpu_info() -> None:
-    print("\nCPU Information")
+    print("CPU Information")
     print(f"  Physical cores: {psutil.cpu_count(logical=False)}")
     print(f"  Total cores: {psutil.cpu_count(logical=True)}")
     cpu_freq = psutil.cpu_freq()
@@ -38,7 +40,7 @@ def cpu_info() -> None:
 
 
 def ram_info() -> None:
-    print("\nRAM Information")
+    print("RAM Information")
     ram = psutil.virtual_memory()
     print(f"  Total: {ram.total / 2**30:.0f}GB")
 
@@ -156,7 +158,7 @@ def measure_words_swap() -> pd.DataFrame:
     results = []
     for batched in [False, True]:
         for name, function in [
-            ("fast_aug", _fast_aug_words_swap),
+            ("fast-aug", _fast_aug_words_swap),
             ("nlpaug", _nlpaug_words_swap),
             ("fastnlpaug", _fastnlpaug_words_swap),
         ]:
@@ -213,7 +215,7 @@ def measure_words_delete() -> pd.DataFrame:
     results = []
     for batched in [False, True]:
         for name, function in [
-            ("fast_aug", _fast_aug_words_delete),
+            ("fast-aug", _fast_aug_words_delete),
             ("nlpaug", _nlpaug_words_delete),
             ("fastnlpaug", _fastnlpaug_words_delete),
         ]:
@@ -270,7 +272,7 @@ def measure_chars_swap() -> pd.DataFrame:
     results = []
     for batched in [False, True]:
         for name, function in [
-            ("fast_aug", _fast_aug_chars_swap),
+            ("fast-aug", _fast_aug_chars_swap),
             ("nlpaug", _nlpaug_chars_swap),
             ("fastnlpaug", _fastnlpaug_chars_swap),
         ]:
@@ -316,7 +318,6 @@ def _fastnlpaug_chars_delete(batched: bool = False) -> None:
     augmenter = RandomCharAug(action="delete", aug_char_p=0.3, aug_word_p=0.3)
     text_data = get_text_data()
     if batched:
-        time.sleep(30)
         augmenter.augment(text_data)
     else:
         for d in text_data:
@@ -328,7 +329,7 @@ def measure_chars_delete() -> pd.DataFrame:
     results = []
     for batched in [False, True]:
         for name, function in [
-            ("fast_aug", _fast_aug_chars_delete),
+            ("fast-aug", _fast_aug_chars_delete),
             ("nlpaug", _nlpaug_chars_delete),
             ("fastnlpaug", _fastnlpaug_chars_delete),
         ]:
@@ -344,49 +345,53 @@ def measure_chars_delete() -> pd.DataFrame:
     return df
 
 
-def draw_barplot_time_memory(df: pd.DataFrame, output_name: str) -> None:
+def draw_barplot_time_memory(df: pd.DataFrame, output_name: str, hue_order: list[str]) -> None:
     # Plot settings
     sns.set(style="whitegrid")
 
     # Group by method, name, and batched, then calculate mean time and memory
+    df = df.reset_index()
     df["memory_MB"] = df["memory"] / (1024 * 1024)
-    grouped_df = df.groupby(["method", "name", "batched"]).agg({"time": "mean", "memory_MB": "mean"}).reset_index()
-    not_batched_df = grouped_df[grouped_df["batched"] == False]  # noqa: E712
-    batched_df = grouped_df[grouped_df["batched"] == True]  # noqa: E712
+    not_batched_df = df[df["batched"] == False]  # noqa: E712
+    batched_df = df[df["batched"] == True]  # noqa: E712
 
     # Create subplots for time
     fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(20, 6), sharey="row")
-    sns.barplot(x="method", y="time", hue="name", data=not_batched_df, ax=axes[0])
-    axes[0,].set_title(f"Average Time - Not Batched (average {REPEAT_COUNT} runs, lower is better)")
+    sns.barplot(x="method", y="time", hue="name", data=not_batched_df, ax=axes[0], hue_order=hue_order)
+    axes[0,].set_title("Average Time - Not Batched")
     axes[0].set_ylabel("Average Time (s)")
     axes[0].set_xlabel("Method")
     axes[0].legend(loc="upper left", title="Library")
+    axes[0].text(0.99, 1.03, f"Average by {REPEAT_COUNT} runs", transform=axes[0].transAxes, ha='right', va='top', fontsize=10, color='grey')
 
-    sns.barplot(x="method", y="time", hue="name", data=batched_df, ax=axes[1])
-    axes[1].set_title(f"Average Time - Batched (average {REPEAT_COUNT} runs, lower is better)")
+    sns.barplot(x="method", y="time", hue="name", data=batched_df, ax=axes[1], hue_order=hue_order)
+    axes[1].set_title("Average Time - Batched")
     axes[1].set_ylabel("Average Time (s)")
     axes[1].set_xlabel("Method")
     axes[1].legend(loc="upper left", title="Library")
+    axes[1].text(0.99, 1.03, f"Average by {REPEAT_COUNT} runs", transform=axes[1].transAxes, ha='right', va='top', fontsize=10, color='grey')
 
     plt.tight_layout()
-    plt.savefig(output_name + "_time" + ".svg")
+    plt.savefig(output_name + "-time" + ".svg")
 
     # Create subplots for memory
     fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(20, 6), sharey="row")
-    sns.barplot(x="method", y="memory_MB", hue="name", data=not_batched_df, ax=axes[0])
-    axes[0].set_title(f"Average Memory - Not Batched (average {REPEAT_COUNT} runs, lower is better)")
+    sns.barplot(x="method", y="memory_MB", hue="name", data=not_batched_df, ax=axes[0], hue_order=hue_order)
+    axes[0].set_title("Average Memory - Not Batched")
     axes[0].set_ylabel("Average Memory (MB)")
     axes[0].set_xlabel("Method")
     axes[0].legend(loc="upper left", title="Library")
+    axes[0].text(0.99, 1.03, f"Average by {REPEAT_COUNT} runs", transform=axes[0].transAxes, ha='right', va='top', fontsize=9, color='grey')
 
-    sns.barplot(x="method", y="memory_MB", hue="name", data=batched_df, ax=axes[1])
-    axes[1].set_title(f"Average Memory - Batched (average {REPEAT_COUNT} runs, lower is better)")
+    sns.barplot(x="method", y="memory_MB", hue="name", data=batched_df, ax=axes[1], hue_order=hue_order)
+    axes[1].set_title("Average Memory - Batched")
     axes[1].set_ylabel("Average Memory (MB)")
     axes[1].set_xlabel("Method")
     axes[1].legend(loc="upper left", title="Library")
+    axes[1].text(0.99, 1.03, f"Average by {REPEAT_COUNT} runs", transform=axes[1].transAxes, ha='right', va='top', fontsize=9, color='grey')
 
     plt.tight_layout()
-    plt.savefig(output_name + "_memory" + ".svg")
+    plt.savefig(output_name + "-memory" + ".svg")
 
     # Show the plot in interactive window (both time and memory) - if interactive window is not available, show nothing
     if plt.isinteractive():
@@ -395,10 +400,18 @@ def draw_barplot_time_memory(df: pd.DataFrame, output_name: str) -> None:
 
 
 if __name__ == "__main__":
+    # Parse arguments
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--repeat", type=int, default=DEFAULT_REPEAT_COUNT)
+    args = parser.parse_args()
+    REPEAT_COUNT = args.repeat
+    print(f"Repeat count: {REPEAT_COUNT}")
+
     # Display the information
     system_info()
     cpu_info()
     ram_info()
+    print()
 
     df_word_swap = measure_words_swap()
     print(df_word_swap)
@@ -418,5 +431,6 @@ if __name__ == "__main__":
                 df_char_delete,
             ],
         ),
-        "comparison_text",
+        "comparison-python-text",
+        hue_order=["fast-aug", "fastnlpaug", "nlpaug"],
     )

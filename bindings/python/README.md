@@ -5,6 +5,15 @@
 
 ---
 
+
+Comparison of the `fast-aug` library with the other NLP augmentation libraries.  
+All libs compared on [tweeteval dataset](https://github.com/cardiffnlp/tweeteval) - sentiment test set.
+
+![comparison time](./comparison-python-text-time.svg)
+![comparison memory](./comparison-python-text-memory.svg)
+
+
+
 For building and profiling see `Makefile` in the project root.
 
 TBA
