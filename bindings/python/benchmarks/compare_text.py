@@ -372,9 +372,10 @@ def draw_barplot_time_memory(df: pd.DataFrame, output_name: str) -> None:
     plt.tight_layout()
     plt.savefig(output_name + "_memory" + ".svg")
 
-    # Show the plot in interactive window (both time and memory)
-    plt.show()
-    plt.close()
+    # Show the plot in interactive window (both time and memory) - if interactive window is not available, show nothing
+    if plt.get_backend() != "agg" and plt.isinteractive():
+        plt.show()
+        plt.close()
 
 
 if __name__ == "__main__":
