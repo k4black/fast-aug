@@ -41,6 +41,18 @@ test = [
     "isort >=5.0.0,<6.0.0",
     "maturin >=1.0,<2.0",
     "pytest-benchmark[histogram] >=4.0.0,<5.0.0",
+    "jupyterlab >=4.0.0,<5.0.0",
+]
+compare = [
+    "pandas >=2.0.0,<3.0.0",
+    "Pyarrow >=15.0.0,<16.0.0",  # for pandas
+    "seaborn >=0.10.0,<1.0.0",
+    "psutil >=5.0.0,<6.0.0",
+    "tqdm >=4.0.0,<5.0.0",
+    "nlpaug ==1.1.11",
+    "augmenty ==1.4.3",
+    "AugLy ==1.0.0",
+    "fasttextaug ==0.1.1",
 ]
 
 

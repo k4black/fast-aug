@@ -21,7 +21,6 @@ jobs:
       - name: Cache rust
         uses: Swatinem/rust-cache@v2
         with:
-          path: ~/.cargo
           key: ${{ runner.os }}-rust-${{ hashFiles('**/Cargo.toml') }}
       - uses: actions/setup-python@v5
         with:
@@ -51,7 +50,6 @@ jobs:
       - name: Cache rust
         uses: Swatinem/rust-cache@v2
         with:
-          path: ~/.cargo
           key: ${{ runner.os }}-rust-${{ hashFiles('**/Cargo.toml') }}
       - uses: actions/setup-python@v5
         with:
@@ -76,7 +74,6 @@ jobs:
       - name: Cache rust
         uses: Swatinem/rust-cache@v2
         with:
-          path: ~/.cargo
           key: ${{ runner.os }}-rust-${{ hashFiles('**/Cargo.toml') }}
       - uses: actions/setup-python@v5
         with:
@@ -92,5 +89,32 @@ jobs:
           name: python-profiling-results
           path: |
             # benchmarking results and flamegraph
+            bindings/python/*.svg
+          if-no-files-found: error
+
+  compare-python:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install rust stable
+        uses: dtolnay/rust-toolchain@stable
+      - name: Cache rust
+        uses: Swatinem/rust-cache@v2
+        with:
+          key: ${{ runner.os }}-rust-${{ hashFiles('**/Cargo.toml') }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: 'pip'
+      - name: Update pip
+        run: python -m pip install --upgrade pip
+      - name: Run comparison
+        run: make compare-python PYTHON_INTERPRETER=$(which python)
+      - name: Upload comparison results
+        uses: actions/upload-artifact@v4
+        with:
+          name: python-comparison-results
+          path: |
+            # comparison results
             bindings/python/*.svg
           if-no-files-found: error

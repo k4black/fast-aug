@@ -21,7 +21,6 @@ jobs:
       - name: Cache rust
         uses: Swatinem/rust-cache@v2
         with:
-          path: ~/.cargo
           key: ${{ runner.os }}-rust-${{ hashFiles('**/Cargo.toml') }}
       - name: Run linters
         run: make lint-rust
@@ -41,7 +40,6 @@ jobs:
       - name: Cache rust
         uses: Swatinem/rust-cache@v2
         with:
-          path: ~/.cargo
           key: ${{ runner.os }}-rust-${{ hashFiles('**/Cargo.toml') }}
       - name: Run tests in debug=${{ matrix.debug }} mode
         run: |
@@ -60,7 +58,6 @@ jobs:
       - name: Cache rust
         uses: Swatinem/rust-cache@v2
         with:
-          path: ~/.cargo
           key: ${{ runner.os }}-rust-${{ hashFiles('**/Cargo.toml') }}
       - name: Run profiling in release mode
         run: sudo make profile-rust

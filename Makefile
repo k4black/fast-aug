@@ -107,6 +107,12 @@ profile-python: build-python-dev  ## Produce flamegraph for python benchmarks
 	done
 
 
+.PHONY: compare-python
+compare-python:  ## Compare python bindings against other libraries
+	cd $(PYTHON_SRC_DIRECTORY) && $(PYTHON_INTERPRETER) -m pip install .\[compare\]
+	cd $(PYTHON_SRC_DIRECTORY) && $(PYTHON_INTERPRETER) benchmarks/compare_text.py
+
+
 .PHONY: clean
 clean:  ## Clean all targets
 	cd $(RUST_SRC_DIRECTORY) && cargo clean
