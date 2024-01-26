@@ -4,17 +4,17 @@ import pytest
 
 from fast_aug.base import BaseAugmenter
 from fast_aug.flow import SequentialAugmenter
-from fast_aug.text import RandomCharsAugmenter, RandomWordsAugmenter
+from fast_aug.text import CharsRandomAugmenter, WordsRandomAugmenter
 
 
 @pytest.mark.parametrize(
     "augmenters",
     [
-        [RandomWordsAugmenter("DELETE", 0.3), RandomCharsAugmenter("DELETE", 0.3)],
+        [WordsRandomAugmenter("DELETE", 0.3), CharsRandomAugmenter("DELETE", 0.3)],
         [
-            RandomWordsAugmenter("DELETE"),
-            RandomCharsAugmenter("DELETE"),
-            RandomCharsAugmenter("DELETE"),
+            WordsRandomAugmenter("DELETE"),
+            CharsRandomAugmenter("DELETE"),
+            CharsRandomAugmenter("DELETE"),
         ],
     ],
 )
@@ -29,7 +29,7 @@ def test_init_sequential_augmenter(augmenters: list[BaseAugmenter]) -> None:
         None,
         object,
         [1, 2, 3],
-        [RandomWordsAugmenter("DELETE", 0.3), "not an augmenter"],
+        [WordsRandomAugmenter("DELETE", 0.3), "not an augmenter"],
         [],
     ],
 )
@@ -49,8 +49,8 @@ def test_init_wrong_sequential_augmenter(augmenters: Any) -> None:
 )
 def test_input_changes(text: str) -> None:
     augmenters = [
-        RandomWordsAugmenter("DELETE", 0.3),
-        RandomCharsAugmenter("DELETE", 0.3),
+        WordsRandomAugmenter("DELETE", 0.3),
+        CharsRandomAugmenter("DELETE", 0.3),
     ]
     sequential_augmenter = SequentialAugmenter(augmenters)
 
@@ -59,8 +59,8 @@ def test_input_changes(text: str) -> None:
 
 def test_input_changes_batch() -> None:
     augmenters = [
-        RandomWordsAugmenter("DELETE", 0.3),
-        RandomCharsAugmenter("DELETE", 0.3),
+        WordsRandomAugmenter("DELETE", 0.3),
+        CharsRandomAugmenter("DELETE", 0.3),
     ]
     sequential_augmenter = SequentialAugmenter(augmenters)
     texts = [

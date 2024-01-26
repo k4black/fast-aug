@@ -1,10 +1,9 @@
 use super::base::{BaseTextAugmenter, TextAction};
-use super::doc::Doc;
-use super::parameters::TextAugmentParameters;
+use super::utils::{Doc, TextAugmentParameters};
 use crate::base::BaseAugmenter;
 use std::collections::HashSet;
 
-pub struct RandomCharsAugmenter {
+pub struct CharsRandomAugmenter {
     /// Action to augmentation, set of values {'substitute', 'swap', 'delete'}
     action: TextAction,
     /// Parameters to calculate number of words that will be augmented
@@ -15,14 +14,14 @@ pub struct RandomCharsAugmenter {
     stopwords: Option<HashSet<String>>,
 }
 
-impl RandomCharsAugmenter {
+impl CharsRandomAugmenter {
     pub fn new(
         action: TextAction,
         aug_params_word: TextAugmentParameters,
         aug_params_char: TextAugmentParameters,
         stopwords: Option<HashSet<String>>,
     ) -> Self {
-        RandomCharsAugmenter {
+        CharsRandomAugmenter {
             action,
             aug_params_word,
             aug_params_char,
@@ -89,9 +88,9 @@ impl RandomCharsAugmenter {
     }
 }
 
-impl BaseTextAugmenter for RandomCharsAugmenter {}
+impl BaseTextAugmenter for CharsRandomAugmenter {}
 
-impl BaseAugmenter<String, Doc> for RandomCharsAugmenter {
+impl BaseAugmenter<String, Doc> for CharsRandomAugmenter {
     fn augment_inner(&self, input: Doc, rng: &mut dyn rand::RngCore) -> Doc {
         match self.action {
             TextAction::Delete => self.delete(input, rng),
@@ -127,7 +126,7 @@ mod tests {
         let mut doc = Doc::from_tokens(input_tokens);
         let words_params = TextAugmentParameters::new(words_p, None, None);
         let chars_params = TextAugmentParameters::new(chars_p, None, None);
-        let aug = RandomCharsAugmenter::new(TextAction::Delete, words_params, chars_params, None);
+        let aug = CharsRandomAugmenter::new(TextAction::Delete, words_params, chars_params, None);
 
         let doc_tokens_before = doc.tokens.clone();
 
@@ -160,7 +159,7 @@ mod tests {
         let mut doc = Doc::from_tokens(input_tokens);
         let words_params = TextAugmentParameters::new(words_p, None, None);
         let chars_params = TextAugmentParameters::new(chars_p, None, None);
-        let aug = RandomCharsAugmenter::new(TextAction::Swap, words_params, chars_params, None);
+        let aug = CharsRandomAugmenter::new(TextAction::Swap, words_params, chars_params, None);
 
         let doc_tokens_before = doc.tokens.clone();
 
@@ -192,7 +191,7 @@ mod tests {
         let mut doc = Doc::new(text);
         let words_params = TextAugmentParameters::new(1.0, None, None);
         let chars_params = TextAugmentParameters::new(0.3, None, None);
-        let aug = RandomCharsAugmenter::new(TextAction::Swap, words_params, chars_params, None);
+        let aug = CharsRandomAugmenter::new(TextAction::Swap, words_params, chars_params, None);
 
         let doc_tokens_before = doc.tokens.clone();
 

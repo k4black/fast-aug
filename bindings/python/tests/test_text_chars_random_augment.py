@@ -1,6 +1,6 @@
 import pytest
 
-from fast_aug.text import RandomWordsAugmenter, TextAction
+from fast_aug.text import CharsRandomAugmenter, TextAction
 
 
 @pytest.mark.parametrize(
@@ -17,16 +17,16 @@ from fast_aug.text import RandomWordsAugmenter, TextAction
     ],
 )
 def test_init_action(action: str | TextAction) -> None:
-    RandomWordsAugmenter(action)
+    CharsRandomAugmenter(action)
 
 
 def test_init_action_error() -> None:
     with pytest.raises(Exception):
-        RandomWordsAugmenter("NOT_EXISTING_ACTION")
+        CharsRandomAugmenter("NOT_EXISTING_ACTION")
     with pytest.raises(Exception):
-        RandomWordsAugmenter()
+        CharsRandomAugmenter()
     with pytest.raises(Exception):
-        RandomWordsAugmenter(None)
+        CharsRandomAugmenter(None)
 
 
 @pytest.mark.parametrize(
@@ -42,9 +42,27 @@ def test_init_action_error() -> None:
     ],
 )
 def test_init_words_params(words_params: float | tuple[float, int | None, int | None] | None) -> None:
-    RandomWordsAugmenter(TextAction.DELETE, words_params)
-    RandomWordsAugmenter(TextAction.DELETE, words_params, None)
-    RandomWordsAugmenter(TextAction.DELETE, aug_params_word=words_params)
+    CharsRandomAugmenter(TextAction.DELETE, words_params)
+    CharsRandomAugmenter(TextAction.DELETE, words_params, None)
+    CharsRandomAugmenter(TextAction.DELETE, aug_params_word=words_params)
+
+
+@pytest.mark.parametrize(
+    "chars_params",
+    [
+        None,
+        0.3,
+        0.2,
+        (0.3, None, None),
+        (0.4, None, 10),
+        (0.1, 10, None),
+        (0.2, 10, 10),
+    ],
+)
+def test_init_chars_params(chars_params: float | tuple[float, int | None, int | None] | None) -> None:
+    CharsRandomAugmenter(TextAction.DELETE, None, chars_params)
+    CharsRandomAugmenter(TextAction.DELETE, None, aug_params_char=chars_params)
+    CharsRandomAugmenter(TextAction.DELETE, aug_params_char=chars_params)
 
 
 @pytest.mark.parametrize(
@@ -57,9 +75,9 @@ def test_init_words_params(words_params: float | tuple[float, int | None, int | 
     ],
 )
 def test_init_stopwords(stopwords: list[str] | set[str] | None) -> None:
-    RandomWordsAugmenter(TextAction.DELETE, None, stopwords)
-    RandomWordsAugmenter(TextAction.DELETE, None, stopwords=stopwords)
-    RandomWordsAugmenter(TextAction.DELETE, stopwords=stopwords)
+    CharsRandomAugmenter(TextAction.DELETE, None, None, stopwords)
+    CharsRandomAugmenter(TextAction.DELETE, None, None, stopwords=stopwords)
+    CharsRandomAugmenter(TextAction.DELETE, stopwords=stopwords)
 
 
 @pytest.mark.parametrize(
@@ -72,14 +90,14 @@ def test_init_stopwords(stopwords: list[str] | set[str] | None) -> None:
     ],
 )
 def test_input_changes(text: str) -> None:
-    augmenter = RandomWordsAugmenter(TextAction.DELETE, 0.3)
+    augmenter = CharsRandomAugmenter(TextAction.DELETE, 0.3, 0.3)
     output = augmenter.augment(text)
     assert text != output
     assert len(text) >= len(output)
 
 
 def test_input_changes_batch() -> None:
-    augmenter = RandomWordsAugmenter(TextAction.DELETE, 0.3)
+    augmenter = CharsRandomAugmenter(TextAction.DELETE, 0.3, 0.3)
     texts = [
         "word",
         "Some sentence",

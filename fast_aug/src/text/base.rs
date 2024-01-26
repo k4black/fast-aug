@@ -1,5 +1,4 @@
-use super::doc::Doc;
-use super::token::Token;
+use super::utils::{Doc, Token};
 use crate::base::BaseAugmenter;
 use rand::prelude::IteratorRandom;
 use rand::seq::SliceRandom;

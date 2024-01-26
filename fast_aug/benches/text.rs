@@ -11,12 +11,12 @@ fn criterion_benchmark(c: &mut Criterion) {
     bench_text_augmenter(
         &mut group,
         "swap",
-        &RandomWordsAugmenter::new(TextAction::Swap, TextAugmentParameters::default(), None),
+        &WordsRandomAugmenter::new(TextAction::Swap, TextAugmentParameters::default(), None),
     );
     bench_text_augmenter(
         &mut group,
         "delete",
-        &RandomWordsAugmenter::new(TextAction::Delete, TextAugmentParameters::default(), None),
+        &WordsRandomAugmenter::new(TextAction::Delete, TextAugmentParameters::default(), None),
     );
     group.finish();
 
@@ -25,7 +25,7 @@ fn criterion_benchmark(c: &mut Criterion) {
     bench_text_augmenter(
         &mut group,
         "swap",
-        &RandomCharsAugmenter::new(
+        &CharsRandomAugmenter::new(
             TextAction::Swap,
             TextAugmentParameters::default(),
             TextAugmentParameters::default(),
@@ -35,7 +35,7 @@ fn criterion_benchmark(c: &mut Criterion) {
     bench_text_augmenter(
         &mut group,
         "delete",
-        &RandomCharsAugmenter::new(
+        &CharsRandomAugmenter::new(
             TextAction::Delete,
             TextAugmentParameters::default(),
             TextAugmentParameters::default(),

@@ -77,8 +77,8 @@ lint-python:  ## Lint python code
 	cd $(PYTHON_SRC_DIRECTORY) && cargo fmt --all -- --check
 	cd $(PYTHON_SRC_DIRECTORY) && $(PYTHON_INTERPRETER) -m ruff check
 	#cd $(PYTHON_SRC_DIRECTORY) && $(PYTHON_INTERPRETER) -m mypy .  # TODO bring back when return type annotations are added
-	cd $(PYTHON_SRC_DIRECTORY) && $(PYTHON_INTERPRETER) -m isort . --check-only
-	cd $(PYTHON_SRC_DIRECTORY) && $(PYTHON_INTERPRETER) -m black . --check
+	cd $(PYTHON_SRC_DIRECTORY) && $(PYTHON_INTERPRETER) -m isort --check-only .
+	cd $(PYTHON_SRC_DIRECTORY) && $(PYTHON_INTERPRETER) -m black --check .
 
 
 .PHONY: bench-rust

@@ -120,9 +120,9 @@ def measure_function_time_repeat(
 
 
 def _fast_aug_words_swap(batched: bool = False) -> None:
-    from fast_aug.text import RandomWordsAugmenter
+    from fast_aug.text import WordsRandomAugmenter
 
-    augmenter = RandomWordsAugmenter("swap", 0.3)
+    augmenter = WordsRandomAugmenter("swap", 0.3)
     text_data = get_text_data()
     if batched:
         augmenter.augment_batch(text_data)
@@ -193,9 +193,9 @@ def measure_words_swap() -> pd.DataFrame:
 
 
 def _fast_aug_words_delete(batched: bool = False) -> None:
-    from fast_aug.text import RandomWordsAugmenter
+    from fast_aug.text import WordsRandomAugmenter
 
-    augmenter = RandomWordsAugmenter("delete", 0.3)
+    augmenter = WordsRandomAugmenter("delete", 0.3)
     text_data = get_text_data()
     if batched:
         augmenter.augment_batch(text_data)
@@ -251,9 +251,9 @@ def measure_words_delete() -> pd.DataFrame:
 
 
 def _fast_aug_chars_swap(batched: bool = False) -> None:
-    from fast_aug.text import RandomCharsAugmenter
+    from fast_aug.text import CharsRandomAugmenter
 
-    augmenter = RandomCharsAugmenter("swap", 0.3, 0.3)
+    augmenter = CharsRandomAugmenter("swap", 0.3, 0.3)
     text_data = get_text_data()
     if batched:
         augmenter.augment_batch(text_data)
@@ -324,9 +324,9 @@ def measure_chars_swap() -> pd.DataFrame:
 
 
 def _fast_aug_chars_delete(batched: bool = False) -> None:
-    from fast_aug.text import RandomCharsAugmenter
+    from fast_aug.text import CharsRandomAugmenter
 
-    augmenter = RandomCharsAugmenter("delete", 0.3, 0.3)
+    augmenter = CharsRandomAugmenter("delete", 0.3, 0.3)
     text_data = get_text_data()
     if batched:
         augmenter.augment_batch(text_data)

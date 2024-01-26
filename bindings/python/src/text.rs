@@ -1,7 +1,7 @@
-use fast_aug_rust::text::RandomCharsAugmenter;
-use fast_aug_rust::text::RandomWordsAugmenter;
+use fast_aug_rust::text::CharsRandomAugmenter;
 use fast_aug_rust::text::TextAction;
 use fast_aug_rust::text::TextAugmentParameters;
+use fast_aug_rust::text::WordsRandomAugmenter;
 use std::collections::HashSet;
 use std::panic;
 use std::sync::Arc;
@@ -107,11 +107,11 @@ impl PyBaseTextAugmenter {
 ///     - probability or (probability, min_elements, max_elements)
 /// :param stopwords: The set of stopwords to ignore
 #[pyclass(extends=PyBaseTextAugmenter)]
-#[pyo3(name = "RandomCharsAugmenter")]
-pub struct PyRandomCharsAugmenter;
+#[pyo3(name = "CharsRandomAugmenter")]
+pub struct PyCharsRandomAugmenter;
 
 #[pymethods]
-impl PyRandomCharsAugmenter {
+impl PyCharsRandomAugmenter {
     #[new]
     #[pyo3(
         text_signature = "(self, action: str | TextAction, aug_params_word: float | tuple[float, int | None, int | None] | None = None, aug_params_char: float | tuple[float, int | None, int | None] | None = None, stopwords: set[str] | None = None)"
@@ -139,7 +139,7 @@ impl PyRandomCharsAugmenter {
         };
 
         // Create Rust object of AugmenterTypes
-        let rust_augmenter = AugmenterTypes::Text(Arc::new(RandomCharsAugmenter::new(
+        let rust_augmenter = AugmenterTypes::Text(Arc::new(CharsRandomAugmenter::new(
             action.unwrap(),
             aug_params_word,
             aug_params_char,
@@ -152,7 +152,7 @@ impl PyRandomCharsAugmenter {
             rng,
         })
         .add_subclass(PyBaseTextAugmenter {})
-        .add_subclass(PyRandomCharsAugmenter {}))
+        .add_subclass(PyCharsRandomAugmenter {}))
     }
 
     /// Augment the data
@@ -201,11 +201,11 @@ impl PyRandomCharsAugmenter {
 ///     - probability or (probability, min_elements, max_elements)
 /// :param stopwords: The set of stopwords to ignore
 #[pyclass(extends=PyBaseTextAugmenter)]
-#[pyo3(name = "RandomWordsAugmenter")]
-pub struct PyRandomWordsAugmenter;
+#[pyo3(name = "WordsRandomAugmenter")]
+pub struct PyWordsRandomAugmenter;
 
 #[pymethods]
-impl PyRandomWordsAugmenter {
+impl PyWordsRandomAugmenter {
     #[new]
     #[pyo3(
         text_signature = "(self, action: str | TextAction, aug_params_word: float | tuple[float, int | None, int | None] | None = None, stopwords: set[str] | None = None)"
@@ -228,7 +228,7 @@ impl PyRandomWordsAugmenter {
         };
 
         // Create Rust object of AugmenterTypes
-        let rust_augmenter = AugmenterTypes::Text(Arc::new(RandomWordsAugmenter::new(
+        let rust_augmenter = AugmenterTypes::Text(Arc::new(WordsRandomAugmenter::new(
             action.unwrap(),
             aug_params_word,
             stopwords,
@@ -240,7 +240,7 @@ impl PyRandomWordsAugmenter {
             rng,
         })
         .add_subclass(PyBaseTextAugmenter {})
-        .add_subclass(PyRandomWordsAugmenter {}))
+        .add_subclass(PyWordsRandomAugmenter {}))
     }
 
     /// Augment the data
@@ -288,8 +288,8 @@ impl PyRandomWordsAugmenter {
 pub fn text(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_class::<PyBaseTextAugmenter>()?;
     m.add_class::<PyTextAction>()?;
-    m.add_class::<PyRandomCharsAugmenter>()?;
-    m.add_class::<PyRandomWordsAugmenter>()?;
+    m.add_class::<PyCharsRandomAugmenter>()?;
+    m.add_class::<PyWordsRandomAugmenter>()?;
 
     Ok(())
 }

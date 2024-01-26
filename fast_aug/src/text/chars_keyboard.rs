@@ -1,12 +1,11 @@
 #![allow(dead_code, unused_variables, unreachable_code, unused_imports)]
 
 use super::base::{BaseTextAugmenter, TextAction};
-use super::doc::Doc;
-use super::parameters::TextAugmentParameters;
+use super::utils::{Doc, TextAugmentParameters};
 use crate::base::BaseAugmenter;
 use std::collections::HashSet;
 
-pub struct KeyboardCharsAugmenter {
+pub struct CharsKeyboardAugmenter {
     /// Action to augmentation, set of values {'substitute', 'swap', 'delete'}
     action: TextAction,
     /// Parameters to calculate number of words that will be augmented
@@ -17,14 +16,14 @@ pub struct KeyboardCharsAugmenter {
     stopwords: Option<HashSet<String>>,
 }
 
-impl KeyboardCharsAugmenter {
+impl CharsKeyboardAugmenter {
     pub fn new(
         action: TextAction,
         aug_params_word: TextAugmentParameters,
         aug_params_char: TextAugmentParameters,
         stopwords: Option<HashSet<String>>,
     ) -> Self {
-        KeyboardCharsAugmenter {
+        CharsKeyboardAugmenter {
             action,
             aug_params_word,
             aug_params_char,
@@ -55,9 +54,9 @@ impl KeyboardCharsAugmenter {
     }
 }
 
-impl BaseTextAugmenter for KeyboardCharsAugmenter {}
+impl BaseTextAugmenter for CharsKeyboardAugmenter {}
 
-impl BaseAugmenter<String, Doc> for KeyboardCharsAugmenter {
+impl BaseAugmenter<String, Doc> for CharsKeyboardAugmenter {
     fn augment_inner(&self, input: Doc, rng: &mut dyn rand::RngCore) -> Doc {
         match self.action {
             TextAction::Substitute => self.substitute(input, rng),
@@ -78,6 +77,6 @@ impl BaseAugmenter<String, Doc> for KeyboardCharsAugmenter {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::text::random_words_aug::RandomWordsAugmenter;
+    use crate::text::words_random::WordsRandomAugmenter;
     use test_case::test_case;
 }

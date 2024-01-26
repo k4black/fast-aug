@@ -3,8 +3,8 @@ from .. import text
 
 TextAction = text.TextAction
 BaseTextAugmenter = text.BaseTextAugmenter
-RandomCharsAugmenter = text.RandomCharsAugmenter
-RandomWordsAugmenter = text.RandomWordsAugmenter
+CharsRandomAugmenter = text.CharsRandomAugmenter
+WordsRandomAugmenter = text.WordsRandomAugmenter
 
 __all__ = text.__all__
 __doc__ = text.__doc__

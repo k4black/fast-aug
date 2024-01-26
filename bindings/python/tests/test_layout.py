@@ -25,8 +25,8 @@ def test_text_module_layout() -> None:
         [
             "BaseTextAugmenter",
             "TextAction",
-            "RandomCharsAugmenter",
-            "RandomWordsAugmenter",
+            "CharsRandomAugmenter",
+            "WordsRandomAugmenter",
         ]
     )
     assert fast_aug.text.__doc__ and len(fast_aug.text.__doc__) > 0, "text module docstring is empty"

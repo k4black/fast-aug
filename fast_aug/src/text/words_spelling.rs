@@ -1,29 +1,25 @@
 #![allow(dead_code, unused_variables, unreachable_code, unused_imports)]
 
 use super::base::{BaseTextAugmenter, TextAction};
-use super::doc::Doc;
-use super::parameters::TextAugmentParameters;
+use super::utils::{Doc, TextAugmentParameters};
 use crate::base::BaseAugmenter;
 use std::collections::HashSet;
 
-pub struct TfIdfWordsAugmenter {
+pub struct WordsSpellingAugmenter {
     /// Action to augmentation, set of values {'substitute', 'swap', 'delete'}
     action: TextAction,
     /// Parameters to calculate number of words that will be augmented
     aug_params_word: TextAugmentParameters,
     /// Filter, Set of words that cannot be augmented
     stopwords: Option<HashSet<String>>,
-    /// top k similar words to substitute
-    top_k: usize,
 }
 
-impl TfIdfWordsAugmenter {
-    pub fn new(aug_params_word: TextAugmentParameters, stopwords: Option<HashSet<String>>, top_k: usize) -> Self {
-        TfIdfWordsAugmenter {
+impl WordsSpellingAugmenter {
+    pub fn new(aug_params_word: TextAugmentParameters, stopwords: Option<HashSet<String>>) -> Self {
+        WordsSpellingAugmenter {
             action: TextAction::Substitute,
             aug_params_word,
             stopwords,
-            top_k,
         }
     }
 
@@ -34,7 +30,7 @@ impl TfIdfWordsAugmenter {
         let selected_tokens_indexes =
             self.select_random_element_indexes(rng, word_tokens_indexes, num_tokens_to_change);
 
-        // For all selected tokens randomly select one word with closest tf-idf and substitute
+        // For all selected tokens randomly introduce spelling mistakes
         for index in selected_tokens_indexes {
             todo!();
             doc.num_changes += 1;
@@ -44,9 +40,9 @@ impl TfIdfWordsAugmenter {
     }
 }
 
-impl BaseTextAugmenter for TfIdfWordsAugmenter {}
+impl BaseTextAugmenter for WordsSpellingAugmenter {}
 
-impl BaseAugmenter<String, Doc> for TfIdfWordsAugmenter {
+impl BaseAugmenter<String, Doc> for WordsSpellingAugmenter {
     fn augment_inner(&self, input: Doc, rng: &mut dyn rand::RngCore) -> Doc {
         match self.action {
             TextAction::Substitute => self.substitute(input, rng),

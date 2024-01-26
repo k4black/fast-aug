@@ -8,8 +8,7 @@ use finalfusion::prelude::{Embeddings, ReadEmbeddings, ReadFastText, ReadWord2Ve
 use finalfusion::storage::NdArray;
 use finalfusion::vocab::FastTextSubwordVocab;
 use crate::base::BaseAugmenter;
-use super::doc::Doc;
-use super::parameters::TextAugmentParameters;
+use super::utils::{Doc, TextAugmentParameters};
 use super::base::{BaseTextAugmenter, TextAction};
 
 

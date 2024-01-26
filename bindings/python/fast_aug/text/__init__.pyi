@@ -30,7 +30,7 @@ class BaseTextAugmenter(BaseAugmenter):
         """
         pass
 
-class RandomCharsAugmenter(BaseTextAugmenter):
+class CharsRandomAugmenter(BaseTextAugmenter):
     """
     Randomly augment chars in the words
     :param action: The action to perform - insert, substitute, swap, delete
@@ -64,7 +64,7 @@ class RandomCharsAugmenter(BaseTextAugmenter):
         """
         pass
 
-class RandomWordsAugmenter(BaseTextAugmenter):
+class WordsRandomAugmenter(BaseTextAugmenter):
     """
     Randomly augment the words
     :param action: The action to perform - insert, substitute, swap, delete

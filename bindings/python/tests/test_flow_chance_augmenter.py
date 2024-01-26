@@ -4,12 +4,12 @@ import pytest
 
 from fast_aug.base import BaseAugmenter
 from fast_aug.flow import ChanceAugmenter
-from fast_aug.text import RandomCharsAugmenter, RandomWordsAugmenter
+from fast_aug.text import CharsRandomAugmenter, WordsRandomAugmenter
 
 
 @pytest.mark.parametrize("probability", [0.0, 0, 0.3, 0.5, 0.7, 1.0])
 def test_init_probability(probability: float) -> None:
-    augmenter = RandomWordsAugmenter("DELETE", 0.3)
+    augmenter = WordsRandomAugmenter("DELETE", 0.3)
 
     ChanceAugmenter(augmenter, probability)
     ChanceAugmenter(augmenter, probability=probability)
@@ -40,7 +40,7 @@ def test_init_probability(probability: float) -> None:
     ],
 )
 def test_init_wrong_probability(probability: Any) -> None:
-    augmenter = RandomWordsAugmenter("DELETE", 0.3)
+    augmenter = WordsRandomAugmenter("DELETE", 0.3)
 
     with pytest.raises(Exception):
         ChanceAugmenter(augmenter, probability)
@@ -49,8 +49,8 @@ def test_init_wrong_probability(probability: Any) -> None:
 @pytest.mark.parametrize(
     "augmenter",
     [
-        RandomWordsAugmenter("DELETE"),
-        RandomCharsAugmenter("DELETE"),
+        WordsRandomAugmenter("DELETE"),
+        CharsRandomAugmenter("DELETE"),
     ],
 )
 def test_init_augmenter(augmenter: BaseAugmenter) -> None:
@@ -82,7 +82,7 @@ def test_init_wrong_augmenter(augmenter: Any) -> None:
     ],
 )
 def test_input_changes(text: str) -> None:
-    augmenter = RandomWordsAugmenter("DELETE", 0.3)
+    augmenter = WordsRandomAugmenter("DELETE", 0.3)
     chance_augmenter = ChanceAugmenter(augmenter, 0.5)
 
     num_of_changes = 0
@@ -93,7 +93,7 @@ def test_input_changes(text: str) -> None:
 
 
 def test_input_changes_batch() -> None:
-    augmenter = RandomWordsAugmenter("DELETE", 0.3)
+    augmenter = WordsRandomAugmenter("DELETE", 0.3)
     chance_augmenter = ChanceAugmenter(augmenter, 0.5)
     texts = [
         "word",
