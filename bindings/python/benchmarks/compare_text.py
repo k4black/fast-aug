@@ -1,10 +1,11 @@
 from __future__ import annotations
 
 import argparse
+import importlib
 import platform
 import time
 import warnings
-from collections.abc import Callable, Generator
+from collections.abc import Callable
 from multiprocessing import Process, Queue
 from typing import Any
 
@@ -56,6 +57,7 @@ def measure_function_time(queue: Queue, function: Callable, *args: Any, **kwargs
         elapsed = time.perf_counter() - start
     except Exception:
         elapsed = None
+        raise
 
     time.sleep(0.1)  # delay for 100 ms for more accurate RAM measurement
     queue.put(elapsed)
@@ -85,9 +87,11 @@ def monitor_process(pid: int, time_limit: int = 30) -> int | None:
 
 
 def measure_function_time_repeat(
-    name: str, repeat: int, function: Callable, args: Any, kwargs: Any
-) -> Generator[dict[str, float], None, None]:
-    for _ in range(repeat):
+    name: str, method_name: str, repeat: int, function: Callable, args: Any, kwargs: Any
+) -> pd.DataFrame:
+    results: list[dict[str, Any]] = []
+
+    for _ in tqdm(range(repeat), desc=f"{method_name} {name}".replace("\n", "-")):
         queue = Queue()
         starting_memory = psutil.Process().memory_info().rss
         process = Process(target=measure_function_time, args=(queue, function, *args), kwargs=kwargs)
@@ -113,73 +117,52 @@ def measure_function_time_repeat(
             elapsed = None
             max_memory = None
 
-        yield {
-            "name": name,
-            "time": elapsed,
-            "memory": max_memory - starting_memory if max_memory is not None else None,
-            **kwargs,
-        }
+        results.append(
+            {
+                "name": name,
+                "method": method_name,
+                "time": elapsed,
+                "memory": max_memory - starting_memory if max_memory is not None else None,
+                **kwargs,
+            }
+        )
+
+    return pd.DataFrame(results)
 
 
-def _fast_aug_words_insert(batched: bool = False) -> None:
-    from fast_aug.text import WordsRandomInsertAugmenter
+def run_fast_aug(cls_str: str, cls_args: Any, cls_kwargs: Any, batched: bool) -> None:
+    module_path, class_name = cls_str.rsplit(".", 1)
+    module = importlib.import_module(module_path)
+    cls = getattr(module, class_name)
 
-    augmenter = WordsRandomInsertAugmenter(0.3, vocabulary=WORDS)
     text_data = get_text_data()
+    augmenter = cls(*cls_args, **cls_kwargs)  # type: ignore
     if batched:
         augmenter.augment_batch(text_data)
-    if not batched:
+    else:
         for d in text_data:
             augmenter.augment(d)
 
 
-def _nlpaug_words_insert(batched: bool = False) -> None:
-    raise NotImplementedError("nlpaug does not support insert")
+def measure_fast_aug_augmenter(name: str, method_name: str, cls_str: str, args: Any, kwargs: Any) -> pd.DataFrame:
+    # not batched
+    df_not_batched = measure_function_time_repeat(
+        name, method_name, REPEAT_COUNT, run_fast_aug, (cls_str, args, kwargs), {"batched": False}
+    )
+    # batched
+    df_batched = measure_function_time_repeat(
+        name, method_name, REPEAT_COUNT, run_fast_aug, (cls_str, args, kwargs), {"batched": True}
+    )
+    return pd.concat([df_not_batched, df_batched])
 
 
-def _fasttextaug_words_insert(batched: bool = False) -> None:
-    raise NotImplementedError("fasttextaug does not support insert")
+def run_nlpaug(cls_str: str, cls_args: Any, cls_kwargs: Any, batched: bool) -> None:
+    module_path, class_name = cls_str.rsplit(".", 1)
+    module = importlib.import_module(module_path)
+    cls = getattr(module, class_name)
 
-
-def measure_words_insert() -> pd.DataFrame:
-    method_name = "words\nrandom\ninsert"
-    results = []
-    for batched in [False, True]:
-        for name, function in [
-            ("fast-aug", _fast_aug_words_insert),
-            ("nlpaug", _nlpaug_words_insert),
-            ("fasttextaug", _fasttextaug_words_insert),
-            # ("augmenty", None),
-        ]:
-            for result in tqdm(
-                measure_function_time_repeat(name, REPEAT_COUNT, function, (), {"batched": batched}),
-                total=REPEAT_COUNT,
-                desc=f"{name} [{'batched' if batched else 'single'}]",
-            ):
-                results.append(result)
-
-    df = pd.DataFrame(results, columns=["method", "name", "time", "memory", "batched"])
-    df["method"] = method_name
-    return df
-
-
-def _fast_aug_words_substitute(batched: bool = False) -> None:
-    from fast_aug.text import WordsRandomSubstituteAugmenter
-
-    augmenter = WordsRandomSubstituteAugmenter(0.3, vocabulary=WORDS)
     text_data = get_text_data()
-    if batched:
-        augmenter.augment_batch(text_data)
-    if not batched:
-        for d in text_data:
-            augmenter.augment(d)
-
-
-def _nlpaug_words_substitute(batched: bool = False) -> None:
-    from nlpaug.augmenter.word import RandomWordAug
-
-    augmenter = RandomWordAug(action="substitute", aug_p=0.3, target_words=WORDS)
-    text_data = get_text_data()
+    augmenter = cls(*cls_args, **cls_kwargs)  # type: ignore
     if batched:
         augmenter.augment(text_data)
     else:
@@ -187,11 +170,25 @@ def _nlpaug_words_substitute(batched: bool = False) -> None:
             augmenter.augment(d)
 
 
-def _fasttextaug_words_substitute(batched: bool = False) -> None:
-    from fasttextaug.augmenter.word import RandomWordAug
+def measure_nlpaug_augmenter(name: str, method_name: str, cls_str: str, args: Any, kwargs: Any) -> pd.DataFrame:
+    # not batched
+    df_not_batched = measure_function_time_repeat(
+        name, method_name, REPEAT_COUNT, run_nlpaug, (cls_str, args, kwargs), {"batched": False}
+    )
+    # batched
+    df_batched = measure_function_time_repeat(
+        name, method_name, REPEAT_COUNT, run_nlpaug, (cls_str, args, kwargs), {"batched": True}
+    )
+    return pd.concat([df_not_batched, df_batched])
 
-    augmenter = RandomWordAug(action="substitute", aug_p=0.3, target_words=WORDS)
+
+def run_fasttextaug(cls_str: str, cls_args: Any, cls_kwargs: Any, batched: bool) -> None:
+    module_path, class_name = cls_str.rsplit(".", 1)
+    module = importlib.import_module(module_path)
+    cls = getattr(module, class_name)
+
     text_data = get_text_data()
+    augmenter = cls(*cls_args, **cls_kwargs)  # type: ignore
     if batched:
         augmenter.augment(text_data)
     else:
@@ -199,404 +196,16 @@ def _fasttextaug_words_substitute(batched: bool = False) -> None:
             augmenter.augment(d)
 
 
-def measure_words_substitute() -> pd.DataFrame:
-    method_name = "words\nrandom\nsubstitute"
-    results = []
-    for batched in [False, True]:
-        for name, function in [
-            ("fast-aug", _fast_aug_words_substitute),
-            ("nlpaug", _nlpaug_words_substitute),
-            ("fasttextaug", _fasttextaug_words_substitute),
-            # ("augmenty", None),
-        ]:
-            for result in tqdm(
-                measure_function_time_repeat(name, REPEAT_COUNT, function, (), {"batched": batched}),
-                total=REPEAT_COUNT,
-                desc=f"{name} [{'batched' if batched else 'single'}]",
-            ):
-                results.append(result)
-
-    df = pd.DataFrame(results, columns=["method", "name", "time", "memory", "batched"])
-    df["method"] = method_name
-    return df
-
-
-def _fast_aug_words_swap(batched: bool = False) -> None:
-    from fast_aug.text import WordsRandomSwapAugmenter
-
-    augmenter = WordsRandomSwapAugmenter(0.3)
-    text_data = get_text_data()
-    if batched:
-        augmenter.augment_batch(text_data)
-    if not batched:
-        for d in text_data:
-            augmenter.augment(d)
-
-
-def _nlpaug_words_swap(batched: bool = False) -> None:
-    from nlpaug.augmenter.word import RandomWordAug
-
-    augmenter = RandomWordAug(action="swap", aug_p=0.3)
-    text_data = get_text_data()
-    if batched:
-        augmenter.augment(text_data)
-    else:
-        for d in text_data:
-            augmenter.augment(d)
-
-
-def _fasttextaug_words_swap(batched: bool = False) -> None:
-    from fasttextaug.augmenter.word import RandomWordAug
-
-    augmenter = RandomWordAug(action="swap", aug_p=0.3)
-    text_data = get_text_data()
-    if batched:
-        augmenter.augment(text_data)
-    else:
-        for d in text_data:
-            augmenter.augment(d)
-
-
-def _augmenty_words_swap(batched: bool = False) -> None:
-    import augmenty
-    from spacy.lang.en import English
-
-    nlp = English()
-    augmenter = augmenty.load("token_swap_v1", level=0.3)
-    text_data = get_text_data()
-
-    if batched:
-        list(augmenty.texts(text_data, augmenter=augmenter, nlp=nlp))
-    else:
-        for text in text_data:
-            list(augmenty.texts([text], augmenter=augmenter, nlp=nlp))
-
-
-def measure_words_swap() -> pd.DataFrame:
-    method_name = "words\nrandom\nswap"
-    results = []
-    for batched in [False, True]:
-        for name, function in [
-            ("fast-aug", _fast_aug_words_swap),
-            ("nlpaug", _nlpaug_words_swap),
-            ("fasttextaug", _fasttextaug_words_swap),
-            # ("augmenty", _augmenty_words_swap),
-        ]:
-            for result in tqdm(
-                measure_function_time_repeat(name, REPEAT_COUNT, function, (), {"batched": batched}),
-                total=REPEAT_COUNT,
-                desc=f"{name} [{'batched' if batched else 'single'}]",
-            ):
-                results.append(result)
-
-    df = pd.DataFrame(results, columns=["method", "name", "time", "memory", "batched"])
-    df["method"] = method_name
-    return df
-
-
-def _fast_aug_words_delete(batched: bool = False) -> None:
-    from fast_aug.text import WordsRandomDeleteAugmenter
-
-    augmenter = WordsRandomDeleteAugmenter(0.3)
-    text_data = get_text_data()
-    if batched:
-        augmenter.augment_batch(text_data)
-    if not batched:
-        for d in text_data:
-            augmenter.augment(d)
-
-
-def _nlpaug_words_delete(batched: bool = False) -> None:
-    from nlpaug.augmenter.word import RandomWordAug
-
-    augmenter = RandomWordAug(action="delete", aug_p=0.3)
-    text_data = get_text_data()
-    if batched:
-        augmenter.augment(text_data)
-    else:
-        for d in text_data:
-            augmenter.augment(d)
-
-
-def _fasttextaug_words_delete(batched: bool = False) -> None:
-    from fasttextaug.augmenter.word import RandomWordAug
-
-    augmenter = RandomWordAug(action="delete", aug_p=0.3)
-    text_data = get_text_data()
-    if batched:
-        augmenter.augment(text_data)
-    else:
-        for d in text_data:
-            augmenter.augment(d)
-
-
-def measure_words_delete() -> pd.DataFrame:
-    method_name = "words\nrandom\ndelete"
-    results = []
-    for batched in [False, True]:
-        for name, function in [
-            ("fast-aug", _fast_aug_words_delete),
-            ("nlpaug", _nlpaug_words_delete),
-            ("fasttextaug", _fasttextaug_words_delete),
-            # ("augmenty", None),
-        ]:
-            for result in tqdm(
-                measure_function_time_repeat(name, REPEAT_COUNT, function, (), {"batched": batched}),
-                total=REPEAT_COUNT,
-                desc=f"{name} [{'batched' if batched else 'single'}]",
-            ):
-                results.append(result)
-
-    df = pd.DataFrame(results, columns=["method", "name", "time", "memory", "batched"])
-    df["method"] = method_name
-    return df
-
-
-def _fast_aug_chars_insert(batched: bool = False) -> None:
-    from fast_aug.text import CharsRandomInsertAugmenter
-
-    augmenter = CharsRandomInsertAugmenter(0.3, 0.3, locale="en")
-    text_data = get_text_data()
-    if batched:
-        augmenter.augment_batch(text_data)
-    if not batched:
-        for d in text_data:
-            augmenter.augment(d)
-
-
-def _nlpaug_chars_insert(batched: bool = False) -> None:
-    from nlpaug.augmenter.char import RandomCharAug
-
-    augmenter = RandomCharAug(action="insert", aug_char_p=0.3, aug_word_p=0.3)  # ascii only, so english
-    text_data = get_text_data()
-    if batched:
-        augmenter.augment(text_data)
-    else:
-        for d in text_data:
-            augmenter.augment(d)
-
-
-def _fasttextaug_chars_insert(batched: bool = False) -> None:
-    from fasttextaug.augmenter.char import RandomCharAug
-
-    augmenter = RandomCharAug(action="insert", aug_char_p=0.3, aug_word_p=0.3, lang="en")
-    text_data = get_text_data()
-    if batched:
-        augmenter.augment(text_data)
-    else:
-        for d in text_data:
-            augmenter.augment(d)
-
-
-def measure_chars_insert() -> pd.DataFrame:
-    method_name = "chars\nrandom\ninsert"
-    results = []
-    for batched in [False, True]:
-        for name, function in [
-            ("fast-aug", _fast_aug_chars_insert),
-            ("nlpaug", _nlpaug_chars_insert),
-            ("fasttextaug", _fasttextaug_chars_insert),
-            # ("augmenty", None),
-        ]:
-            for result in tqdm(
-                measure_function_time_repeat(name, REPEAT_COUNT, function, (), {"batched": batched}),
-                total=REPEAT_COUNT,
-                desc=f"{name} [{'batched' if batched else 'single'}]",
-            ):
-                results.append(result)
-
-    df = pd.DataFrame(results, columns=["method", "name", "time", "memory", "batched"])
-    df["method"] = method_name
-    return df
-
-
-def _fast_aug_chars_substitute(batched: bool = False) -> None:
-    from fast_aug.text import CharsRandomSubstituteAugmenter
-
-    augmenter = CharsRandomSubstituteAugmenter(0.3, 0.3, locale="en")
-    text_data = get_text_data()
-    if batched:
-        augmenter.augment_batch(text_data)
-    if not batched:
-        for d in text_data:
-            augmenter.augment(d)
-
-
-def _nlpaug_chars_substitute(batched: bool = False) -> None:
-    from nlpaug.augmenter.char import RandomCharAug
-
-    augmenter = RandomCharAug(action="substitute", aug_char_p=0.3, aug_word_p=0.3)  # ascii only, so english
-    text_data = get_text_data()
-    if batched:
-        augmenter.augment(text_data)
-    else:
-        for d in text_data:
-            augmenter.augment(d)
-
-
-def _fasttextaug_chars_substitute(batched: bool = False) -> None:
-    from fasttextaug.augmenter.char import RandomCharAug
-
-    augmenter = RandomCharAug(action="substitute", aug_char_p=0.3, aug_word_p=0.3, lang="en")
-    text_data = get_text_data()
-    if batched:
-        augmenter.augment(text_data)
-    else:
-        for d in text_data:
-            augmenter.augment(d)
-
-
-def measure_chars_substitute() -> pd.DataFrame:
-    method_name = "chars\nrandom\nsubstitute"
-    results = []
-    for batched in [False, True]:
-        for name, function in [
-            ("fast-aug", _fast_aug_chars_substitute),
-            ("nlpaug", _nlpaug_chars_substitute),
-            ("fasttextaug", _fasttextaug_chars_substitute),
-            # ("augmenty", None),
-        ]:
-            for result in tqdm(
-                measure_function_time_repeat(name, REPEAT_COUNT, function, (), {"batched": batched}),
-                total=REPEAT_COUNT,
-                desc=f"{name} [{'batched' if batched else 'single'}]",
-            ):
-                results.append(result)
-
-    df = pd.DataFrame(results, columns=["method", "name", "time", "memory", "batched"])
-    df["method"] = method_name
-    return df
-
-
-def _fast_aug_chars_swap(batched: bool = False) -> None:
-    from fast_aug.text import CharsRandomSwapAugmenter
-
-    augmenter = CharsRandomSwapAugmenter(0.3, 0.3)
-    text_data = get_text_data()
-    if batched:
-        augmenter.augment_batch(text_data)
-    if not batched:
-        for d in text_data:
-            augmenter.augment(d)
-
-
-def _nlpaug_chars_swap(batched: bool = False) -> None:
-    from nlpaug.augmenter.char import RandomCharAug
-
-    augmenter = RandomCharAug(action="swap", aug_char_p=0.3, aug_word_p=0.3)
-    text_data = get_text_data()
-    if batched:
-        augmenter.augment(text_data)
-    else:
-        for d in text_data:
-            augmenter.augment(d)
-
-
-def _fasttextaug_chars_swap(batched: bool = False) -> None:
-    from fasttextaug.augmenter.char import RandomCharAug
-
-    augmenter = RandomCharAug(action="swap", aug_char_p=0.3, aug_word_p=0.3)
-    text_data = get_text_data()
-    if batched:
-        augmenter.augment(text_data)
-    else:
-        for d in text_data:
-            augmenter.augment(d)
-
-
-def _augmenty_chars_swap(batched: bool = False) -> None:
-    import augmenty
-    from spacy.lang.en import English
-
-    nlp = English()
-    augmenter = augmenty.load("token_swap_v1", level=0.3)
-    text_data = get_text_data()
-
-    if batched:
-        list(augmenty.texts(text_data, augmenter=augmenter, nlp=nlp))
-    else:
-        for text in text_data:
-            list(augmenty.texts([text], augmenter=augmenter, nlp=nlp))
-
-
-def measure_chars_swap() -> pd.DataFrame:
-    method_name = "chars\nrandom\nswap"
-    results = []
-    for batched in [False, True]:
-        for name, function in [
-            ("fast-aug", _fast_aug_chars_swap),
-            ("nlpaug", _nlpaug_chars_swap),
-            ("fasttextaug", _fasttextaug_chars_swap),
-            # ("augmenty", _augmenty_chars_swap),
-        ]:
-            for result in tqdm(
-                measure_function_time_repeat(name, REPEAT_COUNT, function, (), {"batched": batched}),
-                total=REPEAT_COUNT,
-                desc=f"{name} [{'batched' if batched else 'single'}]",
-            ):
-                results.append(result)
-
-    df = pd.DataFrame(results, columns=["method", "name", "time", "memory", "batched"])
-    df["method"] = method_name
-    return df
-
-
-def _fast_aug_chars_delete(batched: bool = False) -> None:
-    from fast_aug.text import CharsRandomDeleteAugmenter
-
-    augmenter = CharsRandomDeleteAugmenter(0.3, 0.3)
-    text_data = get_text_data()
-    if batched:
-        augmenter.augment_batch(text_data)
-    if not batched:
-        for d in text_data:
-            augmenter.augment(d)
-
-
-def _nlpaug_chars_delete(batched: bool = False) -> None:
-    from nlpaug.augmenter.char import RandomCharAug
-
-    augmenter = RandomCharAug(action="delete", aug_char_p=0.3, aug_word_p=0.3)
-    text_data = get_text_data()
-    if batched:
-        augmenter.augment(text_data)
-    else:
-        for d in text_data:
-            augmenter.augment(d)
-
-
-def _fasttextaug_chars_delete(batched: bool = False) -> None:
-    from fasttextaug.augmenter.char import RandomCharAug
-
-    augmenter = RandomCharAug(action="delete", aug_char_p=0.3, aug_word_p=0.3)
-    text_data = get_text_data()
-    if batched:
-        augmenter.augment(text_data)
-    else:
-        for d in text_data:
-            augmenter.augment(d)
-
-
-def measure_chars_delete() -> pd.DataFrame:
-    method_name = "chars\nrandom\ndelete"
-    results = []
-    for batched in [False, True]:
-        for name, function in [
-            ("fast-aug", _fast_aug_chars_delete),
-            ("nlpaug", _nlpaug_chars_delete),
-            ("fasttextaug", _fasttextaug_chars_delete),
-            # ("augmenty", None),
-        ]:
-            for result in tqdm(
-                measure_function_time_repeat(name, REPEAT_COUNT, function, (), {"batched": batched}),
-                total=REPEAT_COUNT,
-                desc=f"{name} [{'batched' if batched else 'single'}]",
-            ):
-                results.append(result)
-
-    df = pd.DataFrame(results, columns=["method", "name", "time", "memory", "batched"])
-    df["method"] = method_name
-    return df
+def measure_fasttextaug_augmenter(name: str, method_name: str, cls_str: str, args: Any, kwargs: Any) -> pd.DataFrame:
+    # not batched
+    df_not_batched = measure_function_time_repeat(
+        name, method_name, REPEAT_COUNT, run_fasttextaug, (cls_str, args, kwargs), {"batched": False}
+    )
+    # batched
+    df_batched = measure_function_time_repeat(
+        name, method_name, REPEAT_COUNT, run_fasttextaug, (cls_str, args, kwargs), {"batched": True}
+    )
+    return pd.concat([df_not_batched, df_batched])
 
 
 def draw_barplot_time_memory(df: pd.DataFrame, output_name: str, hue_order: list[str]) -> None:
@@ -705,36 +314,171 @@ if __name__ == "__main__":
     ram_info()
     print()
 
-    df_word_insert = measure_words_insert()
-    print(df_word_insert)
-    df_word_substitute = measure_words_substitute()
-    print(df_word_substitute)
-    df_word_swap = measure_words_swap()
-    print(df_word_swap)
-    df_word_delete = measure_words_delete()
-    print(df_word_delete)
-    df_char_insert = measure_chars_insert()
-    print(df_char_insert)
-    df_char_substitute = measure_chars_substitute()
-    print(df_char_substitute)
-    df_char_swap = measure_chars_swap()
-    print(df_char_swap)
-    df_char_delete = measure_chars_delete()
-    print(df_char_delete)
+    # collect results
+    df = pd.concat(
+        [
+            measure_fast_aug_augmenter(
+                "fast-aug",
+                "words\nrandom\ninsert",
+                "fast_aug.text.WordsRandomInsertAugmenter",
+                (0.3, WORDS),
+                {},
+            ),
+            # not implemented for nlpaug
+            # not implemented for fasttextaug
+            measure_fast_aug_augmenter(
+                "fast-aug",
+                "words\nrandom\nsubstitute",
+                "fast_aug.text.WordsRandomSubstituteAugmenter",
+                (0.3, WORDS),
+                {},
+            ),
+            measure_nlpaug_augmenter(
+                "nlpaug",
+                "words\nrandom\nsubstitute",
+                "nlpaug.augmenter.word.RandomWordAug",
+                ("substitute",),
+                {"aug_p": 0.3, "target_words": WORDS},
+            ),
+            measure_fasttextaug_augmenter(
+                "fasttextaug",
+                "words\nrandom\nsubstitute",
+                "fasttextaug.augmenter.word.RandomWordAug",
+                ("substitute",),
+                {"aug_p": 0.3, "target_words": WORDS},
+            ),
+            measure_fast_aug_augmenter(
+                "fast-aug",
+                "words\nrandom\ndelete",
+                "fast_aug.text.WordsRandomDeleteAugmenter",
+                (0.3,),
+                {},
+            ),
+            measure_nlpaug_augmenter(
+                "nlpaug",
+                "words\nrandom\ndelete",
+                "nlpaug.augmenter.word.RandomWordAug",
+                ("delete",),
+                {"aug_p": 0.3},
+            ),
+            measure_fasttextaug_augmenter(
+                "fasttextaug",
+                "words\nrandom\ndelete",
+                "fasttextaug.augmenter.word.RandomWordAug",
+                ("delete",),
+                {"aug_p": 0.3},
+            ),
+            measure_fast_aug_augmenter(
+                "fast-aug",
+                "words\nrandom\nswap",
+                "fast_aug.text.WordsRandomSwapAugmenter",
+                (0.3,),
+                {},
+            ),
+            measure_nlpaug_augmenter(
+                "nlpaug",
+                "words\nrandom\nswap",
+                "nlpaug.augmenter.word.RandomWordAug",
+                ("swap",),
+                {"aug_p": 0.3},
+            ),
+            measure_fasttextaug_augmenter(
+                "fasttextaug",
+                "words\nrandom\nswap",
+                "fasttextaug.augmenter.word.RandomWordAug",
+                ("swap",),
+                {"aug_p": 0.3},
+            ),
+            measure_fast_aug_augmenter(
+                "fast-aug",
+                "chars\nrandom\ninsert",
+                "fast_aug.text.CharsRandomInsertAugmenter",
+                (0.3, 0.3, "en"),
+                {},
+            ),
+            measure_nlpaug_augmenter(
+                "nlpaug",
+                "chars\nrandom\ninsert",
+                "nlpaug.augmenter.char.RandomCharAug",
+                ("insert",),
+                {"aug_char_p": 0.3, "aug_word_p": 0.3},  # only english
+            ),
+            measure_fasttextaug_augmenter(
+                "fasttextaug",
+                "chars\nrandom\ninsert",
+                "fasttextaug.augmenter.char.RandomCharAug",
+                ("insert",),
+                {"aug_char_p": 0.3, "aug_word_p": 0.3, "lang": "en"},
+            ),
+            measure_fast_aug_augmenter(
+                "fast-aug",
+                "chars\nrandom\nsubstitute",
+                "fast_aug.text.CharsRandomSubstituteAugmenter",
+                (0.3, 0.3, "en"),
+                {},
+            ),
+            measure_nlpaug_augmenter(
+                "nlpaug",
+                "chars\nrandom\nsubstitute",
+                "nlpaug.augmenter.char.RandomCharAug",
+                ("substitute",),
+                {"aug_char_p": 0.3, "aug_word_p": 0.3},  # only english
+            ),
+            measure_fasttextaug_augmenter(
+                "fasttextaug",
+                "chars\nrandom\nsubstitute",
+                "fasttextaug.augmenter.char.RandomCharAug",
+                ("substitute",),
+                {"aug_char_p": 0.3, "aug_word_p": 0.3, "lang": "en"},
+            ),
+            measure_fast_aug_augmenter(
+                "fast-aug",
+                "chars\nrandom\ndelete",
+                "fast_aug.text.CharsRandomDeleteAugmenter",
+                (0.3, 0.3),
+                {},
+            ),
+            measure_nlpaug_augmenter(
+                "nlpaug",
+                "chars\nrandom\ndelete",
+                "nlpaug.augmenter.char.RandomCharAug",
+                ("delete",),
+                {"aug_char_p": 0.3, "aug_word_p": 0.3},
+            ),
+            measure_fasttextaug_augmenter(
+                "fasttextaug",
+                "chars\nrandom\ndelete",
+                "fasttextaug.augmenter.char.RandomCharAug",
+                ("delete",),
+                {"aug_char_p": 0.3, "aug_word_p": 0.3},
+            ),
+            measure_fast_aug_augmenter(
+                "fast-aug",
+                "chars\nrandom\nswap",
+                "fast_aug.text.CharsRandomSwapAugmenter",
+                (0.3, 0.3),
+                {},
+            ),
+            measure_nlpaug_augmenter(
+                "nlpaug",
+                "chars\nrandom\nswap",
+                "nlpaug.augmenter.char.RandomCharAug",
+                ("swap",),
+                {"aug_char_p": 0.3, "aug_word_p": 0.3},
+            ),
+            measure_fasttextaug_augmenter(
+                "fasttextaug",
+                "chars\nrandom\nswap",
+                "fasttextaug.augmenter.char.RandomCharAug",
+                ("swap",),
+                {"aug_char_p": 0.3, "aug_word_p": 0.3},
+            ),
+        ]
+    )
+    print(df)
 
     draw_barplot_time_memory(
-        pd.concat(
-            [
-                df_word_insert,
-                df_word_substitute,
-                df_word_swap,
-                df_word_delete,
-                df_char_insert,
-                df_char_substitute,
-                df_char_swap,
-                df_char_delete,
-            ],
-        ),
+        df,
         "comparison-python-text",
         hue_order=["fast-aug", "fasttextaug", "nlpaug"],
     )
