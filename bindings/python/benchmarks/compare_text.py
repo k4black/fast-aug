@@ -141,7 +141,7 @@ def _fasttextaug_words_insert(batched: bool = False) -> None:
 
 
 def measure_words_insert() -> pd.DataFrame:
-    method_name = "words_insert"
+    method_name = "words\nrandom\ninsert"
     results = []
     for batched in [False, True]:
         for name, function in [
@@ -199,7 +199,7 @@ def _fasttextaug_words_substitute(batched: bool = False) -> None:
 
 
 def measure_words_substitute() -> pd.DataFrame:
-    method_name = "words_substitute"
+    method_name = "words\nrandom\nsubstitute"
     results = []
     for batched in [False, True]:
         for name, function in [
@@ -272,7 +272,7 @@ def _augmenty_words_swap(batched: bool = False) -> None:
 
 
 def measure_words_swap() -> pd.DataFrame:
-    method_name = "words_swap"
+    method_name = "words\nrandom\nswap"
     results = []
     for batched in [False, True]:
         for name, function in [
@@ -330,7 +330,7 @@ def _fasttextaug_words_delete(batched: bool = False) -> None:
 
 
 def measure_words_delete() -> pd.DataFrame:
-    method_name = "words_delete"
+    method_name = "words\nrandom\ndelete"
     results = []
     for batched in [False, True]:
         for name, function in [
@@ -388,7 +388,7 @@ def _fasttextaug_chars_insert(batched: bool = False) -> None:
 
 
 def measure_chars_insert() -> pd.DataFrame:
-    method_name = "chars_insert"
+    method_name = "chars\nrandom\ninsert"
     results = []
     for batched in [False, True]:
         for name, function in [
@@ -446,7 +446,7 @@ def _fasttextaug_chars_substitute(batched: bool = False) -> None:
 
 
 def measure_chars_substitute() -> pd.DataFrame:
-    method_name = "chars_substitute"
+    method_name = "chars\nrandom\nsubstitute"
     results = []
     for batched in [False, True]:
         for name, function in [
@@ -519,7 +519,7 @@ def _augmenty_chars_swap(batched: bool = False) -> None:
 
 
 def measure_chars_swap() -> pd.DataFrame:
-    method_name = "chars_swap"
+    method_name = "chars\nrandom\nswap"
     results = []
     for batched in [False, True]:
         for name, function in [
@@ -577,7 +577,7 @@ def _fasttextaug_chars_delete(batched: bool = False) -> None:
 
 
 def measure_chars_delete() -> pd.DataFrame:
-    method_name = "chars_delete"
+    method_name = "chars\nrandom\ndelete"
     results = []
     for batched in [False, True]:
         for name, function in [
