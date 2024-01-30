@@ -77,6 +77,5 @@ impl BaseAugmenter<String, Doc> for CharsKeyboardAugmenter {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::text::words_random::WordsRandomAugmenter;
     use test_case::test_case;
 }

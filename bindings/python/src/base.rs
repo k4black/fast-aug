@@ -36,16 +36,39 @@ impl PyBaseAugmenter {
     /// :param data: Data to augment - single data point
     /// :returns: Augmented data
     #[pyo3(text_signature = "(self, data: Any)")]
-    fn augment(&self, _data: &PyAny) -> PyResult<PyObject> {
-        Err(PyNotImplementedError::new_err("Not implemented"))
+    pub fn augment(&mut self, py: Python, data: &PyAny) -> PyResult<PyObject> {
+        // Match inner Rust object and extract respective data type
+        match &self.inner {
+            // String input
+            AugmenterTypes::Text(augmenter) => {
+                let data = data.extract::<String>().unwrap();
+                let augmented_data = augmenter.augment(data, &mut self.rng);
+                Ok(augmented_data.into_py(py))
+            }
+            // Not implemented for other types
+            _ => Err(PyNotImplementedError::new_err("Not implemented")),
+        }
     }
 
     /// Augment data given a batch of data
     /// :param data: Data to augment - vector of data points
     /// :returns: Augmented data
     #[pyo3(text_signature = "(self, data: list[Any])")]
-    fn augment_batch(&self, _data: Vec<&PyAny>) -> PyResult<PyObject> {
-        Err(PyNotImplementedError::new_err("Not implemented"))
+    pub fn augment_batch(&mut self, py: Python, data: Vec<&PyAny>) -> PyResult<PyObject> {
+        // Match inner Rust object and extract respective data type
+        match &self.inner {
+            // String input
+            AugmenterTypes::Text(augmenter) => {
+                let data = data
+                    .iter()
+                    .map(|x| x.extract::<String>().unwrap())
+                    .collect::<Vec<String>>();
+                let augmented_data = augmenter.augment_batch(data, &mut self.rng);
+                Ok(augmented_data.into_py(py))
+            }
+            // Not implemented for other types
+            _ => Err(PyNotImplementedError::new_err("Not implemented")),
+        }
     }
 }
 

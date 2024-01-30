@@ -7,101 +7,68 @@ use fast_aug::models::text::AlphabetModel;
 
 // Criterion entry point
 fn criterion_benchmark(c: &mut Criterion) {
-    let word_vector: Vec<String> = vec![
-        "hello".to_string(),
-        "world".to_string(),
-        "this".to_string(),
-        "is".to_string(),
-        "a".to_string(),
-        "test".to_string(),
-        "sentence".to_string(),
-        "with".to_string(),
-        "some".to_string(),
-        "words".to_string(),
-    ];
-    let mut group = c.benchmark_group("RandomWordsAugmenter");
+    let vocal: Vec<String> = vec![
+        "hello", "world", "this", "is", "a", "test", "of", "fast_aug", "library", "for", "rust",
+    ]
+    .into_iter()
+    .map(|s| s.to_string())
+    .collect();
+
+    let mut group = c.benchmark_group("words");
     group.sampling_mode(SamplingMode::Flat);
     bench_text_augmenter(
         &mut group,
-        "insert",
-        &WordsRandomAugmenter::new(
-            TextAction::Insert,
-            TextAugmentParameters::default(),
-            None,
-            Some(word_vector.clone()),
-        ),
+        "WordsRandomInsertAugmenter",
+        &WordsRandomInsertAugmenter::new(TextAugmentParameters::default(), vocal.clone(), None),
     );
     bench_text_augmenter(
         &mut group,
-        "substitute",
-        &WordsRandomAugmenter::new(
-            TextAction::Substitute,
-            TextAugmentParameters::default(),
-            None,
-            Some(word_vector.clone()),
-        ),
+        "WordsRandomSubstituteAugmenter",
+        &WordsRandomSubstituteAugmenter::new(TextAugmentParameters::default(), vocal.clone(), None),
     );
     bench_text_augmenter(
         &mut group,
-        "swap",
-        &WordsRandomAugmenter::new(TextAction::Swap, TextAugmentParameters::default(), None, None),
+        "WordsRandomSwapAugmenter",
+        &WordsRandomSwapAugmenter::new(TextAugmentParameters::default(), None),
     );
     bench_text_augmenter(
         &mut group,
-        "delete",
-        &WordsRandomAugmenter::new(TextAction::Delete, TextAugmentParameters::default(), None, None),
+        "WordsRandomDeleteAugmenter",
+        &WordsRandomDeleteAugmenter::new(TextAugmentParameters::default(), None),
     );
     group.finish();
 
-    let mut group = c.benchmark_group("RandomCharsAugmenter");
+    let mut group = c.benchmark_group("chars");
     group.sampling_mode(SamplingMode::Flat);
     bench_text_augmenter(
         &mut group,
-        "insert",
-        &CharsRandomAugmenter::new(
-            TextAction::Insert,
+        "CharsRandomInsertAugmenter",
+        &CharsRandomInsertAugmenter::new(
             TextAugmentParameters::default(),
             TextAugmentParameters::default(),
+            AlphabetModel::from_locale_str("en"),
             None,
-            Some(AlphabetModel::from_locale_str("en")),
-            false,
         ),
     );
     bench_text_augmenter(
         &mut group,
-        "substitute",
-        &CharsRandomAugmenter::new(
-            TextAction::Substitute,
+        "CharsRandomSubstituteAugmenter",
+        &CharsRandomSubstituteAugmenter::new(
             TextAugmentParameters::default(),
             TextAugmentParameters::default(),
+            AlphabetModel::from_locale_str("en"),
             None,
-            Some(AlphabetModel::from_locale_str("en")),
-            false,
         ),
     );
     bench_text_augmenter(
         &mut group,
-        "swap",
-        &CharsRandomAugmenter::new(
-            TextAction::Swap,
-            TextAugmentParameters::default(),
-            TextAugmentParameters::default(),
-            None,
-            None,
-            false,
-        ),
+        "CharsRandomSwapAugmenter",
+        &CharsRandomSwapAugmenter::new(TextAugmentParameters::default(), TextAugmentParameters::default(), None),
     );
     bench_text_augmenter(
         &mut group,
-        "delete",
-        &CharsRandomAugmenter::new(
-            TextAction::Delete,
-            TextAugmentParameters::default(),
-            TextAugmentParameters::default(),
-            None,
-            None,
-            false,
-        ),
+        "CharsRandomDeleteAugmenter",
+        &CharsRandomDeleteAugmenter::new(TextAugmentParameters::default(), TextAugmentParameters::default(), None),
     );
     group.finish();
 }

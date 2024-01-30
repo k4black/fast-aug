@@ -24,9 +24,14 @@ def test_text_module_layout() -> None:
     assert sorted(fast_aug.text.__all__) == sorted(
         [
             "BaseTextAugmenter",
-            "TextAction",
-            "CharsRandomAugmenter",
-            "WordsRandomAugmenter",
+            "CharsRandomInsertAugmenter",
+            "CharsRandomDeleteAugmenter",
+            "CharsRandomSwapAugmenter",
+            "CharsRandomSubstituteAugmenter",
+            "WordsRandomInsertAugmenter",
+            "WordsRandomDeleteAugmenter",
+            "WordsRandomSwapAugmenter",
+            "WordsRandomSubstituteAugmenter",
         ]
     )
     assert fast_aug.text.__doc__ and len(fast_aug.text.__doc__) > 0, "text module docstring is empty"

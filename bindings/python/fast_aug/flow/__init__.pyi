@@ -1,6 +1,8 @@
 # Generated content DO NOT EDIT
 from __future__ import annotations
 
+from typing import Any
+
 from ..base import BaseAugmenter
 
 class ChanceAugmenter(BaseAugmenter):
@@ -12,18 +14,18 @@ class ChanceAugmenter(BaseAugmenter):
 
     def __init__(self, augmenter: BaseAugmenter, probability: float) -> None:
         pass
-    def augment(self, data: str):
+    def augment(self, data: Any):
         """
-        Augment the data
-        :param data: The String data to augment
-        :return: The augmented data
+        Augment data
+        :param data: Data to augment - single data point
+        :returns: Augmented data
         """
         pass
-    def augment_batch(self, data: list[str]):
+    def augment_batch(self, data: list[Any]):
         """
-        Augment the data given a batch
-        :param data: The String data to augment
-        :return: The augmented data
+        Augment data given a batch of data
+        :param data: Data to augment - vector of data points
+        :returns: Augmented data
         """
         pass
 
@@ -36,18 +38,18 @@ class SelectorAugmenter(BaseAugmenter):
 
     def __init__(self, augmenters: list[BaseAugmenter], weights: list[float] | None = None) -> None:
         pass
-    def augment(self, data: str):
+    def augment(self, data: Any):
         """
-        Augment the data
-        :param data: The String data to augment
-        :return: The augmented data
+        Augment data
+        :param data: Data to augment - single data point
+        :returns: Augmented data
         """
         pass
-    def augment_batch(self, data: list[str]):
+    def augment_batch(self, data: list[Any]):
         """
-        Augment the data given a batch
-        :param data: The String data to augment
-        :return: The augmented data
+        Augment data given a batch of data
+        :param data: Data to augment - vector of data points
+        :returns: Augmented data
         """
         pass
 
@@ -59,17 +61,17 @@ class SequentialAugmenter(BaseAugmenter):
 
     def __init__(self, augmenters: list[BaseAugmenter]) -> None:
         pass
-    def augment(self, data: str):
+    def augment(self, data: Any):
         """
-        Augment the data
-        :param data: The String data to augment
-        :return: The augmented data
+        Augment data
+        :param data: Data to augment - single data point
+        :returns: Augmented data
         """
         pass
-    def augment_batch(self, data: list[str]):
+    def augment_batch(self, data: list[Any]):
         """
-        Augment the data given a batch
-        :param data: The String data to augment
-        :return: The augmented data
+        Augment data given a batch of data
+        :param data: Data to augment - vector of data points
+        :returns: Augmented data
         """
         pass

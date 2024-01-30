@@ -9,6 +9,13 @@ pub trait BaseAugmenter<T, K> {
         self.convert_to_outer(output)
     }
 
+    fn augment_batch(&self, inputs: Vec<T>, rng: &mut dyn rand::RngCore) -> Vec<T> {
+        // TODO: parallelize, not just loop
+        // If less than X elements, just augment sequentially
+        // Otherwise, parallelize
+        inputs.into_iter().map(|input| self.augment(input, rng)).collect()
+    }
+
     /// "Private" method to augment an input of inner type (K)
     fn augment_inner(&self, input: K, rng: &mut dyn rand::RngCore) -> K;
 

@@ -12,8 +12,9 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import psutil
 import seaborn as sns
-from common import get_text_data
 from tqdm import tqdm
+
+from common import get_text_data
 
 warnings.filterwarnings("ignore", category=FutureWarning, module="seaborn.*")
 
@@ -121,9 +122,9 @@ def measure_function_time_repeat(
 
 
 def _fast_aug_words_insert(batched: bool = False) -> None:
-    from fast_aug.text import WordsRandomAugmenter
+    from fast_aug.text import WordsRandomInsertAugmenter
 
-    augmenter = WordsRandomAugmenter("insert", 0.3, vocabulary=WORDS)
+    augmenter = WordsRandomInsertAugmenter(0.3, vocabulary=WORDS)
     text_data = get_text_data()
     if batched:
         augmenter.augment_batch(text_data)
@@ -163,9 +164,9 @@ def measure_words_insert() -> pd.DataFrame:
 
 
 def _fast_aug_words_substitute(batched: bool = False) -> None:
-    from fast_aug.text import WordsRandomAugmenter
+    from fast_aug.text import WordsRandomSubstituteAugmenter
 
-    augmenter = WordsRandomAugmenter("substitute", 0.3, vocabulary=WORDS)
+    augmenter = WordsRandomSubstituteAugmenter(0.3, vocabulary=WORDS)
     text_data = get_text_data()
     if batched:
         augmenter.augment_batch(text_data)
@@ -221,9 +222,9 @@ def measure_words_substitute() -> pd.DataFrame:
 
 
 def _fast_aug_words_swap(batched: bool = False) -> None:
-    from fast_aug.text import WordsRandomAugmenter
+    from fast_aug.text import WordsRandomSwapAugmenter
 
-    augmenter = WordsRandomAugmenter("swap", 0.3)
+    augmenter = WordsRandomSwapAugmenter(0.3)
     text_data = get_text_data()
     if batched:
         augmenter.augment_batch(text_data)
@@ -294,9 +295,9 @@ def measure_words_swap() -> pd.DataFrame:
 
 
 def _fast_aug_words_delete(batched: bool = False) -> None:
-    from fast_aug.text import WordsRandomAugmenter
+    from fast_aug.text import WordsRandomDeleteAugmenter
 
-    augmenter = WordsRandomAugmenter("delete", 0.3)
+    augmenter = WordsRandomDeleteAugmenter(0.3)
     text_data = get_text_data()
     if batched:
         augmenter.augment_batch(text_data)
@@ -352,9 +353,9 @@ def measure_words_delete() -> pd.DataFrame:
 
 
 def _fast_aug_chars_insert(batched: bool = False) -> None:
-    from fast_aug.text import CharsRandomAugmenter
+    from fast_aug.text import CharsRandomInsertAugmenter
 
-    augmenter = CharsRandomAugmenter("insert", 0.3, 0.3, locale="en")
+    augmenter = CharsRandomInsertAugmenter(0.3, 0.3, locale="en")
     text_data = get_text_data()
     if batched:
         augmenter.augment_batch(text_data)
@@ -410,9 +411,9 @@ def measure_chars_insert() -> pd.DataFrame:
 
 
 def _fast_aug_chars_substitute(batched: bool = False) -> None:
-    from fast_aug.text import CharsRandomAugmenter
+    from fast_aug.text import CharsRandomSubstituteAugmenter
 
-    augmenter = CharsRandomAugmenter("substitute", 0.3, 0.3, locale="en")
+    augmenter = CharsRandomSubstituteAugmenter(0.3, 0.3, locale="en")
     text_data = get_text_data()
     if batched:
         augmenter.augment_batch(text_data)
@@ -468,9 +469,9 @@ def measure_chars_substitute() -> pd.DataFrame:
 
 
 def _fast_aug_chars_swap(batched: bool = False) -> None:
-    from fast_aug.text import CharsRandomAugmenter
+    from fast_aug.text import CharsRandomSwapAugmenter
 
-    augmenter = CharsRandomAugmenter("swap", 0.3, 0.3)
+    augmenter = CharsRandomSwapAugmenter(0.3, 0.3)
     text_data = get_text_data()
     if batched:
         augmenter.augment_batch(text_data)
@@ -541,9 +542,9 @@ def measure_chars_swap() -> pd.DataFrame:
 
 
 def _fast_aug_chars_delete(batched: bool = False) -> None:
-    from fast_aug.text import CharsRandomAugmenter
+    from fast_aug.text import CharsRandomDeleteAugmenter
 
-    augmenter = CharsRandomAugmenter("delete", 0.3, 0.3)
+    augmenter = CharsRandomDeleteAugmenter(0.3, 0.3)
     text_data = get_text_data()
     if batched:
         augmenter.augment_batch(text_data)

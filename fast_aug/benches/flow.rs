@@ -7,97 +7,52 @@ mod common;
 use common::{bench_text_augmenter, get_config};
 
 fn criterion_benchmark(c: &mut Criterion) {
-    let mut group = c.benchmark_group("SequentialAugmenter");
+    let mut group = c.benchmark_group("text");
     group.sampling_mode(SamplingMode::Flat);
     bench_text_augmenter(
         &mut group,
-        "text",
+        "SequentialAugmenter",
         &SequentialAugmenter::new(vec![
-            Arc::new(WordsRandomAugmenter::new(
-                TextAction::Swap,
+            Arc::new(WordsRandomSwapAugmenter::new(TextAugmentParameters::default(), None)),
+            Arc::new(CharsRandomSwapAugmenter::new(
                 TextAugmentParameters::default(),
-                None,
+                TextAugmentParameters::default(),
                 None,
             )),
-            Arc::new(CharsRandomAugmenter::new(
-                TextAction::Swap,
+            Arc::new(WordsRandomDeleteAugmenter::new(TextAugmentParameters::default(), None)),
+            Arc::new(CharsRandomDeleteAugmenter::new(
                 TextAugmentParameters::default(),
                 TextAugmentParameters::default(),
                 None,
-                None,
-                false,
-            )),
-            Arc::new(WordsRandomAugmenter::new(
-                TextAction::Delete,
-                TextAugmentParameters::default(),
-                None,
-                None,
-            )),
-            Arc::new(CharsRandomAugmenter::new(
-                TextAction::Delete,
-                TextAugmentParameters::default(),
-                TextAugmentParameters::default(),
-                None,
-                None,
-                false,
             )),
         ]),
     );
-    group.finish();
-
-    let mut group = c.benchmark_group("SelectorAugmenter");
-    group.sampling_mode(SamplingMode::Flat);
     bench_text_augmenter(
         &mut group,
-        "text",
+        "SelectorAugmenter",
         &SelectorAugmenter::new(
             vec![
-                Arc::new(WordsRandomAugmenter::new(
-                    TextAction::Swap,
+                Arc::new(WordsRandomSwapAugmenter::new(TextAugmentParameters::default(), None)),
+                Arc::new(CharsRandomSwapAugmenter::new(
                     TextAugmentParameters::default(),
-                    None,
+                    TextAugmentParameters::default(),
                     None,
                 )),
-                Arc::new(CharsRandomAugmenter::new(
-                    TextAction::Swap,
+                Arc::new(WordsRandomDeleteAugmenter::new(TextAugmentParameters::default(), None)),
+                Arc::new(CharsRandomDeleteAugmenter::new(
                     TextAugmentParameters::default(),
                     TextAugmentParameters::default(),
                     None,
-                    None,
-                    false,
-                )),
-                Arc::new(WordsRandomAugmenter::new(
-                    TextAction::Delete,
-                    TextAugmentParameters::default(),
-                    None,
-                    None,
-                )),
-                Arc::new(CharsRandomAugmenter::new(
-                    TextAction::Delete,
-                    TextAugmentParameters::default(),
-                    TextAugmentParameters::default(),
-                    None,
-                    None,
-                    false,
                 )),
             ],
             None,
         ),
     );
-    group.finish();
-
-    let mut group = c.benchmark_group("ChanceAugmenter");
-    group.sampling_mode(SamplingMode::Flat);
     bench_text_augmenter(
         &mut group,
-        "text",
+        "ChanceAugmenter",
         &ChanceAugmenter::new(
-            Arc::new(WordsRandomAugmenter::new(
-                TextAction::Swap,
-                TextAugmentParameters::default(),
-                None,
-                None,
-            )),
+            Arc::new(WordsRandomSwapAugmenter::new(TextAugmentParameters::default(), None)),
             0.5,
         ),
     );

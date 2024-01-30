@@ -4,17 +4,17 @@ import pytest
 
 from fast_aug.base import BaseAugmenter
 from fast_aug.flow import SelectorAugmenter
-from fast_aug.text import CharsRandomAugmenter, WordsRandomAugmenter
+from fast_aug.text import CharsRandomDeleteAugmenter, WordsRandomDeleteAugmenter
 
 
 @pytest.mark.parametrize(
     "augmenters",
     [
-        [WordsRandomAugmenter("DELETE"), CharsRandomAugmenter("DELETE")],
+        [WordsRandomDeleteAugmenter(0.3), CharsRandomDeleteAugmenter(0.3, 0.3)],
         [
-            WordsRandomAugmenter("DELETE"),
-            CharsRandomAugmenter("DELETE"),
-            CharsRandomAugmenter("DELETE"),
+            WordsRandomDeleteAugmenter(0.3),
+            CharsRandomDeleteAugmenter(0.3, 0.3),
+            CharsRandomDeleteAugmenter(0.3, 0.3),
         ],
     ],
 )
@@ -26,10 +26,10 @@ def test_init_augmenters(augmenters: List[BaseAugmenter]) -> None:
     "augmenters",
     [
         [],
-        [WordsRandomAugmenter("DELETE")],
+        [WordsRandomDeleteAugmenter(0.3)],
         None,
         [object, object],
-        [WordsRandomAugmenter("DELETE"), "invalid_type"],
+        [WordsRandomDeleteAugmenter(0.3), "invalid_type"],
     ],
 )
 def test_init_wrong_augmenters(augmenters: Any) -> None:
@@ -49,7 +49,7 @@ def test_init_wrong_augmenters(augmenters: Any) -> None:
     ],
 )
 def test_init_weights(weights: Optional[List[float]]) -> None:
-    augmenters = [WordsRandomAugmenter("DELETE"), CharsRandomAugmenter("DELETE")]
+    augmenters = [WordsRandomDeleteAugmenter(0.3), CharsRandomDeleteAugmenter(0.3, 0.3)]
     SelectorAugmenter(augmenters, weights)
 
 
@@ -65,7 +65,7 @@ def test_init_weights(weights: Optional[List[float]]) -> None:
     ],
 )
 def test_init_wrong_selector(weights: Any) -> None:
-    augmenters = [WordsRandomAugmenter("DELETE"), CharsRandomAugmenter("DELETE")]
+    augmenters = [WordsRandomDeleteAugmenter(0.3), CharsRandomDeleteAugmenter(0.3, 0.3)]
     with pytest.raises(Exception):
         SelectorAugmenter(augmenters, weights)
 
@@ -73,8 +73,8 @@ def test_init_wrong_selector(weights: Any) -> None:
 @pytest.mark.parametrize("text", ["word", "Some sentence", "A longer sentence with more words!"])
 def test_input_changes(text: str) -> None:
     augmenters = [
-        WordsRandomAugmenter("DELETE", 0.3),
-        CharsRandomAugmenter("DELETE", 0.3),
+        WordsRandomDeleteAugmenter(0.3),
+        CharsRandomDeleteAugmenter(0.3, 0.3),
     ]
     selector_augmenter = SelectorAugmenter(augmenters)
 
@@ -83,12 +83,12 @@ def test_input_changes(text: str) -> None:
 
 def test_input_changes_batch() -> None:
     augmenters = [
-        WordsRandomAugmenter("DELETE", 0.3),
-        CharsRandomAugmenter("DELETE", 0.3),
+        WordsRandomDeleteAugmenter(0.3),
+        CharsRandomDeleteAugmenter(0.3, 0.3),
     ]
     selector_augmenter = SelectorAugmenter(augmenters)
     texts = [
-        "word",
+        "word some test",
         "Some sentence",
         "Some sentence with 5 words!",
         "This is 2 sentences. This is the second sentence.",

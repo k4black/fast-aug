@@ -69,8 +69,13 @@ target-version = "py312"
 # McCabe complexity (`C901`) by default.
 extend-select = ["E", "F", "Q", "RUF100", "C90", "I"]
 ignore = []
-isort = { known-first-party = ['fast_aug', 'tests'] }
+isort = { known-first-party = ['fast_aug', 'tests', 'common'] }
 line-length = 120
+
+[tool.isort]
+profile = "black"
+known_first_party = ["fast_aug", "tests", "common"]
+line_length = 120
 
 [tool.black]
 line-length = 120

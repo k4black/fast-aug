@@ -4,26 +4,6 @@ use rand::prelude::IteratorRandom;
 use rand::seq::SliceRandom;
 use std::collections::HashSet;
 
-/// Actions enum, which action BaseTextAugmenter will perform
-#[derive(Clone, Copy, PartialEq, Debug)]
-pub enum TextAction {
-    Insert,
-    Delete,
-    Substitute,
-    Swap,
-}
-
-impl std::fmt::Display for TextAction {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            TextAction::Insert => write!(f, "Insert"),
-            TextAction::Delete => write!(f, "Delete"),
-            TextAction::Substitute => write!(f, "Substitute"),
-            TextAction::Swap => write!(f, "Swap"),
-        }
-    }
-}
-
 pub trait BaseTextAugmenter: BaseAugmenter<String, Doc> {
     /// Select random word tokens to augment given a number of elements
     /// Returns a vector of tuples (index, &mut token)

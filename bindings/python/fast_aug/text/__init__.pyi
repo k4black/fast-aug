@@ -1,12 +1,7 @@
 # Generated content DO NOT EDIT
 from __future__ import annotations
 
-from typing import Any
-
 from ..base import BaseAugmenter
-
-class TextAction:
-    pass
 
 class BaseTextAugmenter(BaseAugmenter):
     """
@@ -18,83 +13,270 @@ class BaseTextAugmenter(BaseAugmenter):
     def augment(self, data: str):
         """
         Augment the data
-        :param data: The single String to augment
-        :return: The augmented data
+        :param data: A String to augment
+        :returns: Augmented data
         """
         pass
-    def augment_batch(self, data: list[Any]):
+    def augment_batch(self, data: list[str]):
         """
         Augment data given a batch of data
-        :param data: Vector of Strings to augment
+        :param data: Vector of strings to augment
         :returns: Augmented data
         """
         pass
 
-class CharsRandomAugmenter(BaseTextAugmenter):
+class CharsRandomDeleteAugmenter(BaseTextAugmenter):
     """
-    Randomly augment chars in the words
-    :param action: The action to perform - insert, substitute, swap, delete
+    Randomly delete chars in the random words
+
+    :param word_params: The parameters for the word augmentation
+     - probability or (probability, min_elements, max_elements)
+    :param char_params: The parameters for the char augmentation
+     - probability or (probability, min_elements, max_elements)
+    :param stopwords: Optional set of stopwords to ignore
+    """
+
+    def __init__(
+        self,
+        word_params: float | tuple[float, int | None, int | None],
+        char_params: float | tuple[float, int | None, int | None],
+        stopwords: set[str] | None = None,
+    ) -> None:
+        pass
+    def augment(self, data: str):
+        """
+        Augment the data
+        :param data: A String to augment
+        :returns: Augmented data
+        """
+        pass
+    def augment_batch(self, data: list[str]):
+        """
+        Augment data given a batch of data
+        :param data: Vector of strings to augment
+        :returns: Augmented data
+        """
+        pass
+
+class CharsRandomInsertAugmenter(BaseTextAugmenter):
+    """
+    Randomly augment chars in the random words
+
     :param word_params: The parameters for the word augmentation
         - probability or (probability, min_elements, max_elements)
     :param char_params: The parameters for the char augmentation
         - probability or (probability, min_elements, max_elements)
-    :param stopwords: The set of stopwords to ignore
-    :param locale: The locale string to use for alphabet, optional. Required for insert and substitute
+    :param locale: The locale string to use for alphabet
+    :param stopwords: Optional set of stopwords to ignore
     """
 
     def __init__(
         self,
-        action: str | TextAction,
-        word_params: float | tuple[float, int | None, int | None] | None = None,
-        char_params: float | tuple[float, int | None, int | None] | None = None,
+        word_params: float | tuple[float, int | None, int | None],
+        char_params: float | tuple[float, int | None, int | None],
+        locale: str,
         stopwords: set[str] | None = None,
-        locale: str | None = None,
     ) -> None:
         pass
     def augment(self, data: str):
         """
         Augment the data
         :param data: A String to augment
-        :return: The augmented data
+        :returns: Augmented data
         """
         pass
     def augment_batch(self, data: list[str]):
         """
-        Augment the data given a batch
-        :param data: The list of Strings to augment
-        :return: The augmented data
+        Augment data given a batch of data
+        :param data: Vector of strings to augment
+        :returns: Augmented data
         """
         pass
 
-class WordsRandomAugmenter(BaseTextAugmenter):
+class CharsRandomSubstituteAugmenter(BaseTextAugmenter):
     """
-    Randomly augment the words
-    :param action: The action to perform - insert, substitute, swap, delete
+    Randomly substitute chars in the random words
+
+    :param word_params: The parameters for the word augmentation
+       - probability or (probability, min_elements, max_elements)
+    :param char_params: The parameters for the char augmentation
+      - probability or (probability, min_elements, max_elements)
+    :param locale: The locale string to use for alphabet
+    :param stopwords: Optional set of stopwords to ignore
+    """
+
+    def __init__(
+        self,
+        word_params: float | tuple[float, int | None, int | None],
+        char_params: float | tuple[float, int | None, int | None],
+        locale: str,
+        stopwords: set[str] | None = None,
+    ) -> None:
+        pass
+    def augment(self, data: str):
+        """
+        Augment the data
+        :param data: A String to augment
+        :returns: Augmented data
+        """
+        pass
+    def augment_batch(self, data: list[str]):
+        """
+        Augment data given a batch of data
+        :param data: Vector of strings to augment
+        :returns: Augmented data
+        """
+        pass
+
+class CharsRandomSwapAugmenter(BaseTextAugmenter):
+    """
+    Randomly swap chars in the random words
+
+    :param word_params: The parameters for the word augmentation
+      - probability or (probability, min_elements, max_elements)
+    :param char_params: The parameters for the char augmentation
+     - probability or (probability, min_elements, max_elements)
+    :param stopwords: Optional set of stopwords to ignore
+    """
+
+    def __init__(
+        self,
+        word_params: float | tuple[float, int | None, int | None],
+        char_params: float | tuple[float, int | None, int | None],
+        stopwords: set[str] | None = None,
+    ) -> None:
+        pass
+    def augment(self, data: str):
+        """
+        Augment the data
+        :param data: A String to augment
+        :returns: Augmented data
+        """
+        pass
+    def augment_batch(self, data: list[str]):
+        """
+        Augment data given a batch of data
+        :param data: Vector of strings to augment
+        :returns: Augmented data
+        """
+        pass
+
+class WordsRandomDeleteAugmenter(BaseTextAugmenter):
+    """
+    Randomly delete words
+
+    :param word_params: The parameters for the word augmentation
+      - probability or (probability, min_elements, max_elements)
+    :param stopwords: Optional set of stopwords to ignore
+    """
+
+    def __init__(
+        self, word_params: float | tuple[float, int | None, int | None], stopwords: set[str] | None = None
+    ) -> None:
+        pass
+    def augment(self, data: str):
+        """
+        Augment the data
+        :param data: A String to augment
+        :returns: Augmented data
+        """
+        pass
+    def augment_batch(self, data: list[str]):
+        """
+        Augment data given a batch of data
+        :param data: Vector of strings to augment
+        :returns: Augmented data
+        """
+        pass
+
+class WordsRandomInsertAugmenter(BaseTextAugmenter):
+    """
+    Randomly insert words from the given vocabulary
+
     :param word_params: The parameters for the word augmentation
         - probability or (probability, min_elements, max_elements)
-    :param stopwords: The set of stopwords to ignore
-    :param vocab: The optional vocabulary to use for insert and substitute
+    :param vocabulary: The vocabulary to use for insertion
+    :param stopwords: Optional set of stopwords to ignore
     """
 
     def __init__(
         self,
-        action: str | TextAction,
-        word_params: float | tuple[float, int | None, int | None] | None = None,
+        word_params: float | tuple[float, int | None, int | None],
+        vocabulary: list[str],
         stopwords: set[str] | None = None,
-        vocabulary: list[str] | None = None,
     ) -> None:
         pass
     def augment(self, data: str):
         """
         Augment the data
         :param data: A String to augment
-        :return: The augmented data
+        :returns: Augmented data
         """
         pass
     def augment_batch(self, data: list[str]):
         """
-        Augment the data given a batch
-        :param data: The list of Strings to augment
-        :return: The augmented data
+        Augment data given a batch of data
+        :param data: Vector of strings to augment
+        :returns: Augmented data
+        """
+        pass
+
+class WordsRandomSubstituteAugmenter(BaseTextAugmenter):
+    """
+    Randomly substitute words from the given vocabulary
+
+    :param word_params: The parameters for the word augmentation
+       - probability or (probability, min_elements, max_elements)
+    :param vocabulary: The vocabulary to use for substitution
+    :param stopwords: Optional set of stopwords to ignore
+    """
+
+    def __init__(
+        self,
+        word_params: float | tuple[float, int | None, int | None],
+        vocabulary: list[str],
+        stopwords: set[str] | None = None,
+    ) -> None:
+        pass
+    def augment(self, data: str):
+        """
+        Augment the data
+        :param data: A String to augment
+        :returns: Augmented data
+        """
+        pass
+    def augment_batch(self, data: list[str]):
+        """
+        Augment data given a batch of data
+        :param data: Vector of strings to augment
+        :returns: Augmented data
+        """
+        pass
+
+class WordsRandomSwapAugmenter(BaseTextAugmenter):
+    """
+    Randomly swap words
+
+    :param word_params: The parameters for the word augmentation
+       - probability or (probability, min_elements, max_elements)
+    :param stopwords: Optional set of stopwords to ignore
+    """
+
+    def __init__(
+        self, word_params: float | tuple[float, int | None, int | None], stopwords: set[str] | None = None
+    ) -> None:
+        pass
+    def augment(self, data: str):
+        """
+        Augment the data
+        :param data: A String to augment
+        :returns: Augmented data
+        """
+        pass
+    def augment_batch(self, data: list[str]):
+        """
+        Augment data given a batch of data
+        :param data: Vector of strings to augment
+        :returns: Augmented data
         """
         pass
