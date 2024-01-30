@@ -22,10 +22,10 @@ Flow
 Text
 - [ ] RandomWordsAugmenter
   - [x] Base - swaps/deletions
-  - [ ] Insertions/Substitutions (from alphabet)
+  - [x] Insertions/Substitutions (from alphabet)
 - [ ] RandomCharsAugmenter
     - [x] Base - swaps/deletions
-    - [ ] Insertions/Substitutions (from provided list)
+    - [x] Insertions/Substitutions (from provided list)
 - [ ] RandomSpellingAugmenter
 - [ ] RandomKeyboardAugmenter
 - [ ] RandomEmbeddingsAugmenter

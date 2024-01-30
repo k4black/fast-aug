@@ -1,6 +1,8 @@
 use icu_locid::Locale;
 use icu_properties::{exemplar_chars, sets};
 use icu_provider::DataLocale;
+use rand::seq::{IteratorRandom, SliceRandom};
+use rand::RngCore;
 use std::collections::HashSet;
 
 pub struct AlphabetModel {
@@ -49,6 +51,9 @@ impl AlphabetModel {
 
     /// Create alphabet using icu4x - icu_locid::Locale
     ///
+    /// # Arguments
+    /// * `locale` - Locale from icu_locid::Locale
+    ///
     /// # Examples
     /// ```rust
     /// use icu_locid::Locale;
@@ -83,6 +88,10 @@ impl AlphabetModel {
 
     /// Create alphabet using icu4x using language tag
     ///
+    /// # Arguments
+    /// * `locale_str` - Language tag, with or without script and region.
+    ///     See [Unicode Language Identifier](https://unicode.org/reports/tr35/#Unicode_language_identifier)
+    ///
     /// # Examples
     /// ```rust
     /// use fast_aug::models::text::AlphabetModel;
@@ -94,6 +103,29 @@ impl AlphabetModel {
     pub fn from_locale_str(locale_str: &str) -> Self {
         let locale = Locale::try_from_bytes(locale_str.as_bytes()).expect("language tag should be valid");
         Self::from_locale(&locale)
+    }
+
+    /// Get random char from alphabet
+    ///
+    /// # Arguments
+    /// * `include_main` - Include main alphabet
+    /// * `include_capital` - Include capital alphabet
+    /// * `rng` - Random number generator
+    pub fn get_random_char(&self, include_main: bool, include_capital: bool, rng: &mut dyn RngCore) -> char {
+        if !include_main && !include_capital {
+            panic!("At least one of include_main or include_capital must be true");
+        }
+
+        if include_main && !include_capital {
+            return *self.main.iter().choose(rng).unwrap();
+        }
+
+        if !include_main && include_capital {
+            return *self.main_capitalized.iter().choose(rng).unwrap();
+        }
+
+        let chars: Vec<char> = self.main.iter().chain(self.main_capitalized.iter()).copied().collect();
+        *chars.choose(rng).unwrap()
     }
 }
 

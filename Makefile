@@ -27,6 +27,7 @@ build-python:  ## Build python library (and install)
 .PHONY: build-python-dev
 build-python-dev:  ## Build python library (and install in editable mode)
 	cd $(PYTHON_SRC_DIRECTORY) && $(PYTHON_INTERPRETER) -m pip install -v -e .\[test\] --config-settings=build-args='--profile $(BUILD_PROFILE)'
+	cd $(PYTHON_SRC_DIRECTORY) && $(PYTHON_INTERPRETER) generate_stubs.py
 
 
 .PHONY: generate-stubs

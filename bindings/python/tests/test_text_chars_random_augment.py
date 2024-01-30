@@ -17,7 +17,7 @@ from fast_aug.text import CharsRandomAugmenter, TextAction
     ],
 )
 def test_init_action(action: str | TextAction) -> None:
-    CharsRandomAugmenter(action)
+    CharsRandomAugmenter(action, locale="en")
 
 
 def test_init_action_error() -> None:
@@ -78,6 +78,22 @@ def test_init_stopwords(stopwords: list[str] | set[str] | None) -> None:
     CharsRandomAugmenter(TextAction.DELETE, None, None, stopwords)
     CharsRandomAugmenter(TextAction.DELETE, None, None, stopwords=stopwords)
     CharsRandomAugmenter(TextAction.DELETE, stopwords=stopwords)
+
+
+@pytest.mark.parametrize("locale", [None, "en", "sr-Cyrl-ME", "ru_RU"])
+def test_init_locale(locale: str) -> None:
+    CharsRandomAugmenter(TextAction.DELETE, None, None, None, locale)
+    CharsRandomAugmenter(TextAction.DELETE, None, None, None, locale=locale)
+    CharsRandomAugmenter(TextAction.DELETE, locale=locale)
+
+
+def test_init_locale_error() -> None:
+    with pytest.raises(Exception):
+        CharsRandomAugmenter(TextAction.DELETE, None, None, None, "NOT_EXISTING_LOCALE")
+    with pytest.raises(Exception):
+        CharsRandomAugmenter(TextAction.INSERT, None, None, None, "en")
+    with pytest.raises(Exception):
+        CharsRandomAugmenter(TextAction.SUBSTITUTE, None, None, None, "en")
 
 
 @pytest.mark.parametrize(

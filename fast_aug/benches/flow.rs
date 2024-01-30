@@ -17,16 +17,20 @@ fn criterion_benchmark(c: &mut Criterion) {
                 TextAction::Swap,
                 TextAugmentParameters::default(),
                 None,
+                None,
             )),
             Arc::new(CharsRandomAugmenter::new(
                 TextAction::Swap,
                 TextAugmentParameters::default(),
                 TextAugmentParameters::default(),
                 None,
+                None,
+                false,
             )),
             Arc::new(WordsRandomAugmenter::new(
                 TextAction::Delete,
                 TextAugmentParameters::default(),
+                None,
                 None,
             )),
             Arc::new(CharsRandomAugmenter::new(
@@ -34,6 +38,8 @@ fn criterion_benchmark(c: &mut Criterion) {
                 TextAugmentParameters::default(),
                 TextAugmentParameters::default(),
                 None,
+                None,
+                false,
             )),
         ]),
     );
@@ -50,16 +56,20 @@ fn criterion_benchmark(c: &mut Criterion) {
                     TextAction::Swap,
                     TextAugmentParameters::default(),
                     None,
+                    None,
                 )),
                 Arc::new(CharsRandomAugmenter::new(
                     TextAction::Swap,
                     TextAugmentParameters::default(),
                     TextAugmentParameters::default(),
                     None,
+                    None,
+                    false,
                 )),
                 Arc::new(WordsRandomAugmenter::new(
                     TextAction::Delete,
                     TextAugmentParameters::default(),
+                    None,
                     None,
                 )),
                 Arc::new(CharsRandomAugmenter::new(
@@ -67,6 +77,8 @@ fn criterion_benchmark(c: &mut Criterion) {
                     TextAugmentParameters::default(),
                     TextAugmentParameters::default(),
                     None,
+                    None,
+                    false,
                 )),
             ],
             None,
@@ -83,6 +95,7 @@ fn criterion_benchmark(c: &mut Criterion) {
             Arc::new(WordsRandomAugmenter::new(
                 TextAction::Swap,
                 TextAugmentParameters::default(),
+                None,
                 None,
             )),
             0.5,

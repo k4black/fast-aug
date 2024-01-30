@@ -39,6 +39,7 @@ class CharsRandomAugmenter(BaseTextAugmenter):
     :param aug_params_char: The parameters for the char augmentation
         - probability or (probability, min_elements, max_elements)
     :param stopwords: The set of stopwords to ignore
+    :param locale: The locale string to use for alphabet, optional. Required for insert and substitute
     """
 
     def __init__(
@@ -47,6 +48,7 @@ class CharsRandomAugmenter(BaseTextAugmenter):
         aug_params_word: float | tuple[float, int | None, int | None] | None = None,
         aug_params_char: float | tuple[float, int | None, int | None] | None = None,
         stopwords: set[str] | None = None,
+        locale: str | None = None,
     ) -> None:
         pass
     def augment(self, data: str):
@@ -71,6 +73,7 @@ class WordsRandomAugmenter(BaseTextAugmenter):
     :param aug_params_word: The parameters for the word augmentation
         - probability or (probability, min_elements, max_elements)
     :param stopwords: The set of stopwords to ignore
+    :param vocab: The optional vocabulary to use for insert and substitute
     """
 
     def __init__(
@@ -78,6 +81,7 @@ class WordsRandomAugmenter(BaseTextAugmenter):
         action: str | TextAction,
         aug_params_word: float | tuple[float, int | None, int | None] | None = None,
         stopwords: set[str] | None = None,
+        vocabulary: list[str] | None = None,
     ) -> None:
         pass
     def augment(self, data: str):

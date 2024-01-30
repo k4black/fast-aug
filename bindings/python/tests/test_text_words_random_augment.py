@@ -17,7 +17,7 @@ from fast_aug.text import TextAction, WordsRandomAugmenter
     ],
 )
 def test_init_action(action: str | TextAction) -> None:
-    WordsRandomAugmenter(action)
+    WordsRandomAugmenter(action, vocabulary=["a", "b", "c"])
 
 
 def test_init_action_error() -> None:
@@ -27,6 +27,15 @@ def test_init_action_error() -> None:
         WordsRandomAugmenter()
     with pytest.raises(Exception):
         WordsRandomAugmenter(None)
+
+
+def test_init_vocabulary_error() -> None:
+    with pytest.raises(Exception):
+        WordsRandomAugmenter(TextAction.DELETE, vocabulary=list())
+    with pytest.raises(Exception):
+        WordsRandomAugmenter(TextAction.INSERT, vocabulary=None)
+    with pytest.raises(Exception):
+        WordsRandomAugmenter(TextAction.SUBSTITUTE, vocabulary=None)
 
 
 @pytest.mark.parametrize(

@@ -1,10 +1,11 @@
 use super::base::{BaseTextAugmenter, TextAction};
 use super::utils::{Doc, TextAugmentParameters};
 use crate::base::BaseAugmenter;
+use crate::models::text::AlphabetModel;
 use std::collections::HashSet;
 
 pub struct CharsRandomAugmenter {
-    /// Action to augmentation, set of values {'substitute', 'swap', 'delete'}
+    /// Action to augmentation, set of values {'insert', 'substitute', 'swap', 'delete'}
     action: TextAction,
     /// Parameters to calculate number of words that will be augmented
     aug_params_word: TextAugmentParameters,
@@ -12,6 +13,11 @@ pub struct CharsRandomAugmenter {
     aug_params_char: TextAugmentParameters,
     /// Filter, Set of words that cannot be augmented
     stopwords: Option<HashSet<String>>,
+    /// Optional Alphabet Model to use for insert and substitute actions
+    /// TODO: Make Lazy Loading for models
+    alphabet_model: Option<AlphabetModel>,
+    /// Whatever to insert or substitute capital letters
+    capital_letters: bool,
 }
 
 impl CharsRandomAugmenter {
@@ -20,13 +26,88 @@ impl CharsRandomAugmenter {
         aug_params_word: TextAugmentParameters,
         aug_params_char: TextAugmentParameters,
         stopwords: Option<HashSet<String>>,
+        alphabet_model: Option<AlphabetModel>,
+        capital_letters: bool,
     ) -> Self {
+        // Check if alphabet model is provided for insert and substitute actions
+        if let TextAction::Insert | TextAction::Substitute = action {
+            assert!(
+                alphabet_model.is_some(),
+                "Alphabet model must be provided for insert and substitute actions"
+            );
+        }
+
         CharsRandomAugmenter {
             action,
             aug_params_word,
             aug_params_char,
             stopwords,
+            alphabet_model,
+            capital_letters,
         }
+    }
+
+    fn insert(&self, mut doc: Doc, rng: &mut dyn rand::RngCore) -> Doc {
+        // Select random word tokens
+        let word_tokens_indexes = doc.get_word_indexes(false, self.stopwords.as_ref());
+        let num_tokens_to_change = self.aug_params_word.num_elements(word_tokens_indexes.len());
+        let selected_tokens_indexes =
+            self.select_random_element_indexes(rng, word_tokens_indexes, num_tokens_to_change);
+
+        // Get alphabet model
+        let alphabet_model = self.alphabet_model.as_ref().unwrap();
+
+        // For all selected tokens select random chars and insert them
+        for token_index in selected_tokens_indexes {
+            let token = &mut doc.tokens[token_index];
+            let num_chars_to_change = self.aug_params_char.num_elements(token.utf8_len());
+
+            // TODO: check and possibly speedup
+            let selected_chars_indexes =
+                self.select_random_element_indexes(rng, (0..token.utf8_len()).collect(), num_chars_to_change);
+            let mut chars = token.token().chars().collect::<Vec<char>>();
+            for idx in selected_chars_indexes {
+                let new_char = alphabet_model.get_random_char(true, self.capital_letters, rng);
+                chars.insert(idx, new_char);
+            }
+            let new_token = chars.iter().collect::<String>();
+            token.change(&new_token, *token.kind());
+
+            doc.num_changes += 1;
+        }
+
+        doc
+    }
+
+    fn substitute(&self, mut doc: Doc, rng: &mut dyn rand::RngCore) -> Doc {
+        // Select random word tokens
+        let word_tokens_indexes = doc.get_word_indexes(false, self.stopwords.as_ref());
+        let num_tokens_to_change = self.aug_params_word.num_elements(word_tokens_indexes.len());
+        let selected_tokens_indexes =
+            self.select_random_element_indexes(rng, word_tokens_indexes, num_tokens_to_change);
+
+        // Get alphabet model
+        let alphabet_model = self.alphabet_model.as_ref().unwrap();
+
+        // For all selected tokens select random chars and substitute them
+        for token_index in selected_tokens_indexes {
+            let token = &mut doc.tokens[token_index];
+            let num_chars_to_change = self.aug_params_char.num_elements(token.utf8_len());
+
+            let selected_chars_indexes =
+                self.select_random_element_indexes(rng, (0..token.utf8_len()).collect(), num_chars_to_change);
+            let mut chars = token.token().chars().collect::<Vec<char>>();
+            for idx in selected_chars_indexes {
+                let new_char = alphabet_model.get_random_char(true, self.capital_letters, rng);
+                chars[idx] = new_char;
+            }
+            let new_token = chars.iter().collect::<String>();
+            token.change(&new_token, *token.kind());
+
+            doc.num_changes += 1;
+        }
+
+        doc
     }
 
     fn delete(&self, mut doc: Doc, rng: &mut dyn rand::RngCore) -> Doc {
@@ -91,8 +172,11 @@ impl CharsRandomAugmenter {
 impl BaseTextAugmenter for CharsRandomAugmenter {}
 
 impl BaseAugmenter<String, Doc> for CharsRandomAugmenter {
+    #[allow(unreachable_patterns)]
     fn augment_inner(&self, input: Doc, rng: &mut dyn rand::RngCore) -> Doc {
         match self.action {
+            TextAction::Insert => self.insert(input, rng),
+            TextAction::Substitute => self.substitute(input, rng),
             TextAction::Delete => self.delete(input, rng),
             TextAction::Swap => self.swap(input, rng),
             _ => panic!("Action not implemented"),
@@ -113,6 +197,89 @@ mod tests {
     use super::*;
     use test_case::test_case;
 
+    #[test_case(vec!["AAAA", "BBBB", "CCCC", "DDDD", "EEEE"], 0.5, 0.5, 3 ; "round 2.5 as 3 words round 2.5 as 3 chars each")]
+    #[test_case(vec!["AAAA", "BBBB", "CCCC", "DDDD", "EEEE"], 0.0, 0.5, 0 ; "delete chars in 0 words - no changes")]
+    #[test_case(vec!["AAAA", "BBBB", "CCCC", "DDDD", "EEEE"], 0.5, 0.0, 0 ; "delete 0 chars - no changes")]
+    fn test_insert(input_tokens: Vec<&str>, words_p: f32, chars_p: f32, expected_doc_changes: usize) {
+        let mut doc = Doc::from_tokens(input_tokens);
+        let words_params = TextAugmentParameters::new(words_p, None, None);
+        let chars_params = TextAugmentParameters::new(chars_p, None, None);
+        let alphabet_model = AlphabetModel::from_locale_str("en");
+        let aug = CharsRandomAugmenter::new(
+            TextAction::Insert,
+            words_params,
+            chars_params,
+            None,
+            Some(alphabet_model),
+            false,
+        );
+
+        let doc_tokens_before = doc.tokens.clone();
+
+        doc = aug.insert(doc, &mut rand::thread_rng());
+
+        let doc_tokens_after = doc.tokens.clone();
+
+        if expected_doc_changes == 0 {
+            assert_eq!(doc_tokens_before, doc_tokens_after);
+        } else {
+            assert_eq!(doc_tokens_before.len(), doc_tokens_after.len());
+            assert_ne!(doc_tokens_before, doc_tokens_after);
+            assert_eq!(doc.num_changes, expected_doc_changes);
+        }
+
+        let mut num_changed_words = 0;
+        for (token_before, token_after) in doc_tokens_before.iter().zip(doc_tokens_after.iter()) {
+            if token_before.token() != token_after.token() {
+                assert!(token_before.token().len() < token_after.token().len());
+                num_changed_words += 1;
+            }
+        }
+        assert_eq!(num_changed_words, expected_doc_changes);
+    }
+
+    #[test_case(vec!["AAAA", "BBBB", "CCCC", "DDDD", "EEEE"], 0.5, 0.5, 3 ; "round 2.5 as 3 words round 2.5 as 3 chars each")]
+    #[test_case(vec!["AAAA", "BBBB", "CCCC", "DDDD", "EEEE"], 0.0, 0.5, 0 ; "delete chars in 0 words - no changes")]
+    #[test_case(vec!["AAAA", "BBBB", "CCCC", "DDDD", "EEEE"], 0.5, 0.0, 0 ; "delete 0 chars - no changes")]
+    fn test_substitute(input_tokens: Vec<&str>, words_p: f32, chars_p: f32, expected_doc_changes: usize) {
+        let mut doc = Doc::from_tokens(input_tokens);
+        let words_params = TextAugmentParameters::new(words_p, None, None);
+        let chars_params = TextAugmentParameters::new(chars_p, None, None);
+        let alphabet_model = AlphabetModel::from_locale_str("en");
+        let aug = CharsRandomAugmenter::new(
+            TextAction::Substitute,
+            words_params,
+            chars_params,
+            None,
+            Some(alphabet_model),
+            false,
+        );
+
+        let doc_tokens_before = doc.tokens.clone();
+
+        doc = aug.substitute(doc, &mut rand::thread_rng());
+
+        let doc_tokens_after = doc.tokens.clone();
+
+        if expected_doc_changes == 0 {
+            assert_eq!(doc_tokens_before, doc_tokens_after);
+        } else {
+            assert_eq!(doc_tokens_before.len(), doc_tokens_after.len());
+            assert_ne!(doc_tokens_before, doc_tokens_after);
+            assert_eq!(doc.num_changes, expected_doc_changes);
+        }
+
+        let mut num_changed_words = 0;
+        for (token_before, token_after) in doc_tokens_before.iter().zip(doc_tokens_after.iter()) {
+            if token_before.token() != token_after.token() {
+                assert_eq!(token_before.token().len(), token_after.token().len());
+                assert_ne!(token_before.token(), token_after.token());
+                num_changed_words += 1;
+            }
+        }
+        assert_eq!(num_changed_words, expected_doc_changes);
+    }
+
     #[test_case(vec!["AAAA", "BBBB", "CCCC", "DDDD", "EEEE"], 0.5, 0.5, 3, 3 ; "round 2.5 as 3 words round 2.5 as 3 chars each")]
     #[test_case(vec!["AAAA", "BBBB", "CCCC", "DDDD", "EEEE"], 0.0, 0.5, 0, 0 ; "delete chars in 0 words - no changes")]
     #[test_case(vec!["AAAA", "BBBB", "CCCC", "DDDD", "EEEE"], 0.5, 0.0, 0, 0 ; "delete 0 chars - no changes")]
@@ -126,7 +293,7 @@ mod tests {
         let mut doc = Doc::from_tokens(input_tokens);
         let words_params = TextAugmentParameters::new(words_p, None, None);
         let chars_params = TextAugmentParameters::new(chars_p, None, None);
-        let aug = CharsRandomAugmenter::new(TextAction::Delete, words_params, chars_params, None);
+        let aug = CharsRandomAugmenter::new(TextAction::Delete, words_params, chars_params, None, None, false);
 
         let doc_tokens_before = doc.tokens.clone();
 
@@ -159,7 +326,7 @@ mod tests {
         let mut doc = Doc::from_tokens(input_tokens);
         let words_params = TextAugmentParameters::new(words_p, None, None);
         let chars_params = TextAugmentParameters::new(chars_p, None, None);
-        let aug = CharsRandomAugmenter::new(TextAction::Swap, words_params, chars_params, None);
+        let aug = CharsRandomAugmenter::new(TextAction::Swap, words_params, chars_params, None, None, false);
 
         let doc_tokens_before = doc.tokens.clone();
 
@@ -191,7 +358,7 @@ mod tests {
         let mut doc = Doc::new(text);
         let words_params = TextAugmentParameters::new(1.0, None, None);
         let chars_params = TextAugmentParameters::new(0.3, None, None);
-        let aug = CharsRandomAugmenter::new(TextAction::Swap, words_params, chars_params, None);
+        let aug = CharsRandomAugmenter::new(TextAction::Swap, words_params, chars_params, None, None, false);
 
         let doc_tokens_before = doc.tokens.clone();
 
