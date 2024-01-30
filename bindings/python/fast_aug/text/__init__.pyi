@@ -34,9 +34,9 @@ class CharsRandomAugmenter(BaseTextAugmenter):
     """
     Randomly augment chars in the words
     :param action: The action to perform - insert, substitute, swap, delete
-    :param aug_params_word: The parameters for the word augmentation
+    :param word_params: The parameters for the word augmentation
         - probability or (probability, min_elements, max_elements)
-    :param aug_params_char: The parameters for the char augmentation
+    :param char_params: The parameters for the char augmentation
         - probability or (probability, min_elements, max_elements)
     :param stopwords: The set of stopwords to ignore
     :param locale: The locale string to use for alphabet, optional. Required for insert and substitute
@@ -45,8 +45,8 @@ class CharsRandomAugmenter(BaseTextAugmenter):
     def __init__(
         self,
         action: str | TextAction,
-        aug_params_word: float | tuple[float, int | None, int | None] | None = None,
-        aug_params_char: float | tuple[float, int | None, int | None] | None = None,
+        word_params: float | tuple[float, int | None, int | None] | None = None,
+        char_params: float | tuple[float, int | None, int | None] | None = None,
         stopwords: set[str] | None = None,
         locale: str | None = None,
     ) -> None:
@@ -70,7 +70,7 @@ class WordsRandomAugmenter(BaseTextAugmenter):
     """
     Randomly augment the words
     :param action: The action to perform - insert, substitute, swap, delete
-    :param aug_params_word: The parameters for the word augmentation
+    :param word_params: The parameters for the word augmentation
         - probability or (probability, min_elements, max_elements)
     :param stopwords: The set of stopwords to ignore
     :param vocab: The optional vocabulary to use for insert and substitute
@@ -79,7 +79,7 @@ class WordsRandomAugmenter(BaseTextAugmenter):
     def __init__(
         self,
         action: str | TextAction,
-        aug_params_word: float | tuple[float, int | None, int | None] | None = None,
+        word_params: float | tuple[float, int | None, int | None] | None = None,
         stopwords: set[str] | None = None,
         vocabulary: list[str] | None = None,
     ) -> None:

@@ -53,7 +53,7 @@ def test_init_vocabulary_error() -> None:
 def test_init_words_params(words_params: float | tuple[float, int | None, int | None] | None) -> None:
     WordsRandomAugmenter(TextAction.DELETE, words_params)
     WordsRandomAugmenter(TextAction.DELETE, words_params, None)
-    WordsRandomAugmenter(TextAction.DELETE, aug_params_word=words_params)
+    WordsRandomAugmenter(TextAction.DELETE, word_params=words_params)
 
 
 @pytest.mark.parametrize(

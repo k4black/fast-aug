@@ -44,7 +44,7 @@ def test_init_action_error() -> None:
 def test_init_words_params(words_params: float | tuple[float, int | None, int | None] | None) -> None:
     CharsRandomAugmenter(TextAction.DELETE, words_params)
     CharsRandomAugmenter(TextAction.DELETE, words_params, None)
-    CharsRandomAugmenter(TextAction.DELETE, aug_params_word=words_params)
+    CharsRandomAugmenter(TextAction.DELETE, word_params=words_params)
 
 
 @pytest.mark.parametrize(
@@ -61,8 +61,8 @@ def test_init_words_params(words_params: float | tuple[float, int | None, int | 
 )
 def test_init_chars_params(chars_params: float | tuple[float, int | None, int | None] | None) -> None:
     CharsRandomAugmenter(TextAction.DELETE, None, chars_params)
-    CharsRandomAugmenter(TextAction.DELETE, None, aug_params_char=chars_params)
-    CharsRandomAugmenter(TextAction.DELETE, aug_params_char=chars_params)
+    CharsRandomAugmenter(TextAction.DELETE, None, char_params=chars_params)
+    CharsRandomAugmenter(TextAction.DELETE, char_params=chars_params)
 
 
 @pytest.mark.parametrize(

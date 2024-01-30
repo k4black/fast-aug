@@ -18,7 +18,7 @@ pub struct EmbeddingsWordsAugmenter {
     /// Action to augmentation, set of values {'substitute', 'swap', 'delete'}
     action: TextAction,
     /// Parameters to calculate number of words that will be augmented
-    aug_params_word: TextAugmentParameters,
+    word_params: TextAugmentParameters,
     /// Filter, Set of words that cannot be augmented
     stopwords: Option<HashSet<String>>,
     /// top k similar words to substitute
@@ -29,7 +29,7 @@ pub struct EmbeddingsWordsAugmenter {
 impl EmbeddingsWordsAugmenter {
     pub fn new(
         embeddings_path: &str,
-        aug_params_word: TextAugmentParameters,
+        word_params: TextAugmentParameters,
         stopwords: Option<HashSet<String>>,
         top_k: usize,
     ) -> Self {
@@ -43,7 +43,7 @@ impl EmbeddingsWordsAugmenter {
         EmbeddingsWordsAugmenter {
             embeddings: Arc::new(embeddings_1),
             action: TextAction::Substitute,
-            aug_params_word,
+            word_params,
             stopwords,
             top_k,
         }
@@ -52,7 +52,7 @@ impl EmbeddingsWordsAugmenter {
     fn substitute(&self, mut doc: Doc, rng: &mut dyn rand::RngCore) -> Doc {
         // Select random word tokens
         let word_tokens_indexes = doc.get_word_indexes(false, self.stopwords.as_ref());
-        let num_tokens_to_change = self.aug_params_word.num_elements(word_tokens_indexes.len());
+        let num_tokens_to_change = self.word_params.num_elements(word_tokens_indexes.len());
         let selected_tokens_indexes = self.select_random_element_indexes(rng, word_tokens_indexes, num_tokens_to_change);
 
         // For all selected tokens select some random similar word and substitute

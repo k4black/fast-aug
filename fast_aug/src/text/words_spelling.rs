@@ -9,16 +9,16 @@ pub struct WordsSpellingAugmenter {
     /// Action to augmentation, set of values {'substitute', 'swap', 'delete'}
     action: TextAction,
     /// Parameters to calculate number of words that will be augmented
-    aug_params_word: TextAugmentParameters,
+    word_params: TextAugmentParameters,
     /// Filter, Set of words that cannot be augmented
     stopwords: Option<HashSet<String>>,
 }
 
 impl WordsSpellingAugmenter {
-    pub fn new(aug_params_word: TextAugmentParameters, stopwords: Option<HashSet<String>>) -> Self {
+    pub fn new(word_params: TextAugmentParameters, stopwords: Option<HashSet<String>>) -> Self {
         WordsSpellingAugmenter {
             action: TextAction::Substitute,
-            aug_params_word,
+            word_params,
             stopwords,
         }
     }
@@ -26,7 +26,7 @@ impl WordsSpellingAugmenter {
     fn substitute(&self, mut doc: Doc, rng: &mut dyn rand::RngCore) -> Doc {
         // Select random word tokens
         let word_tokens_indexes = doc.get_word_indexes(false, self.stopwords.as_ref());
-        let num_tokens_to_change = self.aug_params_word.num_elements(word_tokens_indexes.len());
+        let num_tokens_to_change = self.word_params.num_elements(word_tokens_indexes.len());
         let selected_tokens_indexes =
             self.select_random_element_indexes(rng, word_tokens_indexes, num_tokens_to_change);
 

@@ -8,9 +8,9 @@ pub struct CharsRandomAugmenter {
     /// Action to augmentation, set of values {'insert', 'substitute', 'swap', 'delete'}
     action: TextAction,
     /// Parameters to calculate number of words that will be augmented
-    aug_params_word: TextAugmentParameters,
+    word_params: TextAugmentParameters,
     /// Parameters to calculate number of chars that will be augmented in each word
-    aug_params_char: TextAugmentParameters,
+    char_params: TextAugmentParameters,
     /// Filter, Set of words that cannot be augmented
     stopwords: Option<HashSet<String>>,
     /// Optional Alphabet Model to use for insert and substitute actions
@@ -23,8 +23,8 @@ pub struct CharsRandomAugmenter {
 impl CharsRandomAugmenter {
     pub fn new(
         action: TextAction,
-        aug_params_word: TextAugmentParameters,
-        aug_params_char: TextAugmentParameters,
+        word_params: TextAugmentParameters,
+        char_params: TextAugmentParameters,
         stopwords: Option<HashSet<String>>,
         alphabet_model: Option<AlphabetModel>,
         capital_letters: bool,
@@ -39,8 +39,8 @@ impl CharsRandomAugmenter {
 
         CharsRandomAugmenter {
             action,
-            aug_params_word,
-            aug_params_char,
+            word_params,
+            char_params,
             stopwords,
             alphabet_model,
             capital_letters,
@@ -50,7 +50,7 @@ impl CharsRandomAugmenter {
     fn insert(&self, mut doc: Doc, rng: &mut dyn rand::RngCore) -> Doc {
         // Select random word tokens
         let word_tokens_indexes = doc.get_word_indexes(false, self.stopwords.as_ref());
-        let num_tokens_to_change = self.aug_params_word.num_elements(word_tokens_indexes.len());
+        let num_tokens_to_change = self.word_params.num_elements(word_tokens_indexes.len());
         let selected_tokens_indexes =
             self.select_random_element_indexes(rng, word_tokens_indexes, num_tokens_to_change);
 
@@ -60,7 +60,7 @@ impl CharsRandomAugmenter {
         // For all selected tokens select random chars and insert them
         for token_index in selected_tokens_indexes {
             let token = &mut doc.tokens[token_index];
-            let num_chars_to_change = self.aug_params_char.num_elements(token.utf8_len());
+            let num_chars_to_change = self.char_params.num_elements(token.utf8_len());
 
             // TODO: check and possibly speedup
             let selected_chars_indexes =
@@ -82,7 +82,7 @@ impl CharsRandomAugmenter {
     fn substitute(&self, mut doc: Doc, rng: &mut dyn rand::RngCore) -> Doc {
         // Select random word tokens
         let word_tokens_indexes = doc.get_word_indexes(false, self.stopwords.as_ref());
-        let num_tokens_to_change = self.aug_params_word.num_elements(word_tokens_indexes.len());
+        let num_tokens_to_change = self.word_params.num_elements(word_tokens_indexes.len());
         let selected_tokens_indexes =
             self.select_random_element_indexes(rng, word_tokens_indexes, num_tokens_to_change);
 
@@ -92,7 +92,7 @@ impl CharsRandomAugmenter {
         // For all selected tokens select random chars and substitute them
         for token_index in selected_tokens_indexes {
             let token = &mut doc.tokens[token_index];
-            let num_chars_to_change = self.aug_params_char.num_elements(token.utf8_len());
+            let num_chars_to_change = self.char_params.num_elements(token.utf8_len());
 
             let selected_chars_indexes =
                 self.select_random_element_indexes(rng, (0..token.utf8_len()).collect(), num_chars_to_change);
@@ -113,14 +113,14 @@ impl CharsRandomAugmenter {
     fn delete(&self, mut doc: Doc, rng: &mut dyn rand::RngCore) -> Doc {
         // Select random word tokens
         let word_tokens_indexes = doc.get_word_indexes(false, self.stopwords.as_ref());
-        let num_tokens_to_change = self.aug_params_word.num_elements(word_tokens_indexes.len());
+        let num_tokens_to_change = self.word_params.num_elements(word_tokens_indexes.len());
         let selected_tokens_indexes =
             self.select_random_element_indexes(rng, word_tokens_indexes, num_tokens_to_change);
 
         // For all selected tokens select random chars and remove them
         for token_index in selected_tokens_indexes {
             let token = &mut doc.tokens[token_index];
-            let num_chars_to_change = self.aug_params_char.num_elements(token.utf8_len());
+            let num_chars_to_change = self.char_params.num_elements(token.utf8_len());
 
             let selected_chars_indexes =
                 self.select_random_element_indexes(rng, (0..token.utf8_len()).collect(), num_chars_to_change);
@@ -142,14 +142,14 @@ impl CharsRandomAugmenter {
         // TODO: adjacent, middle, random swaps (now only random)
         // Select random word tokens
         let word_tokens_indexes = doc.get_word_indexes(false, self.stopwords.as_ref());
-        let num_tokens_to_change = self.aug_params_word.num_elements(word_tokens_indexes.len());
+        let num_tokens_to_change = self.word_params.num_elements(word_tokens_indexes.len());
         let selected_tokens_indexes =
             self.select_random_element_indexes(rng, word_tokens_indexes, num_tokens_to_change);
 
         // For all selected tokens select random chars and swap them
         for token_index in selected_tokens_indexes {
             let token = &mut doc.tokens[token_index];
-            let num_chars_to_change = self.aug_params_char.num_elements(token.utf8_len());
+            let num_chars_to_change = self.char_params.num_elements(token.utf8_len());
 
             let selected_chars_indexes =
                 self.select_random_element_indexes(rng, (0..token.utf8_len()).collect(), num_chars_to_change);

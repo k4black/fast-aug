@@ -102,9 +102,9 @@ impl PyBaseTextAugmenter {
 
 /// Randomly augment chars in the words
 /// :param action: The action to perform - insert, substitute, swap, delete
-/// :param aug_params_word: The parameters for the word augmentation
+/// :param word_params: The parameters for the word augmentation
 ///     - probability or (probability, min_elements, max_elements)
-/// :param aug_params_char: The parameters for the char augmentation
+/// :param char_params: The parameters for the char augmentation
 ///     - probability or (probability, min_elements, max_elements)
 /// :param stopwords: The set of stopwords to ignore
 /// :param locale: The locale string to use for alphabet, optional. Required for insert and substitute
@@ -116,12 +116,12 @@ pub struct PyCharsRandomAugmenter;
 impl PyCharsRandomAugmenter {
     #[new]
     #[pyo3(
-        text_signature = "(self, action: str | TextAction, aug_params_word: float | tuple[float, int | None, int | None] | None = None, aug_params_char: float | tuple[float, int | None, int | None] | None = None, stopwords: set[str] | None = None, locale: str | None = None)"
+        text_signature = "(self, action: str | TextAction, word_params: float | tuple[float, int | None, int | None] | None = None, char_params: float | tuple[float, int | None, int | None] | None = None, stopwords: set[str] | None = None, locale: str | None = None)"
     )]
     fn py_new(
         action: PyConvertTextAction,
-        aug_params_word: Option<PyConvertTextAugmentParameters>,
-        aug_params_char: Option<PyConvertTextAugmentParameters>,
+        word_params: Option<PyConvertTextAugmentParameters>,
+        char_params: Option<PyConvertTextAugmentParameters>,
         stopwords: Option<HashSet<String>>,
         locale: Option<String>,
     ) -> PyResult<PyClassInitializer<Self>> {
@@ -133,11 +133,11 @@ impl PyCharsRandomAugmenter {
             return Err(PyErr::new::<PyValueError, _>("Action not implemented"));
         }
         let action = action.unwrap();
-        let aug_params_word = match aug_params_word {
+        let word_params = match word_params {
             Some(p) => p.into(),
             None => TextAugmentParameters::default(),
         };
-        let aug_params_char = match aug_params_char {
+        let char_params = match char_params {
             Some(p) => p.into(),
             None => TextAugmentParameters::default(),
         };
@@ -159,8 +159,8 @@ impl PyCharsRandomAugmenter {
         // Create Rust object of AugmenterTypes
         let rust_augmenter = AugmenterTypes::Text(Arc::new(CharsRandomAugmenter::new(
             action,
-            aug_params_word,
-            aug_params_char,
+            word_params,
+            char_params,
             stopwords,
             alphabet_model,
             false,
@@ -217,7 +217,7 @@ impl PyCharsRandomAugmenter {
 
 /// Randomly augment the words
 /// :param action: The action to perform - insert, substitute, swap, delete
-/// :param aug_params_word: The parameters for the word augmentation
+/// :param word_params: The parameters for the word augmentation
 ///     - probability or (probability, min_elements, max_elements)
 /// :param stopwords: The set of stopwords to ignore
 /// :param vocab: The optional vocabulary to use for insert and substitute
@@ -229,11 +229,11 @@ pub struct PyWordsRandomAugmenter;
 impl PyWordsRandomAugmenter {
     #[new]
     #[pyo3(
-        text_signature = "(self, action: str | TextAction, aug_params_word: float | tuple[float, int | None, int | None] | None = None, stopwords: set[str] | None = None, vocabulary: list[str] | None = None)"
+        text_signature = "(self, action: str | TextAction, word_params: float | tuple[float, int | None, int | None] | None = None, stopwords: set[str] | None = None, vocabulary: list[str] | None = None)"
     )]
     fn py_new(
         action: PyConvertTextAction,
-        aug_params_word: Option<PyConvertTextAugmentParameters>,
+        word_params: Option<PyConvertTextAugmentParameters>,
         stopwords: Option<HashSet<String>>,
         vocabulary: Option<Vec<String>>,
     ) -> PyResult<PyClassInitializer<Self>> {
@@ -245,7 +245,7 @@ impl PyWordsRandomAugmenter {
             return Err(PyErr::new::<PyValueError, _>("Action not implemented"));
         }
         let action = action.unwrap();
-        let aug_params_word = match aug_params_word {
+        let word_params = match word_params {
             Some(p) => p.into(),
             None => TextAugmentParameters::default(),
         };
@@ -264,7 +264,7 @@ impl PyWordsRandomAugmenter {
         // Create Rust object of AugmenterTypes
         let rust_augmenter = AugmenterTypes::Text(Arc::new(WordsRandomAugmenter::new(
             action,
-            aug_params_word,
+            word_params,
             stopwords,
             vocabulary,
         )));

@@ -9,9 +9,9 @@ pub struct CharsKeyboardAugmenter {
     /// Action to augmentation, set of values {'substitute', 'swap', 'delete'}
     action: TextAction,
     /// Parameters to calculate number of words that will be augmented
-    aug_params_word: TextAugmentParameters,
+    word_params: TextAugmentParameters,
     /// Parameters to calculate number of chars that will be augmented in each word
-    aug_params_char: TextAugmentParameters,
+    char_params: TextAugmentParameters,
     /// Filter, Set of words that cannot be augmented
     stopwords: Option<HashSet<String>>,
 }
@@ -19,14 +19,14 @@ pub struct CharsKeyboardAugmenter {
 impl CharsKeyboardAugmenter {
     pub fn new(
         action: TextAction,
-        aug_params_word: TextAugmentParameters,
-        aug_params_char: TextAugmentParameters,
+        word_params: TextAugmentParameters,
+        char_params: TextAugmentParameters,
         stopwords: Option<HashSet<String>>,
     ) -> Self {
         CharsKeyboardAugmenter {
             action,
-            aug_params_word,
-            aug_params_char,
+            word_params,
+            char_params,
             stopwords,
         }
     }
@@ -39,7 +39,7 @@ impl CharsKeyboardAugmenter {
         // TODO: adjacent, middle, random swaps (now only random)
         // Select random word tokens
         let word_tokens_indexes = doc.get_word_indexes(false, self.stopwords.as_ref());
-        let num_tokens_to_change = self.aug_params_word.num_elements(word_tokens_indexes.len());
+        let num_tokens_to_change = self.word_params.num_elements(word_tokens_indexes.len());
         let selected_tokens_indexes =
             self.select_random_element_indexes(rng, word_tokens_indexes, num_tokens_to_change);
 
