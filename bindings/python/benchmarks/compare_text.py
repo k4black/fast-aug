@@ -48,7 +48,7 @@ def ram_info() -> None:
     print(f"  Total: {ram.total / 2**30:.0f}GB")
 
 
-def measure_function_time(queue: Queue, function: Callable, *args: Any, **kwargs: Any) -> None:
+def measure_function_time(queue: Queue, function: Callable, *args: Any, **kwargs: Any) -> None:  # type: ignore
     time.sleep(0.5)  # delay for 500 ms for more accurate RAM measurement
 
     try:
@@ -63,7 +63,10 @@ def measure_function_time(queue: Queue, function: Callable, *args: Any, **kwargs
     queue.put(elapsed)
 
 
-def monitor_process(pid: int, time_limit: int = 30) -> int | None:
+def monitor_process(pid: int | None, time_limit: int = 30) -> int | None:
+    if pid is None:
+        return None
+
     p = psutil.Process(pid)
     start_time = time.perf_counter()
     max_memory = 0
@@ -87,7 +90,7 @@ def monitor_process(pid: int, time_limit: int = 30) -> int | None:
 
 
 def measure_function_time_repeat(
-    name: str, method_name: str, repeat: int, function: Callable, args: Any, kwargs: Any
+    name: str, method_name: str, repeat: int, function: Callable, args: Any, kwargs: Any  # type: ignore
 ) -> pd.DataFrame:
     results: list[dict[str, Any]] = []
 
@@ -136,7 +139,7 @@ def run_fast_aug(cls_str: str, cls_args: Any, cls_kwargs: Any, batched: bool) ->
     cls = getattr(module, class_name)
 
     text_data = get_text_data()
-    augmenter = cls(*cls_args, **cls_kwargs)  # type: ignore
+    augmenter = cls(*cls_args, **cls_kwargs)
     if batched:
         augmenter.augment_batch(text_data)
     else:
@@ -162,7 +165,7 @@ def run_nlpaug(cls_str: str, cls_args: Any, cls_kwargs: Any, batched: bool) -> N
     cls = getattr(module, class_name)
 
     text_data = get_text_data()
-    augmenter = cls(*cls_args, **cls_kwargs)  # type: ignore
+    augmenter = cls(*cls_args, **cls_kwargs)
     if batched:
         augmenter.augment(text_data)
     else:
@@ -188,7 +191,7 @@ def run_fasttextaug(cls_str: str, cls_args: Any, cls_kwargs: Any, batched: bool)
     cls = getattr(module, class_name)
 
     text_data = get_text_data()
-    augmenter = cls(*cls_args, **cls_kwargs)  # type: ignore
+    augmenter = cls(*cls_args, **cls_kwargs)
     if batched:
         augmenter.augment(text_data)
     else:
