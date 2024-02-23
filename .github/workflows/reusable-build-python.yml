@@ -1,0 +1,61 @@
+name: Build wheels
+
+on:
+  workflow_call:
+    inputs:
+      WORKING_DIRECTORY:
+        required: false
+        type: string
+      VERSION:
+        required: false
+        type: string
+
+jobs:
+  build-wheels:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        target: [x86_64, aarch64]
+        interpreters: ["3.8 3.9 3.10 3.11 3.12"]
+        # windows/aaarch64 not supported yet
+        exclude:
+          - os: windows-latest
+            target: aarch64
+      fail-fast: false
+    name: Build wheels on ${{ matrix.os }}/${{ matrix.target }} for python ${{ matrix.interpreters }}
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install rust stable
+        uses: dtolnay/rust-toolchain@stable
+      - name: Cache rust
+        uses: Swatinem/rust-cache@v2
+        with:
+          key: ${{ runner.os }}-rust-${{ hashFiles('**/Cargo.toml') }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: 3.12
+          cache: 'pip'
+      - name: Set up QEMU
+        if: ${{ matrix.os == 'ubuntu-latest' }}
+        uses: docker/setup-qemu-action@v3
+        with:
+          platforms: all
+      - name: Build wheels for python ${{ matrix.interpreters }}
+        uses: PyO3/maturin-action@v1
+        with:
+          target: ${{ matrix.target }}
+          manylinux: auto
+          rust-toolchain: stable
+          docker-options: -e CI
+          args: --release --out wheelhouse --interpreter '${{ matrix.interpreters }}'
+          working-directory: ${{ inputs.WORKING_DIRECTORY || '.' }}
+          sccache: true
+      - name: List wheels
+        working-directory: ${{ inputs.WORKING_DIRECTORY || '.' }}
+        shell: bash
+        run: ls -lah ./wheelhouse
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wheels-${{ matrix.os }}-${{ matrix.target }}
+          path: ${{ inputs.WORKING_DIRECTORY || '.' }}/wheelhouse/*.whl

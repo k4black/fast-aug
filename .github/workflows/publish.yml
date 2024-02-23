@@ -1,0 +1,49 @@
+name: Publish
+
+on:
+  release:
+    types:
+      - created
+#  push:
+#    branches:
+#      - main  # TEST PURPOSES ONLY
+
+jobs:
+  publish-rust:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install rust stable
+        uses: dtolnay/rust-toolchain@stable
+      - name: Cache rust
+        uses: Swatinem/rust-cache@v2
+        with:
+          key: ${{ runner.os }}-rust-${{ hashFiles('**/Cargo.toml') }}
+#      - run: cargo publish --token ${CRATES_TOKEN}
+#        env:
+#          CRATES_TOKEN: ${{ secrets.CRATES_TOKEN }}
+
+  external-build-python:
+    uses: ./.github/workflows/reusable-build-python.yml
+    with:
+      WORKING_DIRECTORY: "bindings/python"
+    secrets: inherit
+
+  publish-python:
+    needs: [external-build-python]
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/p/codebleu
+    permissions:
+      id-token: write  # IMPORTANT: this permission is mandatory for trusted publishing
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: wheels-*
+          merge-multiple: true
+          path: dist
+      - name: List wheels
+        shell: bash
+        run: ls -lah ./dist
+#      - uses: pypa/gh-action-pypi-publish@release/v1

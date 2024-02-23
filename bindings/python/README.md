@@ -1,12 +1,41 @@
 # fast-aug - python bindings
 
-[![Test Rust library](https://github.com/k4black/fast-aug/actions/workflows/test-rust.yml/badge.svg?branch=main&event=push)](https://github.com/k4black/fast-aug/actions/workflows/test-rust.yml)
-[![Test Python bindings](https://github.com/k4black/fast-aug/actions/workflows/test-python.yml/badge.svg?branch=main&event=push)](https://github.com/k4black/fast-aug/actions/workflows/test-python.yml)
+![Python Test Workflow Status](https://img.shields.io/github/actions/workflow/status/k4black/fast-aug/test-python.yml?branch=main&event=push&label=python%20tests)
+![PyPI - Version](https://img.shields.io/pypi/v/fast-aug)
+![GitHub License](https://img.shields.io/github/license/k4black/fast-aug)
+
+`fast-aug` is a library for fast text augmentation, available for both Rust and Python as `fast-aug`.  
+It is designed with focus on performance and real-time usage (e.g. during training), while providing a wide range of text augmentation methods.
+
+Note: **x25** times faster than `nlpaug`!
 
 ---
 
-The `fast-aug` library **x25** times faster than `nlpaug`!
 
+## Installation
+
+`fast-aug` is available on [PyPI](https://pypi.org/project/fast-aug).
+
+```shell
+pip install fast-aug
+```
+
+## Usage
+
+```python
+from fast_aug import CharsRandomSwapAugmenter
+
+text_data = "Some text!"
+augmenter = CharsRandomSwapAugmenter(
+    0.5,  # probability of words selection
+    0.5,  # probability of characters selection
+    None,  # stopwords
+)
+assert augmenter.augment(text_data) != text_data
+assert augmenter.augment([text_data]) != [text_data]
+```
+
+TBA
 
 ## Performance Comparison
 
@@ -31,10 +60,7 @@ All libs compared on [tweeteval dataset](https://github.com/cardiffnlp/tweeteval
 Note: dataset text file size is 1.1Mb, it is included in the memory usage.
 
 
-## Development
+## Contributing and Development
 
-Please see the GitHub repository README for mo info [fast-aug](https://github.com/k4black/fast-aug).
-
-For building and profiling see `Makefile` in the project root.
-
-TBA
+Any contribution is warmly welcomed!  
+Please see the GitHub repository README at [fast-aug](https://github.com/k4black/fast-aug).

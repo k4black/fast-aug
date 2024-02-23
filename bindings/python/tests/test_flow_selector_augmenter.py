@@ -1,4 +1,6 @@
-from typing import Any, List, Optional
+from __future__ import annotations
+
+from typing import Any
 
 import pytest
 
@@ -18,7 +20,7 @@ from fast_aug.text import CharsRandomDeleteAugmenter, WordsRandomDeleteAugmenter
         ],
     ],
 )
-def test_init_augmenters(augmenters: List[BaseAugmenter]) -> None:
+def test_init_augmenters(augmenters: list[BaseAugmenter]) -> None:
     SelectorAugmenter(augmenters)
 
 
@@ -48,7 +50,7 @@ def test_init_wrong_augmenters(augmenters: Any) -> None:
         [-0.1, 1.1],
     ],
 )
-def test_init_weights(weights: Optional[List[float]]) -> None:
+def test_init_weights(weights: list[float] | None) -> None:
     augmenters = [WordsRandomDeleteAugmenter(0.3), CharsRandomDeleteAugmenter(0.3, 0.3)]
     SelectorAugmenter(augmenters, weights)
 

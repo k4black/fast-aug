@@ -1,15 +1,20 @@
 # fast-aug
 
-[![Test Rust library](https://github.com/k4black/fast-aug/actions/workflows/test-rust.yml/badge.svg?branch=main&event=push)](https://github.com/k4black/fast-aug/actions/workflows/test-rust.yml)
-[![Test Python bindings](https://github.com/k4black/fast-aug/actions/workflows/test-python.yml/badge.svg?branch=main&event=push)](https://github.com/k4black/fast-aug/actions/workflows/test-python.yml)
+![Rust Test Workflow Status](https://img.shields.io/github/actions/workflow/status/k4black/fast-aug/test-rust.yml?branch=main&event=push&label=rust%20tests)
+![Python Test Workflow Status](https://img.shields.io/github/actions/workflow/status/k4black/fast-aug/test-python.yml?branch=main&event=push&label=python%20tests)
+
+![Crates.io Version](https://img.shields.io/crates/v/fast-aug)
+![PyPI - Version](https://img.shields.io/pypi/v/fast-aug)
+![GitHub License](https://img.shields.io/github/license/k4black/fast-aug)
+
+`fast-aug` is a library for fast text augmentation, available for both Rust and Python as `fast-aug`.  
+It is designed with focus on performance and real-time usage (e.g. during training), while providing a wide range of text augmentation methods.
 
 ---
 
-TBA
-
-
-* See [fast_aug/README.md](fast_aug/README.md) for rust library details.
-* See [bindings/python/README.md](bindings/python/README.md) for python library details.
+Please refer to respective READMEs for details:
+* `rust` - see [fast_aug/README.md](fast_aug/README.md);
+* `python` - see [bindings/python/README.md](bindings/python/README.md).
 
 
 ## Features and TODO
@@ -26,6 +31,7 @@ Text
 - [ ] RandomCharsAugmenter
     - [x] Base - swaps/deletions
     - [x] Insertions/Substitutions (from provided list)
+    - [ ] Insertions/Substitutions (from vocab by language tag)
 - [ ] RandomSpellingAugmenter
 - [ ] RandomKeyboardAugmenter
 - [ ] RandomEmbeddingsAugmenter
@@ -48,6 +54,7 @@ Models and utils
   - [ ] json file loading
   - [ ] sklearn model loading
 - [x] Alphabet model
+- [ ] Language Vocab model
 - [ ] Embeddings model
   - [ ] fasttext model loading
   - [ ] word2vec model loading
@@ -68,7 +75,7 @@ Rust
 
 
 Python 
-- [ ] Custom Python Augmenter class
+- [ ] Custom Python Augmenter class (user provided to use in pipelines)
 - [ ] Bindings with 
   - [x] Base pyo3 bindings
   - [x] [maturin](https://github.com/PyO3/maturin) auto build from pyproject.toml
@@ -93,6 +100,7 @@ This repo uses [git-lfs](https://git-lfs.github.com/) for test data storage. You
 git clone git@github.com:k4black/fast-aug.git
 cd fast-aug
 git lfs install
+git lfs pull
 ```
 
 For rust library development:
@@ -123,3 +131,7 @@ cat test_data/tweet_eval_sentiment_test_text.txt | wc
 12284  182576 1156877
 ```
 
+
+## License
+
+This project and respective libraries are licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
