@@ -1,4 +1,3 @@
-# Reduce noise, actually improve perf in our case.
 import os
 from pathlib import Path
 
@@ -6,6 +5,7 @@ from pytest_benchmark.fixture import BenchmarkFixture
 
 from fast_aug.base import BaseAugmenter
 
+# Reduce noise
 os.environ["OPENBLAS_NUM_THREADS"] = "1"
 
 

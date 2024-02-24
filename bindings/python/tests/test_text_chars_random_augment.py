@@ -93,7 +93,7 @@ def test_input_changes(augmenter: BaseTextAugmenter) -> None:
         "word some tes1",
         "Some sent1Nc2",
         "Some sent1Nc2 with 5 words!",
-        "This is 2nd sent1Nc2s. This is the second sent1Nc2.",
+        "This abcis 2ndd sent1Nc2s. This abcis the123 second sent1Nc2.",
     ]
 
     for text in texts:
@@ -115,7 +115,7 @@ def test_input_changes_batch(augmenter: BaseTextAugmenter) -> None:
         "word some tes1",
         "Some sent1Nc2",
         "Some sent1Nc2 with 5 words!",
-        "This is 2nd sent1Nc2s. This is the second sent1Nc2.",
+        "This abcis 2ndd sent1Nc2s. This abcis the123 second sent1Nc2.",
     ]
 
     output = augmenter.augment_batch(texts)
