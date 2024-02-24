@@ -1,11 +1,12 @@
 # fast-aug
 
-![Rust Test Workflow Status](https://img.shields.io/github/actions/workflow/status/k4black/fast-aug/test-rust.yml?branch=main&event=push&label=rust%20tests)
-![Python Test Workflow Status](https://img.shields.io/github/actions/workflow/status/k4black/fast-aug/test-python.yml?branch=main&event=push&label=python%20tests)
+[![Rust Test Workflow Status](https://img.shields.io/github/actions/workflow/status/k4black/fast-aug/test-rust.yml?branch=main&event=push&label=rust%20tests)](https://github.com/k4black/fast-aug/actions/workflows/test-rust.yml)
+[![Python Test Workflow Status](https://img.shields.io/github/actions/workflow/status/k4black/fast-aug/test-python.yml?branch=main&event=push&label=python%20tests)](https://github.com/k4black/fast-aug/actions/workflows/test-python.yml)
 
-![Crates.io Version](https://img.shields.io/crates/v/fast-aug)
-![PyPI - Version](https://img.shields.io/pypi/v/fast-aug)
-![GitHub License](https://img.shields.io/github/license/k4black/fast-aug)
+[![Crates.io Version](https://img.shields.io/crates/v/fast-aug)](https://crates.io/crates/fast-aug)
+[![PyPI - Version](https://img.shields.io/pypi/v/fast-aug)](https://pypi.org/project/fast-aug/)
+[![GitHub License](https://img.shields.io/github/license/k4black/fast-aug)](https://github.com/k4black/fast-aug/blob/main/LICENSE)
+
 
 `fast-aug` is a library for fast text augmentation, available for both Rust and Python as `fast-aug`.  
 It is designed with focus on performance and real-time usage (e.g. during training), while providing a wide range of text augmentation methods.
