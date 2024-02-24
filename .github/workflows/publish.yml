@@ -17,6 +17,7 @@ jobs:
         with:
           key: ${{ runner.os }}-rust-${{ hashFiles('**/Cargo.toml') }}
       - run: cargo publish --token ${CRATES_TOKEN}
+        working-directory: fast_aug
         env:
           CRATES_TOKEN: ${{ secrets.CRATES_TOKEN }}
 
