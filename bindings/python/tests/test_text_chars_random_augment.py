@@ -91,9 +91,9 @@ def test_init_locale_error(locale: str | None) -> None:
 def test_input_changes(augmenter: BaseTextAugmenter) -> None:
     texts = [
         "word some test",
-        "Some sentence",
-        "Some sentence with 5 words!",
-        "This is 2 sentences. This is the second sentence.",
+        "Some sent1nc2",
+        "Some sent1nc2 with 5 words!",
+        "This is 2nd sent1nc2s. This is the second sent1nc2.",
     ]
 
     for text in texts:
@@ -113,9 +113,9 @@ def test_input_changes(augmenter: BaseTextAugmenter) -> None:
 def test_input_changes_batch(augmenter: BaseTextAugmenter) -> None:
     texts = [
         "word some test",
-        "Some sentence",
-        "Some sentence with 5 words!",
-        "This is 2 sentences. This is the second sentence.",
+        "Some sent1nc2",
+        "Some sent1nc2 with 5 words!",
+        "This is 2nd sentences. This is the second sentence.",
     ]
 
     output = augmenter.augment_batch(texts)
