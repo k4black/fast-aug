@@ -4,9 +4,6 @@ on:
   release:
     types:
       - created
-#  push:
-#    branches:
-#      - main  # TEST PURPOSES ONLY
 
 jobs:
   publish-rust:
@@ -19,9 +16,9 @@ jobs:
         uses: Swatinem/rust-cache@v2
         with:
           key: ${{ runner.os }}-rust-${{ hashFiles('**/Cargo.toml') }}
-#      - run: cargo publish --token ${CRATES_TOKEN}
-#        env:
-#          CRATES_TOKEN: ${{ secrets.CRATES_TOKEN }}
+      - run: cargo publish --token ${CRATES_TOKEN}
+        env:
+          CRATES_TOKEN: ${{ secrets.CRATES_TOKEN }}
 
   external-build-python:
     uses: ./.github/workflows/reusable-build-python.yml
@@ -46,4 +43,4 @@ jobs:
       - name: List wheels
         shell: bash
         run: ls -lah ./dist
-#      - uses: pypa/gh-action-pypi-publish@release/v1
+      - uses: pypa/gh-action-pypi-publish@release/v1
