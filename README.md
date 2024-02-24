@@ -96,12 +96,10 @@ Python
 
 ### Prerequisites
 
-This repo uses [git-lfs](https://git-lfs.github.com/) for test data storage. You need to install it and init in the repo:
+Clone the repository:
 ```shell
 git clone git@github.com:k4black/fast-aug.git
 cd fast-aug
-git lfs install
-git lfs pull
 ```
 
 For rust library development:
