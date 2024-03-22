@@ -6,8 +6,18 @@ updates:
     schedule:
       interval: "weekly"
 
+  # rust
+  - package-ecosystem: "cargo"
+    directory: "/fast_aug"
+    schedule:
+      interval: "weekly"
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-patch"]
+
+  # python
   - package-ecosystem: "pip"
-    directory: "/"
+    directory: "/bindings/python"
     schedule:
       interval: "weekly"
     ignore:
@@ -15,7 +25,7 @@ updates:
         update-types: ["version-update:semver-patch"]
 
   - package-ecosystem: "cargo"
-    directory: "/"
+    directory: "/bindings/python"
     schedule:
       interval: "weekly"
     ignore:
