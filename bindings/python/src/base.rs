@@ -4,7 +4,7 @@ use fast_aug_rust::text::Doc;
 use fast_aug_rust::BaseAugmenter;
 use pyo3::exceptions::PyNotImplementedError;
 use pyo3::prelude::*;
-use pyo3::types::PyAny;
+use pyo3::types::{PyAny, PyList};
 
 use rand::rngs::SmallRng;
 
@@ -36,7 +36,7 @@ impl PyBaseAugmenter {
     /// :param data: Data to augment - single data point
     /// :returns: Augmented data
     #[pyo3(text_signature = "(self, data: Any)")]
-    pub fn augment(&mut self, py: Python, data: &PyAny) -> PyResult<PyObject> {
+    pub fn augment(&mut self, py: Python, data: &Bound<'_, PyAny>) -> PyResult<PyObject> {
         // Match inner Rust object and extract respective data type
         match &self.inner {
             // String input
@@ -54,7 +54,7 @@ impl PyBaseAugmenter {
     /// :param data: Data to augment - vector of data points
     /// :returns: Augmented data
     #[pyo3(text_signature = "(self, data: list[Any])")]
-    pub fn augment_batch(&mut self, py: Python, data: Vec<&PyAny>) -> PyResult<PyObject> {
+    pub fn augment_batch(&mut self, py: Python, data: &Bound<'_, PyList>) -> PyResult<PyObject> {
         // Match inner Rust object and extract respective data type
         match &self.inner {
             // String input
@@ -74,7 +74,7 @@ impl PyBaseAugmenter {
 
 /// Base Classes Module
 #[pymodule]
-pub fn base(_py: Python, m: &PyModule) -> PyResult<()> {
+pub fn base(_py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<PyBaseAugmenter>()?;
     Ok(())
 }

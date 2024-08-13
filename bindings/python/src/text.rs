@@ -12,6 +12,7 @@ use std::sync::Arc;
 use crate::base::{AugmenterTypes, PyBaseAugmenter};
 use fast_aug_rust::models::text::AlphabetModel;
 use pyo3::exceptions::{PyNotImplementedError, PyValueError};
+use pyo3::types::{PyAny, PyList};
 use pyo3::prelude::*;
 use rand::rngs::SmallRng;
 use rand::SeedableRng;
@@ -51,7 +52,7 @@ impl PyBaseTextAugmenter {
     /// :param data: A String to augment
     /// :returns: Augmented data
     #[pyo3(text_signature = "(self, data: str)")]
-    pub fn augment(mut self_: PyRefMut<'_, Self>, py: Python, data: &PyAny) -> PyResult<PyObject> {
+    pub fn augment(mut self_: PyRefMut<'_, Self>, py: Python, data: &Bound<'_, PyAny>) -> PyResult<PyObject> {
         // Get base class
         let super_base = self_.as_mut();
         // Call base class method
@@ -62,7 +63,7 @@ impl PyBaseTextAugmenter {
     /// :param data: Vector of strings to augment
     /// :returns: Augmented data
     #[pyo3(text_signature = "(self, data: list[str])")]
-    pub fn augment_batch(mut self_: PyRefMut<'_, Self>, py: Python, data: Vec<&PyAny>) -> PyResult<PyObject> {
+    pub fn augment_batch(mut self_: PyRefMut<'_, Self>, py: Python, data: &Bound<'_, PyList>) -> PyResult<PyObject> {
         // Get base class
         let super_base = self_.as_mut();
         // Call base class method
@@ -410,7 +411,7 @@ impl PyWordsRandomDeleteAugmenter {
 
 /// Text Augmentation Module
 #[pymodule]
-pub fn text(_py: Python, m: &PyModule) -> PyResult<()> {
+pub fn text(_py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<PyBaseTextAugmenter>()?;
     m.add_class::<PyCharsRandomInsertAugmenter>()?;
     m.add_class::<PyCharsRandomSubstituteAugmenter>()?;

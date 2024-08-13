@@ -2,6 +2,7 @@
 Adapted from huggingface/tokenizers library:
 https://github.com/huggingface/tokenizers/blob/main/bindings/python/stub.py
 """
+
 from __future__ import annotations
 
 import argparse
@@ -176,7 +177,6 @@ def do_black(content: str, is_pyi: bool) -> str:
         line_length=120,
         is_pyi=is_pyi,
         string_normalization=True,
-        experimental_string_processing=False,
     )
     try:
         return black.format_file_contents(content, fast=True, mode=mode)

@@ -1,5 +1,5 @@
 [build-system]
-requires = ["maturin>=1.0,<2.0"]
+requires = ["maturin>=1.7,<2.0"]
 build-backend = "maturin"
 
 [tool.maturin]
@@ -62,13 +62,15 @@ python_files = "test_*.py bench_*.py"
 
 [tool.ruff]
 target-version = "py312"
+line-length = 120
+
+[tool.ruff.lint]
 # Enable the pycodestyle (`E`) and Pyflakes (`F`) rules by default.
 # Unlike Flake8, Ruff doesn't enable pycodestyle warnings (`W`) or
 # McCabe complexity (`C901`) by default.
 extend-select = ["E", "F", "Q", "RUF100", "C90", "I"]
-ignore = []
 isort = { known-first-party = ['fast_aug', 'tests', 'common'] }
-line-length = 120
+ignore = []
 
 [tool.isort]
 profile = "black"

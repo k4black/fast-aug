@@ -58,7 +58,7 @@ pub struct PySelectorAugmenter;
 impl PySelectorAugmenter {
     #[new]
     #[pyo3(text_signature = "(self, augmenters: list[BaseAugmenter], weights: list[float] | None = None)")]
-    fn py_new(augmenters: &PyList, weights: Option<Vec<f32>>) -> PyResult<PyClassInitializer<Self>> {
+    fn py_new(augmenters: &Bound<'_, PyList>, weights: Option<Vec<f32>>) -> PyResult<PyClassInitializer<Self>> {
         let rng = SmallRng::from_entropy();
 
         // Process parameters
@@ -114,7 +114,7 @@ pub struct PySequentialAugmenter;
 impl PySequentialAugmenter {
     #[new]
     #[pyo3(text_signature = "(self, augmenters: list[BaseAugmenter])")]
-    fn py_new(augmenters: &PyList) -> PyResult<PyClassInitializer<Self>> {
+    fn py_new(augmenters: &Bound<'_, PyList>) -> PyResult<PyClassInitializer<Self>> {
         let rng = SmallRng::from_entropy();
 
         // Process parameters
@@ -156,7 +156,7 @@ impl PySequentialAugmenter {
 
 /// Flow Module - Pipelines, Random Selection, etc.
 #[pymodule]
-pub fn flow(_py: Python, m: &PyModule) -> PyResult<()> {
+pub fn flow(_py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<PyChanceAugmenter>()?;
     m.add_class::<PySelectorAugmenter>()?;
     m.add_class::<PySequentialAugmenter>()?;
