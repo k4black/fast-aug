@@ -57,7 +57,10 @@ pub struct PySelectorAugmenter;
 #[pymethods]
 impl PySelectorAugmenter {
     #[new]
-    #[pyo3(text_signature = "(self, augmenters: list[BaseAugmenter], weights: list[float] | None = None)")]
+    #[pyo3(
+        signature = (augmenters, weights=None),
+        text_signature = "(self, augmenters: list[BaseAugmenter], weights: list[float] | None = None)"
+    )]
     fn py_new(augmenters: &Bound<'_, PyList>, weights: Option<Vec<f32>>) -> PyResult<PyClassInitializer<Self>> {
         let rng = SmallRng::from_entropy();
 

@@ -87,6 +87,7 @@ pub struct PyCharsRandomInsertAugmenter;
 impl PyCharsRandomInsertAugmenter {
     #[new]
     #[pyo3(
+        signature = (word_params, char_params, locale, stopwords=None),
         text_signature = "(self, word_params: float | tuple[float, int | None, int | None], char_params: float | tuple[float, int | None, int | None], locale: str, stopwords: set[str] | None = None)"
     )]
     fn py_new(
@@ -135,6 +136,7 @@ pub struct PyCharsRandomSubstituteAugmenter;
 impl PyCharsRandomSubstituteAugmenter {
     #[new]
     #[pyo3(
+        signature = (word_params, char_params, locale, stopwords=None),
         text_signature = "(self, word_params: float | tuple[float, int | None, int | None], char_params: float | tuple[float, int | None, int | None], locale: str, stopwords: set[str] | None = None)"
     )]
     fn py_new(
@@ -182,6 +184,7 @@ pub struct PyCharsRandomSwapAugmenter;
 impl PyCharsRandomSwapAugmenter {
     #[new]
     #[pyo3(
+        signature = (word_params, char_params, stopwords=None),
         text_signature = "(self, word_params: float | tuple[float, int | None, int | None], char_params: float | tuple[float, int | None, int | None], stopwords: set[str] | None = None)"
     )]
     fn py_new(
@@ -223,6 +226,7 @@ pub struct PyCharsRandomDeleteAugmenter;
 impl PyCharsRandomDeleteAugmenter {
     #[new]
     #[pyo3(
+        signature = (word_params, char_params, stopwords=None),
         text_signature = "(self, word_params: float | tuple[float, int | None, int | None], char_params: float | tuple[float, int | None, int | None], stopwords: set[str] | None = None)"
     )]
     fn py_new(
@@ -263,6 +267,7 @@ pub struct PyWordsRandomInsertAugmenter;
 impl PyWordsRandomInsertAugmenter {
     #[new]
     #[pyo3(
+        signature = (word_params, vocabulary, stopwords=None),
         text_signature = "(self, word_params: float | tuple[float, int | None, int | None], vocabulary: list[str], stopwords: set[str] | None = None)"
     )]
     fn py_new(
@@ -308,6 +313,7 @@ pub struct PyWordsRandomSubstituteAugmenter;
 impl PyWordsRandomSubstituteAugmenter {
     #[new]
     #[pyo3(
+        signature = (word_params, vocabulary, stopwords=None),
         text_signature = "(self, word_params: float | tuple[float, int | None, int | None], vocabulary: list[str], stopwords: set[str] | None = None)"
     )]
     fn py_new(
@@ -352,6 +358,7 @@ pub struct PyWordsRandomSwapAugmenter;
 impl PyWordsRandomSwapAugmenter {
     #[new]
     #[pyo3(
+        signature = (word_params, stopwords=None),
         text_signature = "(self, word_params: float | tuple[float, int | None, int | None], stopwords: set[str] | None = None)"
     )]
     fn py_new(
@@ -387,6 +394,7 @@ pub struct PyWordsRandomDeleteAugmenter;
 impl PyWordsRandomDeleteAugmenter {
     #[new]
     #[pyo3(
+        signature = (word_params, stopwords=None),
         text_signature = "(self, word_params: float | tuple[float, int | None, int | None], stopwords: set[str] | None = None)"
     )]
     fn py_new(

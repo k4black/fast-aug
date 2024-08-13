@@ -8,7 +8,6 @@ mod base;
 mod flow;
 mod models;
 mod text;
-mod utils;
 
 /// Main fast_aug Module
 #[pymodule]
