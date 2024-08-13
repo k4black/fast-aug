@@ -12,8 +12,8 @@ use std::sync::Arc;
 use crate::base::{AugmenterTypes, PyBaseAugmenter};
 use fast_aug_rust::models::text::AlphabetModel;
 use pyo3::exceptions::{PyNotImplementedError, PyValueError};
-use pyo3::types::{PyAny, PyList};
 use pyo3::prelude::*;
+use pyo3::types::{PyAny, PyList};
 use rand::rngs::SmallRng;
 use rand::SeedableRng;
 
