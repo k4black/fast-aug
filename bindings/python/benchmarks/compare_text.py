@@ -90,7 +90,12 @@ def monitor_process(pid: int | None, time_limit: int = 30) -> int | None:
 
 
 def measure_function_time_repeat(
-    name: str, method_name: str, repeat: int, function: Callable, args: Any, kwargs: Any  # type: ignore
+    name: str,
+    method_name: str,
+    repeat: int,
+    function: Callable,
+    args: Any,
+    kwargs: Any,  # type: ignore
 ) -> pd.DataFrame:
     results: list[dict[str, Any]] = []
 

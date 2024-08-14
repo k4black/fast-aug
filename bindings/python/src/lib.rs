@@ -8,11 +8,10 @@ mod base;
 mod flow;
 mod models;
 mod text;
-mod utils;
 
 /// Main fast_aug Module
 #[pymodule]
-fn fast_aug(_py: Python, m: &PyModule) -> PyResult<()> {
+fn fast_aug(_py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_wrapped(wrap_pymodule!(base::base))?;
     m.add_wrapped(wrap_pymodule!(flow::flow))?;
     m.add_wrapped(wrap_pymodule!(models::models))?;

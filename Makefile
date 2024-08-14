@@ -77,6 +77,7 @@ format-python: build-python  ## Format python code
 	@echo "Formatting python code..."
 	cd $(PYTHON_SRC_DIRECTORY) && cargo fmt
 	cd $(PYTHON_SRC_DIRECTORY) && $(PYTHON_INTERPRETER) -m isort .
+	cd $(PYTHON_SRC_DIRECTORY) && $(PYTHON_INTERPRETER) -m ruff format
 	cd $(PYTHON_SRC_DIRECTORY) && $(PYTHON_INTERPRETER) -m black .
 
 
@@ -142,3 +143,4 @@ clean:  ## Clean all targets
 	@echo "Cleaning..."
 	cd $(RUST_SRC_DIRECTORY) && cargo clean
 	cd $(PYTHON_SRC_DIRECTORY) && cargo clean && rm -rf dist
+	cd $(PYTHON_SRC_DIRECTORY) && $(PYTHON_INTERPRETER) -m pip uninstall -y fast-aug

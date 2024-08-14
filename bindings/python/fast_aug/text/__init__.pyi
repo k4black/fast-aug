@@ -10,6 +10,7 @@ class BaseTextAugmenter(BaseAugmenter):
 
     def __init__(self) -> None:
         pass
+
     def augment(self, data: str):
         """
         Augment the data
@@ -17,6 +18,7 @@ class BaseTextAugmenter(BaseAugmenter):
         :returns: Augmented data
         """
         pass
+
     def augment_batch(self, data: list[str]):
         """
         Augment data given a batch of data
@@ -43,6 +45,7 @@ class CharsRandomDeleteAugmenter(BaseTextAugmenter):
         stopwords: set[str] | None = None,
     ) -> None:
         pass
+
     def augment(self, data: str):
         """
         Augment the data
@@ -50,6 +53,7 @@ class CharsRandomDeleteAugmenter(BaseTextAugmenter):
         :returns: Augmented data
         """
         pass
+
     def augment_batch(self, data: list[str]):
         """
         Augment data given a batch of data
@@ -78,6 +82,7 @@ class CharsRandomInsertAugmenter(BaseTextAugmenter):
         stopwords: set[str] | None = None,
     ) -> None:
         pass
+
     def augment(self, data: str):
         """
         Augment the data
@@ -85,6 +90,7 @@ class CharsRandomInsertAugmenter(BaseTextAugmenter):
         :returns: Augmented data
         """
         pass
+
     def augment_batch(self, data: list[str]):
         """
         Augment data given a batch of data
@@ -113,6 +119,7 @@ class CharsRandomSubstituteAugmenter(BaseTextAugmenter):
         stopwords: set[str] | None = None,
     ) -> None:
         pass
+
     def augment(self, data: str):
         """
         Augment the data
@@ -120,6 +127,7 @@ class CharsRandomSubstituteAugmenter(BaseTextAugmenter):
         :returns: Augmented data
         """
         pass
+
     def augment_batch(self, data: list[str]):
         """
         Augment data given a batch of data
@@ -146,6 +154,7 @@ class CharsRandomSwapAugmenter(BaseTextAugmenter):
         stopwords: set[str] | None = None,
     ) -> None:
         pass
+
     def augment(self, data: str):
         """
         Augment the data
@@ -153,6 +162,7 @@ class CharsRandomSwapAugmenter(BaseTextAugmenter):
         :returns: Augmented data
         """
         pass
+
     def augment_batch(self, data: list[str]):
         """
         Augment data given a batch of data
@@ -174,6 +184,7 @@ class WordsRandomDeleteAugmenter(BaseTextAugmenter):
         self, word_params: float | tuple[float, int | None, int | None], stopwords: set[str] | None = None
     ) -> None:
         pass
+
     def augment(self, data: str):
         """
         Augment the data
@@ -181,6 +192,7 @@ class WordsRandomDeleteAugmenter(BaseTextAugmenter):
         :returns: Augmented data
         """
         pass
+
     def augment_batch(self, data: list[str]):
         """
         Augment data given a batch of data
@@ -206,6 +218,7 @@ class WordsRandomInsertAugmenter(BaseTextAugmenter):
         stopwords: set[str] | None = None,
     ) -> None:
         pass
+
     def augment(self, data: str):
         """
         Augment the data
@@ -213,6 +226,7 @@ class WordsRandomInsertAugmenter(BaseTextAugmenter):
         :returns: Augmented data
         """
         pass
+
     def augment_batch(self, data: list[str]):
         """
         Augment data given a batch of data
@@ -238,6 +252,7 @@ class WordsRandomSubstituteAugmenter(BaseTextAugmenter):
         stopwords: set[str] | None = None,
     ) -> None:
         pass
+
     def augment(self, data: str):
         """
         Augment the data
@@ -245,6 +260,7 @@ class WordsRandomSubstituteAugmenter(BaseTextAugmenter):
         :returns: Augmented data
         """
         pass
+
     def augment_batch(self, data: list[str]):
         """
         Augment data given a batch of data
@@ -266,6 +282,7 @@ class WordsRandomSwapAugmenter(BaseTextAugmenter):
         self, word_params: float | tuple[float, int | None, int | None], stopwords: set[str] | None = None
     ) -> None:
         pass
+
     def augment(self, data: str):
         """
         Augment the data
@@ -273,6 +290,7 @@ class WordsRandomSwapAugmenter(BaseTextAugmenter):
         :returns: Augmented data
         """
         pass
+
     def augment_batch(self, data: list[str]):
         """
         Augment data given a batch of data

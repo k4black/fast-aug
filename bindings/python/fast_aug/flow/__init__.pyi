@@ -14,6 +14,7 @@ class ChanceAugmenter(BaseAugmenter):
 
     def __init__(self, augmenter: BaseAugmenter, probability: float) -> None:
         pass
+
     def augment(self, data: Any):
         """
         Augment data
@@ -21,6 +22,7 @@ class ChanceAugmenter(BaseAugmenter):
         :returns: Augmented data
         """
         pass
+
     def augment_batch(self, data: list[Any]):
         """
         Augment data given a batch of data
@@ -38,6 +40,7 @@ class SelectorAugmenter(BaseAugmenter):
 
     def __init__(self, augmenters: list[BaseAugmenter], weights: list[float] | None = None) -> None:
         pass
+
     def augment(self, data: Any):
         """
         Augment data
@@ -45,6 +48,7 @@ class SelectorAugmenter(BaseAugmenter):
         :returns: Augmented data
         """
         pass
+
     def augment_batch(self, data: list[Any]):
         """
         Augment data given a batch of data
@@ -61,6 +65,7 @@ class SequentialAugmenter(BaseAugmenter):
 
     def __init__(self, augmenters: list[BaseAugmenter]) -> None:
         pass
+
     def augment(self, data: Any):
         """
         Augment data
@@ -68,6 +73,7 @@ class SequentialAugmenter(BaseAugmenter):
         :returns: Augmented data
         """
         pass
+
     def augment_batch(self, data: list[Any]):
         """
         Augment data given a batch of data

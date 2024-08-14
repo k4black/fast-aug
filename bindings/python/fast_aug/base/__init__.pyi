@@ -10,6 +10,7 @@ class BaseAugmenter:
 
     def __init__(self) -> None:
         pass
+
     def augment(self, data: Any):
         """
         Augment data
@@ -17,6 +18,7 @@ class BaseAugmenter:
         :returns: Augmented data
         """
         pass
+
     def augment_batch(self, data: list[Any]):
         """
         Augment data given a batch of data

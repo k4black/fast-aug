@@ -49,14 +49,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ ubuntu-latest, macos-latest, macos-14, windows-latest ]  # at the moment macos-14 is exclusive M1 chip
+        os: [ ubuntu-latest, macos-13, macos-latest, windows-latest ]  # at the moment macos-latest is exclusive M1 chip
         python-version: ['3.8', '3.9', '3.10', '3.11', '3.12']
-        # macos-14 not supporting 3.8 and 3.9
-        exclude:
-          - python-version: 3.8
-            os: macos-14
-          - python-version: 3.9
-            os: macos-14
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
@@ -70,8 +64,8 @@ jobs:
           key: ${{ runner.os }}-rust-${{ hashFiles('**/Cargo.toml') }}
       - uses: actions/download-artifact@v4
         with:
-          # for macos-14 get macos-latest artifacts
-          pattern: wheels-${{ matrix.os == 'macos-14' && 'macos-latest' || matrix.os }}-*
+          # for macos-13 get macos-latest artifacts
+          pattern: wheels-${{ matrix.os == 'macos-13' && 'macos-latest' || matrix.os }}-*
           merge-multiple: true
           path: dist
       - name: Show dist files
