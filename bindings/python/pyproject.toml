@@ -25,23 +25,24 @@ dynamic = [
     'readme',
     'version'
 ]
-#dependencies = []
+dependencies = []
 
 [project.urls]
 Homepage = "https://github.com/k4black/fast-aug"
 
 [project.optional-dependencies]
 test = [
-    "pytest >=6.0.0,<9.0.0",
+    "pytest >=8.0.0,<9.0.0",
     "black ==24.8.0",
     "mypy >=1.0.0",
     "ruff ==0.5.1",
-    "isort >=5.0.0,<6.0.0",
-    "maturin >=1.0,<2.0",
+    "isort ==5.13.2",
+    "maturin >=1.7,<2.0",
     "pytest-benchmark[histogram] >=4.0.0,<5.0.0",
+    "pytest-examples ==0.0.13",
 ]
 compare = [
-    "pytest >=6.0.0,<9.0.0",
+    "pytest >=8.0.0,<9.0.0",
     "pytest-benchmark[histogram] >=4.0.0,<5.0.0",
     "pandas >=2.0.0,<3.0.0",
     "Pyarrow >=16.1.0,<18.0.0",  # for pandas
@@ -56,7 +57,7 @@ compare = [
 
 
 [tool.pytest.ini_options]
-minversion = "6.0"
+minversion = "8.0"
 testpaths = "tests"
 python_files = "test_*.py bench_*.py"
 
@@ -69,12 +70,13 @@ line-length = 120
 # Unlike Flake8, Ruff doesn't enable pycodestyle warnings (`W`) or
 # McCabe complexity (`C901`) by default.
 extend-select = ["E", "F", "Q", "RUF100", "C90", "I"]
-isort = { known-first-party = ['fast_aug', 'tests', 'common'] }
+isort = {known-first-party = ['fast_aug', 'tests', 'common'], lines-after-imports = 2}
 ignore = []
 
 [tool.isort]
 profile = "black"
 known_first_party = ["fast_aug", "tests", "common"]
+lines_after_imports = 2
 line_length = 120
 
 [tool.black]
@@ -95,7 +97,7 @@ warn_unreachable = true
 allow_untyped_decorators = true
 exclude = [
     "fast_aug/",  # enable when return type annotation will be added
-    "tests/",
+    # "tests/",
     ".tmp/",
     ".venv/"
 ]

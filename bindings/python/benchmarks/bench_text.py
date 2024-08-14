@@ -3,6 +3,7 @@ from pytest_benchmark.fixture import BenchmarkFixture
 import fast_aug
 from common import bench_text_augmenter
 
+
 WORDS = ["hello", "world", "goodbye", "cruel", "world", "i", "love", "you"]
 
 

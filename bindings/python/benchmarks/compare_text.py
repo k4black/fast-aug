@@ -17,6 +17,7 @@ from tqdm import tqdm
 
 from common import get_text_data
 
+
 warnings.filterwarnings("ignore", category=FutureWarning, module="seaborn.*")
 
 

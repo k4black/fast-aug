@@ -24,7 +24,7 @@ pip install fast-aug
 ## Usage
 
 ```python
-from fast_aug import CharsRandomSwapAugmenter
+from fast_aug.text import CharsRandomSwapAugmenter
 
 text_data = "Some text!"
 augmenter = CharsRandomSwapAugmenter(
@@ -33,7 +33,7 @@ augmenter = CharsRandomSwapAugmenter(
     None,  # stopwords
 )
 assert augmenter.augment(text_data) != text_data
-assert augmenter.augment([text_data]) != [text_data]
+assert augmenter.augment_batch([text_data]) != [text_data]
 ```
 
 TBA

@@ -1,6 +1,7 @@
 # Generated content DO NOT EDIT
 from .. import text
 
+
 BaseTextAugmenter = text.BaseTextAugmenter
 CharsRandomDeleteAugmenter = text.CharsRandomDeleteAugmenter
 CharsRandomInsertAugmenter = text.CharsRandomInsertAugmenter

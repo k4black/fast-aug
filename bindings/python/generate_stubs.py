@@ -17,6 +17,7 @@ import black
 import isort
 import isort.exceptions
 
+
 INDENT = " " * 4
 GENERATED_COMMENT_LINE = "# Generated content DO NOT EDIT\n"
 PYTHON_SOURCE_FOLDER = Path(__file__).parent / "fast_aug"
@@ -166,7 +167,10 @@ def py_file(module: ModuleType, origin: str) -> str:
 
 def do_isort(content: str) -> str:
     try:
-        return isort.code(content, config=isort.Config(profile="black", line_length=120))
+        return isort.code(
+            content,
+            config=isort.Config(profile="black", line_length=120, lines_after_imports=2),
+        )
     except isort.exceptions.FileSkipComment:
         return content
 
