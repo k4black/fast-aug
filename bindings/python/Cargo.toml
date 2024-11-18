@@ -21,7 +21,7 @@ crate-type = ["cdylib"]  # downstream rust code, forbidden to "use fast-aug-pyth
 
 
 [dependencies]
-pyo3 = { version = "0.22", features = ["extension-module"] }
+pyo3 = { version = "0.23", features = ["extension-module"] }
 fast_aug = { path = "../../fast_aug" }
 rand = { version = "0.8", features = [] }
 
