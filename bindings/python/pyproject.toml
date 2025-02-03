@@ -36,7 +36,7 @@ test = [
     "black ==24.10.0",
     "mypy >=1.0.0",
     "ruff ==0.9.3",
-    "isort ==5.13.2",
+    "isort ==6.0.0",
     "maturin >=1.7,<2.0",
     "pytest-benchmark[histogram] >=4.0.0,<6.0.0",
     "pytest-examples ==0.0.13",
