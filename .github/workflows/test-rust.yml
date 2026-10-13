@@ -20,7 +20,7 @@ jobs:
   lint-rust:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Install rust stable
         uses: dtolnay/rust-toolchain@stable
       - name: Cache rust
@@ -38,7 +38,7 @@ jobs:
         debug: [true, false]  # test with a debug build as it picks up errors which optimised release builds do not
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           lfs: false
       - name: Install rust stable
@@ -59,7 +59,7 @@ jobs:
   test-profile-rust:
     runs-on: macos-latest  # not working on linux, kernel virtualization blocked
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           lfs: false
       - name: Install rust stable
