@@ -62,7 +62,7 @@ jobs:
         uses: Swatinem/rust-cache@v2
         with:
           key: ${{ runner.os }}-rust-${{ hashFiles('**/Cargo.toml') }}
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           # for macos-13 get macos-latest artifacts
           pattern: wheels-${{ matrix.os == 'macos-13' && 'macos-latest' || matrix.os }}-*
