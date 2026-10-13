@@ -38,7 +38,7 @@ jobs:
           cache: 'pip'
       - name: Set up QEMU
         if: ${{ matrix.os == 'ubuntu-latest' }}
-        uses: docker/setup-qemu-action@v3
+        uses: docker/setup-qemu-action@v4
         with:
           platforms: all
       - name: Build wheels for python ${{ matrix.interpreters }}
