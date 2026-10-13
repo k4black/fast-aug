@@ -110,7 +110,7 @@ jobs:
       - name: Run profiling in release mode
         run: sudo make profile-python PYTHON_INTERPRETER=python
       - name: Upload profiling results
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: python-profiling-results
           path: |
